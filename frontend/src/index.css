@@ -1,0 +1,2855 @@
+* {
+  font-family: sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+
+
+/* LOADER */
+
+/* Contenedor que cubre toda la pantalla */
+.loader-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background-color: #000000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  pointer-events: none;
+  /* Importante para que no bloquee clicks cuando es invisible */
+
+  /* --- ESTADO DE SALIDA (Cuando se va el loader) --- */
+  opacity: 0;
+  visibility: hidden;
+
+  /* Aquí definimos que la SALIDA sea lenta (Fade Out) */
+  transition: opacity 0.5s ease-out, visibility 0.5s ease-out;
+}
+
+.loader-container.show {
+  opacity: 1;
+  visibility: visible;
+  /* Reactiva los clicks para que cubra la pantalla */
+  pointer-events: auto;
+  transition: none;
+}
+
+/* El círculo giratorio */
+.spinner {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+
+  /* El borde "base" (gris transparente o del color que prefieras para el fondo del anillo) */
+  border: 5px solid rgba(255, 255, 255, 0.1);
+  border-top-color: #FF5722;
+  animation: spin 1s linear infinite;
+}
+
+/* Animación de rotación */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/*NAVBAR*/
+
+/* --- BOTÓN HAMBURGUESA --- */
+.hamburger-btn {
+  position: fixed;
+  top: 15px;
+  right: 20px;
+  /* CAMBIO: Ahora está a la derecha */
+  z-index: 900;
+  background: #333;
+  color: white;
+  border: none;
+  font-size: 24px;
+  padding: 10px 15px;
+  cursor: pointer;
+  border-radius: 5px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.hamburger-btn:hover {
+  background: #555;
+}
+
+/* --- OVERLAY (Fondo negro) --- */
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 998;
+
+  /* Estado inicial: invisible */
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.3s ease-in-out;
+}
+
+.overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* --- SIDEBAR (El menú lateral) --- */
+.sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  /* CAMBIO: Pegado al borde DERECHO */
+  left: auto;
+  /* Aseguramos que no se pegue a la izquierda */
+
+  width: 250px;
+  height: 100vh;
+  background-color: #1a1a1a;
+  color: white;
+  z-index: 999;
+  padding-top: 20px;
+  box-shadow: -2px 0 5px rgba(0, 0, 0, 0.5);
+  /* Sombra hacia la izquierda */
+
+  /* CAMBIO EN LA ANIMACIÓN */
+  /* 100% positivo significa que se esconde hacia la DERECHA */
+  transform: translateX(100%);
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Clase para mostrar el menú */
+.sidebar.open {
+  transform: translateX(0);
+  /* Vuelve a su sitio (visible) */
+}
+
+/* --- ELEMENTOS INTERNOS --- */
+.close-btn {
+  position: absolute;
+  top: 10px;
+  left: 15px;
+  /* CAMBIO: Queda mejor la X a la izquierda si el menú está a la derecha */
+  background: transparent;
+  border: none;
+  color: white;
+  font-size: 30px;
+  cursor: pointer;
+}
+
+.sidebar-header {
+  text-align: center;
+  margin-bottom: 30px;
+  border-bottom: 1px solid #444;
+  padding-bottom: 10px;
+  margin-top: 10px;
+}
+
+.navbarList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.navbarLink {
+  display: block;
+  padding: 15px 20px;
+  color: #ccc;
+  text-decoration: none;
+  font-size: 16px;
+  transition: background 0.2s, color 0.2s;
+  text-align: left;
+  /* Alineación del texto */
+}
+
+.navbarLink:hover {
+  background-color: #333;
+  color: #fff;
+  border-right: 4px solid #007bff;
+  /* Borde a la derecha */
+  border-left: none;
+}
+
+.navbarLink.active {
+  background-color: #222;
+  color: white;
+  font-weight: bold;
+  border-right: 4px solid #00d4ff;
+  /* Borde a la derecha */
+  border-left: none;
+}
+
+.logout-item {
+  margin-top: 20px;
+  border-top: 1px solid #444;
+}
+
+.logout-item .navbarLink:hover {
+  background-color: #4a1a1a;
+  border-right-color: red;
+}
+
+
+
+/*Formulario de autenticacion*/
+/* --- FONDO GENERAL --- */
+
+#loginContainer {
+  background-image: url("../src/assets/fondos/fondo-login.png");
+  background-position: center;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+
+.register-login-page {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #121212;
+  /* Fondo muy oscuro */
+  background-image: radial-gradient(circle at -100% 20%, rgba(0, 212, 255, 0.1) 0%, transparent 20%);
+  padding: 0px 20px;
+}
+
+/* --- TARJETA DEL FORMULARIO --- */
+.formAuthContainer {
+  background: #1e1e1e;
+  /* Gris oscuro para la tarjeta */
+  padding: 2.5rem;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+  /* Sombra profunda */
+  width: 100%;
+  max-width: 400px;
+  border: 1px solid #333;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+/* --- TÍTULO --- */
+.titleAuth {
+  color: #ffffff;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 1.8rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.titleAuth span {
+  color: #FF4500;
+  /* Acento celeste */
+}
+
+/* --- INPUTS --- */
+.formAuth {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.inputFormAuth {
+  background-color: #2a2a2a;
+  border: 1px solid #3a3a3a;
+  color: #fff;
+  padding: 12px 15px;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: all 0.3s ease;
+}
+
+.inputFormAuth::placeholder {
+  color: #888;
+}
+
+/* Efecto al hacer click en el input */
+.inputFormAuth:focus {
+  border-color: #FF4500;
+  background-color: #222;
+  box-shadow: 0 0 8px rgba(0, 212, 255, 0.3);
+  /* Resplandor celeste */
+}
+
+/* Quitar las flechas del input number */
+.inputFormAuth[type=number]::-webkit-inner-spin-button,
+.inputFormAuth[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* --- BOTÓN --- */
+.buttonFormAuth {
+  margin-top: 10px;
+  background: linear-gradient(135deg, #FF4500 80%, #00D2BE 50%);
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.buttonFormAuth:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 212, 255, 0.4);
+}
+
+.buttonFormAuth:active {
+  transform: translateY(0);
+}
+
+/* --- MENSAJES DE ERROR --- */
+.errorMsgForm {
+  display: none;
+}
+
+.errorMsgForm-active {
+  color: #ff4d4d;
+  background: rgba(255, 77, 77, 0.1);
+  padding: 10px;
+  border-radius: 5px;
+  text-align: center;
+  font-size: 0.9rem;
+  border: 1px solid rgba(255, 77, 77, 0.2);
+  margin-top: 10px;
+  animation: shake 0.3s ease-in-out;
+}
+
+/* --- ANIMACIONES --- */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shake {
+
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+
+  25% {
+    transform: translateX(-5px);
+  }
+
+  75% {
+    transform: translateX(5px);
+  }
+}
+
+/*DASHBOARD*/
+
+
+
+/* --- CONTENEDOR PRINCIPAL --- */
+.dashboard-container {
+
+  padding: 100px 2rem 2rem 2rem;
+
+  background-color: #121212;
+  min-height: 100vh;
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+
+  /* Esto asegura que el padding no agrande el ancho total */
+  box-sizing: border-box;
+}
+
+/* --- HEADER (Saludo - Logo - Clima) --- */
+.dash-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #333;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.avatar-circle {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, #FF4500, #ff8c00);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: 800;
+  font-size: 1.5rem;
+  color: white;
+  box-shadow: 0 0 15px rgba(255, 69, 0, 0.4);
+}
+
+.user-welcome h1 {
+  font-size: 2.5rem;
+  margin: 0;
+  line-height: 1.1;
+  color: #00D2BE;
+}
+
+.user-welcome span {
+  font-size: 1.0rem;
+  color: #cacaca;
+  display: block;
+}
+
+.header-center .app-logo {
+  width: 300px;
+  /* Ajustá según tu logo */
+  opacity: 0.9;
+}
+
+.edit-race-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: 0.3s;
+}
+
+.edit-race-btn:hover {
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.race-input {
+  width: 100%;
+  margin-bottom: 5px;
+  padding: 5px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  background: rgba(255, 255, 255, 0.9);
+  color: #333;
+}
+
+.race-actions {
+  display: flex;
+  gap: 5px;
+  margin-top: 5px;
+}
+
+.save-btn {
+  background: #4caf50;
+  /* Verde */
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.cancel-btn {
+  background: #f44336;
+  /* Rojo */
+  color: white;
+  border: none;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+
+/* Ajuste especial para el Widget de Clima si va en el header */
+.header-right .weather-card {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 5px 15px;
+  flex-direction: row;
+  gap: 10px;
+  min-width: auto;
+}
+
+/* Ocultamos detalles extra en el header para que entre bien */
+.header-right .weather-detail {
+  display: none;
+}
+
+.header-right .weather-icon {
+  font-size: 1.5rem;
+  position: static;
+}
+
+.header-right .temp {
+  font-size: 1.2rem;
+}
+
+/* --- BARRA DE PROGRESO SEMANAL --- */
+.progress-section {
+  margin-bottom: 2rem;
+  background: #1E1E1E;
+  padding: 1.5rem;
+  border-radius: 16px;
+  border: 1px solid #333;
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.5rem;
+  font-weight: 700;
+  color: #aaa;
+}
+
+.progress-bar-bg {
+  width: 100%;
+  height: 12px;
+  background-color: #333;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #FF4500 0%, #00D2BE 100%);
+  transition: width 0.8s ease-out;
+  border-radius: 6px;
+}
+
+/* --- LAYOUT DE WIDGETS (Fila Countdown + Zapas) --- */
+.widgets-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  /* Dos columnas iguales */
+  gap: 20px;
+  margin: 40px 0px;
+}
+
+/* --- GRID DE TARJETAS DE ENTRENAMIENTO (Lunes, Martes...) --- */
+.section-title {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  border-left: 4px solid #00D2BE;
+  padding-left: 10px;
+}
+
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Estilos de la Card Individual */
+.training-card {
+  background: #1E1E1E;
+  border-radius: 16px;
+  padding: 1.5rem;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid #333;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.training-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+  border-color: #444;
+}
+
+/* Card Completada */
+.card-completed {
+  border-color: #00D2BE;
+  opacity: 0.6;
+}
+
+.card-completed .training-title {
+  text-decoration: line-through;
+  color: #777;
+
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.day-badge {
+  background: #333;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #00D2BE;
+}
+
+.training-title {
+  font-size: 1.2rem;
+  margin: 0 0 5px 0;
+  color: white;
+  text-transform: capitalize;
+  font-weight: bolder;
+}
+
+.training-type {
+  color: #FF4500;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 0;
+  text-transform: capitalize;
+}
+
+.divider {
+  height: 1px;
+  background: #333;
+  margin: 10px 0;
+}
+
+.training-desc {
+  font-size: 0.9rem;
+  color: #ccc;
+  line-height: 1.4;
+}
+
+.duration-text {
+  margin-top: 10px;
+  font-weight: bold;
+  color: #aaa;
+  font-size: 0.9rem;
+}
+
+/* CHECKBOX PERSONALIZADO */
+.checkbox-container {
+  position: relative;
+  cursor: pointer;
+  width: 24px;
+  height: 24px;
+}
+
+.checkbox-container input {
+  opacity: 0;
+  cursor: pointer;
+  height: 0;
+  width: 0;
+}
+
+.checkmark {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 24px;
+  width: 24px;
+  background-color: #333;
+  border-radius: 50%;
+  border: 2px solid #555;
+  transition: all 0.2s;
+}
+
+.checkbox-container input:checked~.checkmark {
+  background-color: #00D2BE;
+  border-color: #00D2BE;
+}
+
+.checkmark:after {
+  content: "";
+  position: absolute;
+  display: none;
+  left: 8px;
+  top: 4px;
+  width: 5px;
+  height: 10px;
+  border: solid white;
+  border-width: 0 3px 3px 0;
+  transform: rotate(45deg);
+}
+
+.checkbox-container input:checked~.checkmark:after {
+  display: block;
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 768px) {
+  .dash-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .header-center {
+    display: none;
+  }
+
+  /* Ocultamos logo en celu */
+  .header-right {
+    align-self: flex-end;
+    margin-top: -60px;
+  }
+
+  /* Clima al lado del avatar */
+  .widgets-row {
+    grid-template-columns: 1fr;
+  }
+
+  /* Widgets uno abajo del otro */
+}
+
+/*Widget dashboard*/
+
+/* --- ESTILOS BASE PARA WIDGETS --- */
+.widget-card,
+.weather-card {
+  background: #1E1E1E;
+  border-radius: 16px;
+  padding: 1.5rem;
+  position: relative;
+  border: 1px solid #333;
+  display: flex;
+  transition: transform 0.2s;
+  overflow: hidden;
+}
+
+.widget-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.widget-label {
+  font-size: 0.7rem;
+  color: #888;
+  letter-spacing: 2px;
+  font-weight: 700;
+  margin-bottom: 5px;
+  display: block;
+  text-transform: uppercase;
+}
+
+/* --- 1. COUNTDOWN (CUENTA REGRESIVA) --- */
+.countdown-card {
+  background: linear-gradient(135deg, #1E1E1E 60%, #252525 100%);
+  border-left: 5px solid #FF4500;
+  /* Borde Naranja */
+  justify-content: space-between;
+  align-items: center;
+}
+
+.widget-content {
+  flex: 1;
+}
+
+.race-name {
+  margin: 0;
+  font-size: 1.4rem;
+  color: white;
+  font-weight: 800;
+  text-transform: uppercase;
+  line-height: 1.1;
+}
+
+.race-date {
+  margin: 5px 0 0 0;
+  font-size: 0.85rem;
+  color: #aaa;
+}
+
+.countdown-box {
+  background: #000;
+  padding: 10px 15px;
+  border-radius: 12px;
+  text-align: center;
+  border: 1px solid #333;
+  min-width: 80px;
+  margin-left: 10px;
+}
+
+.count-number {
+  display: block;
+  font-size: 2rem;
+  line-height: 1;
+  font-weight: 900;
+  color: #FF4500;
+}
+
+.count-label {
+  font-size: 0.6rem;
+  color: #fff;
+  letter-spacing: 1px;
+}
+
+/* --- 2. SHOE TRACKER (ZAPATILLAS) --- */
+.shoe-card-widget {
+  background: #1E1E1E;
+  border-left: 5px solid #00D2BE;
+  /* Borde Teal */
+  align-items: center;
+  gap: 15px;
+}
+
+.shoe-icon-container-widget {
+  width: 50px;
+  height: 50px;
+  background: rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.8rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.shoe-info-widget {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.shoe-model-widget {
+  margin: 2px 0 8px 0;
+  font-size: 1rem;
+  color: white;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.shoe-progress-bg-widget {
+  width: 100%;
+  height: 6px;
+  background: #333;
+  border-radius: 3px;
+  margin-bottom: 6px;
+  overflow: hidden;
+}
+
+.shoe-progress-fill-widget {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 1s ease;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+}
+
+.shoe-stats-widget {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #e0e0e0;
+}
+
+/* ... Tus estilos anteriores ... */
+
+/* Wrapper para posicionar la flechita */
+.shoe-select-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin: 2px 0 8px 0;
+  width: 100%;
+}
+
+/* El SELECT disfrazado de TÍTULO */
+.shoe-model-select {
+  appearance: none;
+  /* Quita el estilo default del navegador */
+  -webkit-appearance: none;
+  background: transparent;
+  border: none;
+
+  /* Heredamos la tipografía del diseño original */
+  font-size: 1rem;
+  color: white;
+  font-weight: 700;
+  font-family: inherit;
+
+  width: 100%;
+  cursor: pointer;
+  padding-right: 20px;
+  /* Espacio para la flechita */
+
+  /* Para que corte con puntos suspensivos si es largo */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.shoe-model-select:focus {
+  outline: none;
+}
+
+/* Opciones del desplegable (Fondo oscuro para que se lea) */
+.shoe-model-select option {
+  background-color: #1E1E1E;
+  color: white;
+  padding: 10px;
+}
+
+/* La flechita personalizada */
+.select-arrow {
+  position: absolute;
+  right: 0;
+  color: #00D2BE;
+  /* Color Teal para indicar interactividad */
+  font-size: 0.7rem;
+  pointer-events: none;
+  /* Para que el click pase al select */
+}
+
+
+/* --- 3. CLIMA (ESTILO GENERAL) --- */
+/* Este estilo se usa si ponés el clima en la grilla de widgets. 
+   Si va en el header, el Dashboard.css lo sobreescribe para hacerlo chico. */
+.weather-card {
+  background: linear-gradient(135deg, #004e64 0%, #002b36 100%);
+  border: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  color: white;
+}
+
+.weather-icon {
+  font-size: 2.5rem;
+  margin-bottom: 5px;
+}
+
+.weather-info {
+  margin-bottom: 5px;
+}
+
+.temp {
+  font-size: 2rem;
+  font-weight: 700;
+  display: block;
+}
+
+.location {
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.weather-detail {
+  display: flex;
+  gap: 10px;
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
+
+/* --- WIDGET ZAPATILLAS (Shoe Tracker) --- */
+
+/* La tarjeta principal */
+
+
+.shoe-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 5px 15px rgba(0, 210, 190, 0.2);
+  /* Brillo verde al pasar el mouse */
+}
+
+/* El cuadradito del ícono */
+.shoe-icon-container {
+  width: 50px;
+  height: 50px;
+  background: rgba(255, 255, 255, 0.05);
+  /* Gris muy sutil */
+  border-radius: 12px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.8rem;
+  /* Tamaño del emoji */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Contenedor de la información (Derecha) */
+.shoe-info {
+  flex: 1;
+  /* Ocupa todo el ancho restante */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+/* El modelo de la zapa */
+.shoe-model {
+  margin: 2px 0 8px 0;
+  font-size: 1rem;
+  color: white;
+  font-weight: 700;
+  white-space: nowrap;
+  /* No permite que el texto baje de línea */
+  overflow: hidden;
+  /* Oculta lo que sobra */
+  text-overflow: ellipsis;
+  /* Pone "..." si el nombre es muy largo */
+}
+
+/* --- BARRA DE VIDA ÚTIL --- */
+
+/* El fondo gris de la barra */
+.shoe-progress-bg {
+  width: 100%;
+  height: 6px;
+  background: #333;
+  border-radius: 3px;
+  margin-bottom: 6px;
+  overflow: hidden;
+  position: relative;
+}
+
+/* El relleno de color (el ancho y color se definen en el JS) */
+.shoe-progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  /* Animación suave */
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.5);
+}
+
+
+/*Vista detalle del plan de entrenamiento*/
+
+/* El fondo oscuro transparente */
+/* --- OVERLAY (Fondo oscuro) --- */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(5px);
+  z-index: 1000;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: fadeIn 0.3s ease;
+  padding: 20px;
+  /* Margen para que no pegue a los bordes en celular */
+}
+
+/* --- TARJETA PRINCIPAL --- */
+.modal-content {
+  background: #181818;
+  width: 100%;
+  max-width: 500px;
+  max-height: 90vh;
+  /* IMPORTANTE: Evita que se salga de la pantalla */
+  overflow-y: auto;
+  /* IMPORTANTE: Scroll si el contenido es largo */
+  border-radius: 20px;
+  border: 1px solid #333;
+  position: relative;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Scrollbar personalizado para que quede facherito */
+.modal-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-content::-webkit-scrollbar-track {
+  background: #181818;
+}
+
+.modal-content::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 4px;
+}
+
+.modal-content::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* --- HEADER --- */
+.modal-header {
+  background: linear-gradient(135deg, #FF4500 0%, #a01a1a 100%);
+  padding: 1.25rem 1.5rem;
+  /* Un poco más compacto arriba/abajo */
+  padding-right: 60px;
+  /* IMPORTANTE: Deja espacio a la derecha para el botón X */
+  color: white;
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  /* Apila los elementos verticalmente */
+  align-items: center;
+  /* Alinea todo a la izquierda */
+  justify-content: center;
+  min-height: 100px;
+  /* Altura mínima para que respire */
+}
+
+.header-completed {
+  background: linear-gradient(135deg, #1d976c 0%, #93f9b9 100%);
+  color: #000;
+}
+
+.header-completed .modal-tag {
+  background: rgba(0, 0, 0, 0.2);
+  color: #000;
+}
+
+.close-btn {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  /* Se queda fijo en la esquina */
+  background: rgba(0, 0, 0, 0.2);
+  border: none;
+  color: inherit;
+  /* Toma el color del texto (blanco o negro) */
+  font-size: 1.2rem;
+  width: 32px;
+  /* Un pelín más chico */
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s, transform 0.2s;
+  z-index: 10;
+}
+
+.close-btn:hover {
+  background: rgba(0, 0, 0, 0.4);
+  transform: rotate(90deg);
+  /* Efecto giratorio facherito */
+}
+
+/* La etiqueta (tipo de entrenamiento) */
+.modal-tag {
+  background: rgba(255, 255, 255, 0.25);
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-bottom: 5px;
+  /* Separación con el título */
+  display: inline-block;
+}
+
+.header-completed .modal-tag {
+  background: rgba(0, 0, 0, 0.15);
+  color: #000;
+}
+
+.modal-header h2 {
+  margin: 0;
+  font-size: 1.4rem;
+  /* Tamaño ideal: grande pero no gigante */
+  line-height: 1.2;
+  font-weight: 800;
+  width: 100%;
+  word-wrap: break-word;
+  /* Si es larguísimo, baja de línea prolijamente */
+}
+
+.header-meta {
+  font-size: 0.9rem;
+  opacity: 0.9;
+}
+
+/* --- BODY --- */
+.modal-body {
+  padding: 1.5rem;
+  color: #e0e0e0;
+  /* IMPORTANTE: Saqué el align-items: center para que ocupe el ancho */
+}
+
+/* --- STATS GRID --- */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 1.5rem;
+}
+
+.stat-box {
+  background: #252525;
+  padding: 10px;
+  border-radius: 12px;
+  text-align: center;
+  border: 1px solid #333;
+}
+
+.stat-label {
+  display: block;
+  font-size: 0.7rem;
+  color: #888;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  display: block;
+  font-size: 0.85rem;
+  /* Ajustado para celulares */
+  font-weight: 700;
+  color: #00D2BE;
+  white-space: nowrap;
+  /* Para que no se rompa el texto */
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* --- TIMELINE --- */
+.workout-structure {
+  background: #202020;
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+}
+
+.workout-structure h3 {
+  font-size: 0.95rem;
+  color: #fff;
+  margin-bottom: 0.8rem;
+  border-left: 3px solid #00D2BE;
+  padding-left: 10px;
+}
+
+.structure-item {
+  display: flex;
+  gap: 15px;
+}
+
+.timeline-dot {
+  width: 2px;
+  background: #444;
+  position: relative;
+  flex-shrink: 0;
+  margin-left: 5px;
+}
+
+.timeline-dot::after {
+  content: '';
+  position: absolute;
+  top: 5px;
+  left: -4px;
+  width: 10px;
+  height: 10px;
+  background: #00D2BE;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(0, 210, 190, 0.5);
+}
+
+.timeline-dot.rest::after {
+  background: #888;
+  box-shadow: none;
+}
+
+.modal-divider {
+  border: 0;
+  height: 1px;
+  background: #333;
+  margin: 20px 0;
+}
+
+/* --- FEEDBACK FORM & INPUTS --- */
+.feedback-section h3 {
+  margin-bottom: 15px;
+  font-size: 1.1rem;
+}
+
+.input-label {
+  font-size: 0.8rem;
+  color: #999;
+  margin-bottom: 6px;
+  margin-top: 10px;
+  display: block;
+  font-weight: 600;
+}
+
+/* Estilos comunes para todos los inputs (texto, select, number) */
+.inputFormTraining,
+select,
+textarea {
+  width: 100%;
+  background: #252525;
+  border: 1px solid #444;
+  border-radius: 8px;
+  color: white;
+  font-family: inherit;
+  font-size: 0.95rem;
+  transition: border-color 0.2s;
+
+}
+
+input[type="number"]:focus,
+select:focus,
+textarea:focus {
+  outline: none;
+  border-color: #00D2BE;
+}
+
+textarea {
+  height: 80px;
+  resize: none;
+}
+
+
+/* Inputs deshabilitados (Modo Lectura) */
+input:disabled,
+select:disabled,
+textarea:disabled,
+.input-disabled {
+  background: #1a1a1a !important;
+  border-color: #333 !important;
+  color: #666 !important;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+
+
+/* --- SLIDER RPE --- */
+.rpe-control {
+  margin: 20px 0;
+  padding: 10px;
+  background: #202020;
+  border-radius: 10px;
+}
+
+.rpe-value {
+  color: #FF4500;
+  font-weight: bold;
+  float: right;
+}
+
+.range-slider {
+  -webkit-appearance: none;
+  width: 100%;
+  height: 6px;
+  background: #333;
+  border-radius: 5px;
+  outline: none;
+  margin: 15px 0;
+  background-image: linear-gradient(#FF4500, #FF4500);
+  background-repeat: no-repeat;
+}
+
+.range-slider:disabled {
+  background-image: linear-gradient(#555, #555);
+}
+
+.range-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 20px;
+  width: 20px;
+  border-radius: 50%;
+  background: #fff;
+  cursor: pointer;
+  box-shadow: 0 0 10px rgba(255, 69, 0, 0.5);
+  transition: transform 0.1s;
+}
+
+.range-slider:disabled::-webkit-slider-thumb {
+  background: #666;
+  box-shadow: none;
+}
+
+.range-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.1);
+}
+
+.rpe-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.75rem;
+  color: #777;
+}
+
+/* --- BOTONES --- */
+.action-btn {
+  width: 100%;
+  margin-top: 20px;
+  padding: 14px;
+  background: #00D2BE;
+  color: #000;
+  border: none;
+  border-radius: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  font-size: 1rem;
+  letter-spacing: 0.5px;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 5px 15px rgba(0, 210, 190, 0.3);
+}
+
+/* Animaciones */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/*Crear plan*/
+/* AddPlan.css - Estilo "Pro Dark" (Teal & Orange) */
+
+/* --- RESET LOCAL --- */
+.plan-creator-container,
+.plan-creator-container * {
+  box-sizing: border-box;
+}
+
+/* --- LAYOUT PRINCIPAL --- */
+.plan-creator-container {
+  background-color: #121212; /* Fondo Negro Mate */
+  min-height: 100vh;
+  width: 100%;
+  max-width: 100vw;
+  overflow-x: hidden;
+  padding: 3rem 1rem;
+  color: #fff;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.plan-creator-header, 
+form {
+  width: 100%;
+  max-width: 1200px;
+}
+
+/* --- HEADER --- */
+.plan-creator-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 3rem;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #333;
+}
+
+.plan-creator-title {
+  font-size: clamp(1.8rem, 5vw, 2.5rem);
+  font-weight: 900;
+  text-transform: uppercase;
+  color: #fff;
+  letter-spacing: -1px;
+  margin: 0;
+}
+
+/* --- BOTÓN AUTO-FILL (Estilo Fantasma Teal) --- */
+.plan-creator-btn-auto-fill {
+  background: transparent;
+  color: #00D2BE; /* Teal */
+  border: 1px solid #00D2BE;
+  padding: 0.75rem 1.5rem;
+  font-weight: 700;
+  border-radius: 4px; /* Bordes más rectos, más técnico */
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.plan-creator-btn-auto-fill:hover {
+  background-color: rgba(0, 210, 190, 0.1);
+  box-shadow: 0 0 15px rgba(0, 210, 190, 0.2);
+}
+
+/* --- GRID DE DÍAS --- */
+.plan-creator-days-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+  margin-bottom: 4rem;
+  width: 100%;
+}
+
+/* --- TARJETA DE DÍA (Estilo Widget Zapatillas) --- */
+.plan-creator-day-card {
+  background-color: #1E1E1E; /* Tu color de fondo */
+  border: 1px solid #333; /* Borde sutil alrededor */
+  border-left: 5px solid #00D2BE; /* EL BORDE TEAL MARCADO */
+  border-radius: 8px; /* Radio sutil */
+  padding: 1.5rem;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.plan-creator-day-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  border-color: #444;
+}
+
+/* Variante Descanso (Borde Gris y Opacidad) */
+.plan-creator-day-card.plan-creator-is-rest {
+  border-left-color: #555; /* Pierde el color Teal */
+  opacity: 0.6;
+  background-color: #181818;
+}
+
+/* TITULO DEL DÍA */
+.plan-creator-day-title {
+  font-size: 1.5rem;
+  font-weight: 900; /* Extra Bold como 'count-number' */
+  color: #fff;
+  text-transform: uppercase;
+  margin: 0 0 1.5rem 0;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Número o Icono decorativo naranja */
+.plan-creator-day-title::after {
+  content: '•';
+  color: #FF4500; /* Naranja */
+  font-size: 2rem;
+  line-height: 0;
+}
+
+/* --- INPUTS Y SELECTS --- */
+.plan-creator-inputs-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.plan-creator-select,
+.plan-creator-input,
+.plan-creator-textarea {
+  width: 100%;
+  padding: 1rem;
+  background-color: #2C2C2C; /* Un poco más claro que el fondo #1E1E1E */
+  border: 1px solid #444;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 500;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.plan-creator-select::placeholder,
+.plan-creator-input::placeholder,
+.plan-creator-textarea::placeholder {
+  color: #888;
+}
+
+/* FOCUS STATE: Teal Brillante */
+.plan-creator-select:focus,
+.plan-creator-input:focus,
+.plan-creator-textarea:focus {
+  border-color: #00D2BE;
+  box-shadow: 0 0 0 3px rgba(0, 210, 190, 0.1);
+  background-color: #333;
+}
+
+.plan-creator-textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* --- GRUPO DURACIÓN --- */
+.plan-creator-duration-group {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.plan-creator-duration-group .plan-creator-input {
+  flex: 1; 
+}
+
+.plan-creator-toggle-group {
+  display: flex;
+  background-color: #2C2C2C;
+  border: 1px solid #444;
+  border-radius: 6px;
+  padding: 4px;
+}
+
+.plan-creator-toggle-btn {
+  border: none;
+  padding: 0 1rem;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 0.85rem;
+  color: #888; /* Gris apagado */
+  background: transparent;
+  transition: all 0.2s;
+  border-radius: 4px;
+  text-transform: uppercase;
+}
+
+/* TOGGLE ACTIVO: Fondo Naranja, Texto Blanco */
+.plan-creator-toggle-btn.plan-creator-active {
+  background-color: #FF4500; /* Naranja Fuego */
+  color: #fff;
+}
+
+/* --- FOOTER / SUBMIT --- */
+.plan-creator-submit-section {
+  background-color: #1E1E1E;
+  border-top: 5px solid #FF4500; /* Línea superior Naranja */
+  border-radius: 8px;
+  padding: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.5);
+  width: 100%;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+.plan-creator-label {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: #ccc;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.plan-creator-user-select {
+  border-color: #555;
+  background-color: #2C2C2C;
+  max-width: 400px;
+}
+
+.plan-creator-user-select:focus {
+  border-color: #FF4500; /* Naranja al enfocar selección de usuario */
+}
+
+/* BOTÓN CONFIRMAR: Naranja Sólido (El color de éxito de tu marca) */
+.plan-creator-btn-submit {
+  background-color: #FF4500;
+  color: white;
+  border: none;
+  padding: 1.25rem 3rem;
+  width: 100%;
+  max-width: 400px;
+  font-size: 1.1rem;
+  font-weight: 900; /* Extra bold */
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  border-radius: 6px;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(255, 69, 0, 0.3);
+  transition: all 0.2s ease;
+}
+
+.plan-creator-btn-submit:hover {
+  background-color: #e03e00;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(255, 69, 0, 0.4);
+}
+
+.plan-creator-btn-submit:active {
+  transform: translateY(0);
+}
+
+
+/*LISTA DE USUARIOS*/
+
+/* --- CONTENEDOR PRINCIPAL --- */
+.admin-container {
+  padding: 100px 2rem 2rem 2rem;
+  background-color: #121212;
+  min-height: 100vh;
+  color: white;
+  font-family: 'Inter', system-ui, sans-serif;
+  /* Clave para que no se rompa el layout */
+  box-sizing: border-box;
+}
+
+/* --- HEADER Y BUSCADOR --- */
+.admin-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2.5rem;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.admin-header h1 {
+  font-size: 1.8rem;
+  margin: 0;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.subtitle {
+  color: #888;
+  margin: 5px 0 0 0;
+  font-size: 0.9rem;
+}
+
+.search-box {
+  position: relative;
+  width: 100%;
+  max-width: 350px;
+}
+
+.search-box input {
+  width: 100%;
+  background: #1E1E1E;
+  border: 1px solid #333;
+  padding: 12px 12px 12px 45px;
+  /* Espacio para el icono */
+  border-radius: 12px;
+  color: white;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.search-box input:focus {
+  outline: none;
+  border-color: #00D2BE;
+  /* Teal Focus */
+  box-shadow: 0 0 0 3px rgba(0, 210, 190, 0.1);
+}
+
+.search-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #666;
+  font-size: 1.2rem;
+}
+
+/* --- LISTA DE USUARIOS (GRID) --- */
+.user-list-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+/* Tarjeta Individual */
+
+.user-card-link {
+  text-decoration: none;
+}
+
+.user-card {
+  background: #1E1E1E;
+  border: 1px solid #2A2A2A;
+  border-radius: 16px;
+  padding: 1.2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.user-card:hover {
+  transform: translateY(-2px);
+  border-color: #444;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+}
+
+/* Info Izquierda */
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.avatar-placeholder {
+  width: 50px;
+  height: 50px;
+  color: #444;
+  /* Color del icono */
+  background: #111;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  /* Tamaño del icono */
+  overflow: hidden;
+}
+
+.text-data h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: white;
+}
+
+.user-role {
+  display: inline-block;
+  font-size: 0.7rem;
+  background: rgba(0, 210, 190, 0.1);
+  /* Teal transparente */
+  color: #00D2BE;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-right: 8px;
+  margin-top: 4px;
+}
+
+.user-email {
+  font-size: 0.85rem;
+  color: #777;
+}
+
+/* --- BOTONES DE ACCIÓN --- */
+.action-buttons {
+  display: flex;
+  gap: 10px;
+}
+
+.btn-icon {
+  background: #252525;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: all 0.2s ease;
+}
+
+/* Botón Plan (Verde) */
+.btn-plan {
+  color: #00D2BE;
+}
+
+.btn-plan:hover {
+  background: #00D2BE;
+  color: #000;
+}
+
+/* Botón Editar (Gris/Blanco) */
+.btn-edit {
+  color: #fff;
+}
+
+.btn-edit:hover {
+  background: #fff;
+  color: #000;
+}
+
+/* Botón Eliminar (Rojo/Naranja) */
+.btn-delete {
+  color: #FF4500;
+}
+
+.btn-delete:hover {
+  background: #FF4500;
+  color: #fff;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+  .user-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .action-buttons {
+    width: 100%;
+    justify-content: flex-end;
+    border-top: 1px solid #333;
+    padding-top: 15px;
+  }
+
+  .admin-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .search-box {
+    max-width: 100%;
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem;
+  color: #666;
+  background: #151515;
+  border-radius: 16px;
+  border: 1px dashed #333;
+}
+
+
+/* ----------------- MIS ZAPATILLAS ----------*/
+
+/* --- NUEVOS ESTILOS PARA EL ICONO --- */
+
+.card-top-section {
+  display: flex;
+  align-items: center;
+  /* Alinea verticalmente el icono con el texto */
+  gap: 15px;
+  /* Espacio entre el icono y el texto */
+  position: relative;
+  /* Para poder posicionar el botón de borrar */
+  margin-bottom: 10px;
+}
+
+/* El contenedor cuadrado del icono */
+.shoe-avatar {
+  width: 60px;
+  height: 60px;
+  border-radius: 12px;
+  border: 1px solid;
+  /* El color se define en linea en el JS */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 30px;
+  /* Tamaño del icono */
+  flex-shrink: 0;
+  /* Evita que se aplaste si el texto es largo */
+  transition: transform 0.3s ease;
+}
+
+.shoe-card:hover .shoe-avatar {
+  transform: rotate(-10deg) scale(1.1);
+  /* Efecto divertido al pasar el mouse */
+}
+
+
+
+.shoe-model {
+  margin: 5px 0 0 0;
+  font-size: 1.1rem;
+  /* Un poco más chico para que entre bien */
+  font-weight: 800;
+  line-height: 1.1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Botón de borrar posicionado absolutamente arriba a la derecha */
+.btn-delete-absolute {
+  top: -5px;
+  right: -5px;
+  background: transparent;
+  border: none;
+  font-size: 1.2rem;
+  transition: color 0.2s;
+  padding: 5px 8px;
+  color: #FF4500;
+  background-color: #444;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.btn-delete-absolute:hover {
+  color: #444;
+  background-color: #FF4500;
+  transition: all .5;
+}
+
+.empty-state-box {
+  opacity: 0.5;
+  border: 2px dashed #333;
+  border-radius: 16px;
+}
+
+
+/* --- CONTENEDOR PRINCIPAL --- */
+.shoes-container {
+  padding: 100px 32px 32px;
+  min-height: 100vh;
+  background-color: #121212;
+  color: white;
+  font-family: 'Inter', sans-serif;
+}
+
+/* --- HEADER --- */
+.page-header-shoes {
+  margin-bottom: 3rem;
+  border-bottom: 1px solid #333;
+  padding-bottom: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+}
+
+.page-header-shoes h1 {
+
+  font-size: 2.5rem;
+  margin: 0;
+  line-height: 1.1;
+  color: #00D2BE;
+}
+
+.ls-2 {
+  letter-spacing: 2px;
+}
+
+/* Botón Neon (Reutilizable) */
+.btn-neon {
+  background: transparent;
+  border: 1px solid #00D2BE;
+  color: #00D2BE;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 700;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.btn-neon:hover {
+  background: rgba(0, 210, 190, 0.1);
+  box-shadow: 0 0 15px rgba(0, 210, 190, 0.3);
+  transform: translateY(-2px);
+}
+
+/* --- TARJETA DE ZAPATILLA --- */
+.shoe-card {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background: #1E1E1E;
+  border: 1px solid #333;
+  border-radius: 16px;
+  padding: 10px;
+  height: 100%;
+  position: relative;
+  transition: transform 0.3s, border-color 0.3s;
+  overflow: hidden;
+  margin-top: 20px;
+
+}
+
+.shoe-card:hover {
+  transform: translateY(-5px);
+  border-color: #555;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.shoe-brand-badge {
+  background: #333;
+  color: #aaa;
+  font-size: 0.75rem;
+  padding: 4px 10px;
+  border-radius: 20px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 700;
+}
+
+.shoe-model {
+  margin: 15px 0 0 0;
+  font-size: 1.4rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+/* --- BARRA DE PROGRESO CUSTOM --- */
+
+.progress-section {
+  min-width: 200px;
+  margin: 0;
+}
+
+.progress-container {
+  width: 100%;
+  height: 8px;
+  background: #000;
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 10px 0;
+
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 1s ease;
+}
+
+/* Colores de estado */
+.status-good {
+  background: #00D2BE;
+  box-shadow: 0 0 10px rgba(0, 210, 190, 0.5);
+}
+
+.status-mid {
+  background: #FFD700;
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+}
+
+.status-bad {
+  background: #FF4500;
+  box-shadow: 0 0 10px rgba(255, 69, 0, 0.5);
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.8rem;
+  color: #888;
+  font-weight: 600;
+}
+
+.km-left {
+  color: #fff;
+  font-weight: 700;
+  margin-left: 100px;
+}
+
+/* --- MODAL FORMULARIO ZAPATILLA --- */
+
+/* --- Overlay (Fondo oscuro) --- */
+.zapa-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.85);
+  /* Fondo bien oscuro */
+  backdrop-filter: blur(8px);
+  /* Efecto borroso moderno */
+  z-index: 1050;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  animation: zapaFadeIn 0.3s ease;
+}
+
+/* --- Tarjeta del Modal --- */
+.zapa-modal-content {
+  background: #181818;
+  /* Gris muy oscuro, casi negro */
+  width: 90%;
+  max-width: 450px;
+  /* Un poco más angosto que el de entrenamientos */
+  border-radius: 20px;
+  border: 1px solid #333;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+  overflow: hidden;
+  /* Para que el header respete los bordes redondeados */
+  animation: zapaSlideUp 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+/* --- HEADER VIOLETA (La clave) --- */
+.zapa-modal-header {
+  /* Degradado Violeta a Indigo (Match con el botón del form) */
+  background: linear-gradient(135deg, #8A2BE2 0%, #4B0082 100%);
+  padding: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Título */
+.zapa-modal-title {
+  margin: 0;
+  color: white;
+  font-size: 1.2rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* Botón Cerrar (X) */
+.zapa-close-btn {
+  background: rgba(0, 0, 0, 0.2);
+  border: none;
+  color: white;
+  font-size: 1.5rem;
+  width: 35px;
+  height: 35px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 0;
+  padding-bottom: 4px;
+  /* Pequeño ajuste visual para centrar la X */
+  transition: all 0.2s ease;
+}
+
+.zapa-close-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  transform: rotate(90deg);
+  /* Efecto giratorio al pasar el mouse */
+}
+
+/* --- Cuerpo --- */
+.zapa-modal-body {
+  padding: 20px;
+  background: #181818;
+}
+
+/* --- Animaciones --- */
+@keyframes zapaFadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes zapaSlideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.zapa-form-wrapper {
+  padding: 10px;
+  color: #ffffff;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* --- Mensaje de Error --- */
+.zapa-error-msg {
+  background: rgba(220, 53, 69, 0.2);
+  border-left: 4px solid #dc3545;
+  color: #ff8d96;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+/* --- Grupos de Inputs --- */
+.zapa-group {
+  margin-bottom: 20px;
+}
+
+/* --- Labels (Etiquetas) --- */
+.zapa-label {
+  display: block;
+  font-size: 0.75rem;
+  color: #b0b0b0;
+  /* Gris claro */
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+/* --- INPUTS --- */
+.zapa-input {
+  width: 100%;
+  background-color: #1e1e1e;
+  /* Fondo muy oscuro */
+  border: 1px solid #444;
+  /* Borde sutil */
+  border-radius: 12px;
+  /* Bordes redondeados modernos */
+  padding: 14px 16px;
+  color: white;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  /* Animación suave */
+}
+
+.zapa-input::placeholder {
+  color: #555;
+}
+
+/* Efecto Focus (Cuando tocas el input) */
+.zapa-input:focus {
+  outline: none;
+  background-color: #252525;
+  border-color: #8A2BE2;
+  /* Violeta Eléctrico */
+  box-shadow: 0 0 15px rgba(138, 43, 226, 0.25);
+  /* Resplandor violeta */
+  transform: translateY(-2px);
+  /* Se levanta un poquito */
+}
+
+/* --- Grid System Propio (para no usar Bootstrap row) --- */
+.zapa-row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 25px;
+}
+
+.zapa-col {
+  flex: 1;
+  /* Ocupan 50% cada uno */
+}
+
+/* --- Botón Guardar --- */
+.zapa-btn-save {
+  width: 100%;
+  padding: 16px;
+  /* Degradado Violeta a Indigo */
+  background: linear-gradient(135deg, #8A2BE2 0%, #4B0082 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.zapa-btn-save:hover {
+  transform: translateY(-2px);
+  /* Efecto de elevación */
+  box-shadow: 0 6px 20px rgba(138, 43, 226, 0.4);
+  /* Sombra violeta */
+  background: linear-gradient(135deg, #9d4edd 0%, #5a189a 100%);
+  /* Un poco más claro al hover */
+}
+
+.zapa-btn-save:active {
+  transform: scale(0.98);
+  /* Efecto click */
+}
+
+@media(max-width:650px) {
+  .shoe-card {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 30px 20px;
+  }
+
+  .btn-delete-absolute {
+    position: absolute;
+    margin-top: 20px;
+    margin-right: 20px;
+  }
+
+  .progress-section {
+    margin-top: 20px;
+  }
+}
+
+/* DETALLE ENTRENAMIENTO VISTA ADMIN*/
+/* --- CONTENEDOR PRINCIPAL --- */
+.detail-container {
+  background-color: #121212;
+  /* Fondo bien oscuro */
+  min-height: 100vh;
+  padding: 2rem;
+  color: #e0e0e0;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+/* Pantalla de carga */
+.detail-loading {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: #121212;
+  color: #666;
+  font-size: 1.2rem;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+/* --- HEADER --- */
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 3rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid #333;
+}
+
+.back-btn {
+  background: transparent;
+  border: 1px solid #444;
+  color: #aaa;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.back-btn:hover {
+  background: #252525;
+  color: white;
+  border-color: #666;
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.avatar-circle {
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, #FF4500, #ff7849);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: white;
+  box-shadow: 0 0 15px rgba(255, 69, 0, 0.3);
+}
+
+.user-texts {
+  display: flex;
+  flex-direction: column;
+}
+
+.label-top {
+  font-size: 0.75rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.user-name {
+  font-size: 1.8rem;
+  margin: 0;
+  font-weight: 800;
+  background: linear-gradient(90deg, #fff, #aaa);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* --- STATS DASHBOARD (WIDGETS) --- */
+.stats-dashboard {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.stat-widget {
+  background: #1e1e1e;
+  padding: 1.5rem;
+  border-radius: 16px;
+  border: 1px solid #333;
+  transition: transform 0.2s;
+}
+
+.stat-widget:hover {
+  transform: translateY(-5px);
+  border-color: #555;
+}
+
+.stat-widget.highlight {
+  background: linear-gradient(145deg, #1e1e1e, #252525);
+  border: 1px solid #FF4500;
+  /* Borde naranja para destacar */
+}
+
+.stat-title {
+  display: block;
+  font-size: 0.8rem;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 10px;
+}
+
+.stat-content {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.stat-number {
+  font-size: 2rem;
+  font-weight: 800;
+  color: white;
+}
+
+.stat-number small {
+  font-size: 1rem;
+  color: #666;
+  font-weight: 400;
+}
+
+.stat-number.good {
+  color: #00D2BE;
+}
+
+/* Verde agua */
+.stat-number.bad {
+  color: #FF4500;
+}
+
+/* Naranja alerta */
+
+.stat-sub {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+/* --- GRID DE TARJETAS --- */
+.cards-layout {
+  display: grid;
+  /* Responsive grid: Se adapta al ancho */
+  grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
+  gap: 2rem;
+}
+
+/* Estado vacío */
+.empty-plan-message {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 4rem;
+  background: #1e1e1e;
+  border-radius: 16px;
+  border: 1px dashed #444;
+}
+
+.create-plan-btn {
+  margin-top: 1rem;
+  padding: 10px 20px;
+  background: #FF4500;
+  border: none;
+  color: white;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* --- MOBILE --- */
+@media (max-width: 768px) {
+  .detail-container {
+    padding: 1rem;
+  }
+
+  .detail-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .cards-layout {
+    grid-template-columns: 1fr;
+    /* Una columna en celular */
+  }
+}
+
+
+/* TrainingCard.css */
+
+/* --- TARJETA PRINCIPAL --- */
+
+
+.training-card {
+  background-color: #1e1e1e;
+  /* Gris oscuro */
+  border: 1px solid #333;
+  border-radius: 16px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  /* Sombra sutil oscura */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+}
+
+.training-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+  border-color: #444;
+}
+
+/* Borde brillante si está completado */
+.card-glow-border {
+  border-left: 4px solid #00D2BE;
+  /* Verde agua (Tu color de éxito) */
+}
+
+/* --- HEADER --- */
+.card-header-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #333;
+}
+
+.title-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.day-badge {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #FF4500;
+  /* Naranja (Color principal) */
+  font-weight: 800;
+  margin-bottom: 5px;
+  width: fit-content;
+}
+
+.card-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0;
+  text-transform: capitalize;
+}
+
+.card-subtitle {
+  font-size: 0.9rem;
+  color: #888;
+  margin: 2px 0 0 0;
+  font-weight: 500;
+}
+
+/* --- STATUS PILLS --- */
+.status-pill {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.status-success {
+  background: rgba(0, 210, 190, 0.15);
+  /* Fondo verde transparente */
+  color: #00D2BE;
+  /* Texto verde neón */
+  border: 1px solid rgba(0, 210, 190, 0.3);
+}
+
+.status-pending {
+  background: rgba(255, 255, 255, 0.05);
+  color: #666;
+  border: 1px solid #333;
+}
+
+/* --- GRID INTERNO --- */
+.card-body-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  /* Mobile: Columna */
+  gap: 1.5rem;
+}
+
+.custom-tooltip {
+  background-color: #1e1e1e;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #444;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+}
+
+
+
+.custom-tooltip-p {
+
+  color: #aaa;
+  font-size: 0.8rem;
+  margin-bottom: 5px;
+  text-transform: uppercase;
+  font-weight: bold;
+
+}
+
+.custom-tooltip-p-2 {
+  font-size: 0.9rem;
+  margin: 3px 0;
+}
+
+/* En PC se ponen lado a lado */
+@media (min-width: 768px) {
+  .card-body-grid {
+    grid-template-columns: 55% 40%;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
+
+/* --- GRÁFICO --- */
+.chart-wrapper {
+  height: 180px;
+  /* Altura fija necesaria */
+  width: 100%;
+  /* Ancho total */
+  min-width: 0;
+  /* <--- ESTA LÍNEA ES LA CLAVE DEL FIX (evita colapso en Grid/Flex) */
+  position: relative;
+  /* <--- ESTA TAMBIÉN AYUDA */
+
+  /* El resto de tus estilos visuales... */
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  padding: 10px;
+}
+
+/* --- FEEDBACK COLUMN --- */
+.feedback-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* Caja de texto del feedback */
+.feedback-box {
+  background: #252525;
+  border-radius: 12px;
+  padding: 12px;
+  border: 1px solid #333;
+}
+
+.feedback-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  color: #aaa;
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.feedback-text {
+  font-style: italic;
+  color: #e0e0e0;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  margin: 0;
+}
+
+/* Mini Stats Row */
+.mini-stats-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #252525;
+  border-radius: 12px;
+  padding: 10px 20px;
+  border: 1px solid #333;
+}
+
+.mini-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-label {
+  font-size: 0.65rem;
+  color: #666;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+
+.stat-number-wrapper {
+  font-size: 1.2rem;
+  font-weight: 800;
+}
+
+.stat-max {
+  font-size: 0.8rem;
+  color: #666;
+  font-weight: 400;
+}
+
+.stat-text-value {
+  color: #00D2BE;
+  /* Verde o Violeta según prefieras */
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.vertical-divider {
+  width: 1px;
+  height: 25px;
+  background: #333;
+}
