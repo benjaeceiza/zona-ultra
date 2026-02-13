@@ -1,7 +1,7 @@
 // services/updateUser.js
 export const updateUserAdmin = async (id, userData, token) => {
     try {
-        const response = await fetch(`http://:8080/api/users/admin-edit/${id}`, { 
+        const response = await fetch(`https://zona-ultra.onrender.com/api/users/admin-edit/${id}`, { 
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
