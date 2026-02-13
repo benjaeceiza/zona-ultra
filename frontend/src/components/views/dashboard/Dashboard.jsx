@@ -16,7 +16,7 @@ const Dashboard = () => {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:8080/api/shoes', {
+            const res = await fetch('http://:8080/api/shoes', {
                 headers: { "Authorization": `Bearer ${token}` }
             });
             const data = await res.json();

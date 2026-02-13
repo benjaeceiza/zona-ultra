@@ -6,7 +6,7 @@ export const updateFeedback = async (feedbackData) => {
         const token = localStorage.getItem("token");
         
         // Ajusta la URL a tu ruta real
-        const response = await fetch(`http://localhost:8080/api/plans/feedback`, {
+        const response = await fetch(`http://:8080/api/plans/feedback`, {
             method: "PUT", // Usamos PUT o PATCH porque es una actualización
             headers: {
                 "Content-Type": "application/json",

@@ -1,5 +1,5 @@
-// Ajusta la URL base según tu entorno (localhost o producción)
-const API_URL = "http://localhost:8080/api/users";
+// Ajusta la URL base según tu entorno ( o producción)
+const API_URL = "http://:8080/api/users";
 
 export const getUserWithPlan = async (userId) => {
     const token = localStorage.getItem("token");

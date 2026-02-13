@@ -1,6 +1,6 @@
 export const addPlanUSer = async (userId, semana,token) => {
     try {
-        const response = await fetch(`http://localhost:8080/api/plans/admin/${userId}`, {
+        const response = await fetch(`http://:8080/api/plans/admin/${userId}`, {
             method: "POST",
                 headers: {
             "Authorization": `Bearer ${token}`,

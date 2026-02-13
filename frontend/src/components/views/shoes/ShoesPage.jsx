@@ -25,7 +25,7 @@ const ShoesPage = () => {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('http://localhost:8080/api/shoes', {
+            const res = await fetch('http://:8080/api/shoes', {
                 headers: { "Authorization": `Bearer ${token}` }
             });
             const data = await res.json();
@@ -50,7 +50,7 @@ const ShoesPage = () => {
         if (!window.confirm("¿Estás seguro de que querés borrar esta zapatilla?")) return;
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`http://localhost:8080/api/shoes/${id}`, {
+            const res = await fetch(`http://:8080/api/shoes/${id}`, {
                 method: 'DELETE',
                 headers: { "Authorization": `Bearer ${token}` }
             });

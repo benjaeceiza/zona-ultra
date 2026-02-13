@@ -8,7 +8,7 @@ const ShoeList = ({ refreshTrigger }) => { // refreshTrigger es opcional, por si
         const fetchShoes = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const res = await fetch('http://localhost:8080/api/shoes', { // Ojo con el puerto, vi 8080 acá y 5000 antes
+                const res = await fetch('http://:8080/api/shoes', { // Ojo con el puerto, vi 8080 acá y 5000 antes
                     headers: {
                         "Authorization": `Bearer ${token}`, // Asegurate que tu backend espere "Bearer" y no "x-auth-token"
                         // Si usabas mi código anterior de backend, en headers era: 'x-auth-token': token

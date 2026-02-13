@@ -1,7 +1,7 @@
 // services/deleteUser.js
 export const deleteUserService = async (id, token) => {
     try {
-        const response = await fetch(`http://localhost:8080/api/users/${id}`, {
+        const response = await fetch(`http://:8080/api/users/${id}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',
