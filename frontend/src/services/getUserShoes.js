@@ -6,7 +6,7 @@ export const getUserShoes = async () => {
     try {
         const token = localStorage.getItem("token");
 
-        const response = await fetch(`http://:8080/api/shoes`, {
+        const response = await fetch(`https://zona-ultra.onrender.com/api/shoes`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",

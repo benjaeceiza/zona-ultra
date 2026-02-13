@@ -2,7 +2,7 @@ export const userRegister = async (nombre, apellido, email, telefono, password, 
   const data = { nombre, apellido, email, telefono, password };
 
   try {
-    const res = await fetch("http://:8080/api/auth/admin/register", {
+    const res = await fetch("https://zona-ultra.onrender.com/api/auth/admin/register", {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${token}`,

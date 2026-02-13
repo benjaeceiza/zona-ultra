@@ -1,7 +1,7 @@
 // services/deleteUser.js
 export const deleteUserService = async (id, token) => {
     try {
-        const response = await fetch(`http://:8080/api/users/${id}`, {
+        const response = await fetch(`https://zona-ultra.onrender.com/api/users/${id}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',

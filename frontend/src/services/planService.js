@@ -4,7 +4,7 @@
 export const updateTrainingStatus = async (token, index, completado) => {
     
     
-    const response = await fetch('http://:8080/api/plans/admin/actualizar-progreso', { 
+    const response = await fetch('https://zona-ultra.onrender.com/api/plans/admin/actualizar-progreso', { 
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json',

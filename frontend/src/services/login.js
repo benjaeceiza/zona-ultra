@@ -2,7 +2,7 @@ export const userLogin = async (email, password) => {
   const data = { email, password };
 
   try {
-    const res = await fetch("http://:8080/api/auth/login", {
+    const res = await fetch("https://zona-ultra.onrender.com/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),

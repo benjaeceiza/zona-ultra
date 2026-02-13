@@ -1,6 +1,6 @@
 
 
-const API_URL = "http://:8080/api/users"; 
+const API_URL = "https://zona-ultra.onrender.com/api/users"; 
 
 export const updateUserRace = async (userId, raceData) => {
     
