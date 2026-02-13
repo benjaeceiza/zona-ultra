@@ -3,7 +3,7 @@ import { usuarioModelo } from "../models/user.model.js"
 import { planModelo } from "../models/plan.model.js"
 import { authMiddleware } from "../middleware/auth.js"
 import { isAdminMiddleware } from "../middleware/isAdminMiddleware.js";
-import { updateNextRace } from "../controllers/userController.js";
+import { deleteUser, updateNextRace, updateUser, updateUserAdmin } from "../controllers/userController.js";
 
 export const router = Router();
 
@@ -95,5 +95,13 @@ router.get("/user", authMiddleware, async (req, res) => {
 
 
 router.put("/race/:id", authMiddleware, updateNextRace);
+
+
+//ACTUALIZAR LA INFORMACION DEL USUARIO;
+router.put('/admin-edit/:id',authMiddleware,isAdminMiddleware, updateUserAdmin);
+router.put('/edit/:id',authMiddleware, updateUser);
+
+//ELIMINAR USUARIO
+router.delete('/:id',authMiddleware, isAdminMiddleware, deleteUser);
 
 

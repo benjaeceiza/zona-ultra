@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { getUserWithPlan } from '../../../services/getUserPlan';
 import { useEffect, useState } from 'react';
 import TrainingCard from './TrainingCard';
@@ -100,7 +100,7 @@ const DetallePlan = () => {
                 ) : (
                     <div className="empty-plan-message">
                         <p>Este usuario no tiene un plan asignado esta semana.</p>
-                        <button className="create-plan-btn">Crear Plan</button>
+                        <Link to={`/crear-plan/${id}`} className="create-plan-btn">Crear Plan</Link>
                     </div>
                 )}
             </section>

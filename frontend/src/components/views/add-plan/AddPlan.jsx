@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom"; // 1. IMPORTANTE: Traemos el hook
 import { addPlanUSer } from "../../../services/addPlanUser";
 import { getUsers } from "../../../services/getUsers";
+
 
 const DESCRIPCIONES_AUTO = {
   "pasadas aerobicas": "Cambios de ritmo graduales",
@@ -19,6 +21,11 @@ const DESCRIPCIONES_AUTO = {
 };
 
 const AddPlan = () => {
+  // 2. CAPTURAMOS EL ID DE LA URL
+  // Asumo que en tu Router definiste la ruta como "/crear-plan/:id"
+  // Si le pusiste otro nombre al parametro (ej: :userId), cambialo aquí.
+  const { id } = useParams(); 
+
   const diaDefault = { 
     titulo: "", 
     tipo: "", 
@@ -39,6 +46,8 @@ const AddPlan = () => {
   ]);
 
   const [users, setUsers] = useState([]);
+  
+  // Inicializamos el estado vacío, pero el useEffect de abajo lo corregirá si hay ID
   const [userId, setUserId] = useState("");
 
   useEffect(() => {
@@ -48,6 +57,13 @@ const AddPlan = () => {
     };
     fetchUsers();
   }, []);
+
+  // 3. NUEVO EFECTO: Si viene un ID por URL, lo seteamos automáticamente
+  useEffect(() => {
+    if (id) {
+      setUserId(id);
+    }
+  }, [id]);
 
   const handleChange = (index, campo, valor) => {
     const nuevaSemana = [...semana];

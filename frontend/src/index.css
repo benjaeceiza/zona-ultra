@@ -133,11 +133,10 @@
 }
 
 /* --- ELEMENTOS INTERNOS --- */
-.close-btn {
+.close-btn-nav {
   position: absolute;
   top: 10px;
-  left: 15px;
-  /* CAMBIO: Queda mejor la X a la izquierda si el menú está a la derecha */
+  right: 15px;
   background: transparent;
   border: none;
   color: white;
@@ -190,6 +189,7 @@
 .logout-item {
   margin-top: 20px;
   border-top: 1px solid #444;
+  cursor: pointer;
 }
 
 .logout-item .navbarLink:hover {
@@ -198,6 +198,345 @@
 }
 
 
+/* --- PERFIL DE USUARIO EN NAVBAR --- */
+.username-nav-profile {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 30px 20px;
+  background: linear-gradient(180deg, #1E1E1E 0%, #121212 100%);
+  border-bottom: 1px solid #333;
+  margin-bottom: 10px;
+}
+
+.username-nav-avatar {
+  font-size: 3rem;
+  color: #00D2BE;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 0 5px rgba(0, 210, 190, 0.3));
+}
+
+.username-nav-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.username-nav-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  /* Separación entre nombre e ícono */
+}
+
+.username-nav-name {
+  color: #fff;
+  font-size: 1.1rem;
+  font-weight: 800;
+  text-transform: capitalize;
+  letter-spacing: 0.5px;
+  line-height: 1;
+}
+
+.username-nav-edit-btn {
+  background: transparent;
+  border: none;
+  color: #666;
+  /* Gris apagado por defecto */
+  font-size: 1.1rem;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  transition: all 0.3s ease;
+}
+
+.username-nav-edit-btn:hover {
+  color: #00D2BE;
+  /* Se prende en Teal al pasar el mouse */
+  transform: scale(1.1);
+  /* Crece un poquito */
+  filter: drop-shadow(0 0 3px rgba(0, 210, 190, 0.8));
+  /* Brillo */
+}
+
+
+/* MODAL EDITAR USUARIO NORMAL */
+
+
+/* ModalEditarNormal.css */
+
+
+/* --- OVERLAY --- */
+.modal-editar-normal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  animation: modal-editar-normal-fadeIn 0.2s ease-out;
+}
+
+/* --- CONTAINER --- */
+.modal-editar-normal-container {
+  background-color: #1E1E1E;
+  width: 100%;
+  max-width: 500px; /* Ancho cómodo para formularios */
+  border-radius: 16px;
+  border: 1px solid #333;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: modal-editar-normal-slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* --- HEADER --- */
+.modal-editar-normal-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid #333;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #252525;
+}
+
+.modal-editar-normal-title {
+  margin: 0;
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.modal-editar-normal-title::before {
+  content: '';
+  display: block;
+  width: 4px;
+  height: 20px;
+  background-color: #00D2BE; /* Teal */
+  border-radius: 2px;
+}
+
+.modal-editar-normal-close {
+  background: transparent;
+  border: none;
+  color: #666;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: color 0.2s;
+  line-height: 1;
+}
+
+.modal-editar-normal-close:hover {
+  color: #fff;
+}
+
+/* --- BODY --- */
+.modal-editar-normal-body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  max-height: 70vh; /* Scroll si la pantalla es chica */
+  overflow-y: auto;
+}
+
+/* Scrollbar personalizada */
+.modal-editar-normal-body::-webkit-scrollbar {
+  width: 6px;
+}
+.modal-editar-normal-body::-webkit-scrollbar-thumb {
+  background-color: #444;
+  border-radius: 3px;
+}
+
+.modal-editar-normal-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.modal-editar-normal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.modal-editar-normal-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #00D2BE;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* --- INPUTS (Con el arreglo de ancho) --- */
+.modal-editar-normal-input {
+  width: 100%; /* Ocupa el 100% de su contenedor */
+  box-sizing: border-box; /* El padding no agranda el elemento */
+  background-color: #2C2C2C;
+  border: 1px solid #444;
+  color: #fff;
+  padding: 0.8rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.modal-editar-normal-input:focus {
+  border-color: #00D2BE;
+  background-color: #333;
+  box-shadow: 0 0 0 3px rgba(0, 210, 190, 0.1);
+}
+
+/* --- SECCIÓN SEGURIDAD --- */
+.modal-editar-separator {
+  height: 1px;
+  background-color: #333;
+  margin: 0.5rem 0;
+  width: 100%;
+}
+
+.modal-editar-security-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.security-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.btn-toggle-pass {
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 0.8rem;
+  text-decoration: underline;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.btn-toggle-pass:hover { color: #fff; }
+
+.password-fields-container {
+  background-color: rgba(0, 0, 0, 0.2);
+  padding: 1rem;
+  border-radius: 8px;
+  border: 1px dashed #444;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  animation: modal-editar-normal-fadeIn 0.3s;
+}
+
+.pass-input:focus {
+  border-color: #FF4500; /* Foco Naranja para passwords */
+  box-shadow: 0 0 0 3px rgba(255, 69, 0, 0.1);
+}
+
+.error-msg {
+  color: #ef4444; /* Rojo error */
+  font-size: 0.8rem;
+  margin: 0;
+  font-weight: 600;
+}
+
+/* --- FOOTER --- */
+.modal-editar-normal-footer {
+  padding: 1.5rem;
+  background-color: #252525;
+  border-top: 1px solid #333;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.modal-editar-normal-cancel {
+  background: transparent;
+  border: 1px solid #444;
+  color: #ccc;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.modal-editar-normal-cancel:hover {
+  background-color: #333;
+  color: #fff;
+}
+
+.modal-editar-normal-save {
+  background-color: #FF4500;
+  border: none;
+  color: #fff;
+  padding: 0.75rem 2rem;
+  border-radius: 8px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(255, 69, 0, 0.3);
+  transition: all 0.2s;
+}
+
+.modal-editar-normal-save:hover {
+  background-color: #e03e00;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(255, 69, 0, 0.4);
+}
+
+/* --- ANIMACIONES --- */
+@keyframes modal-editar-normal-fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes modal-editar-normal-slideUp {
+  from { opacity: 0; transform: translateY(20px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+
+/* --- ANIMACIONES --- */
+@keyframes modal-editar-normal-fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modal-editar-normal-slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
 
 /*Formulario de autenticacion*/
 /* --- FONDO GENERAL --- */
@@ -325,6 +664,115 @@
   border: 1px solid rgba(255, 77, 77, 0.2);
   margin-top: 10px;
   animation: shake 0.3s ease-in-out;
+}
+/* --- ESTILOS NUEVOS: RECUPERACIÓN DE CONTRASEÑA --- */
+
+/* Wrapper para alinear el link */
+.forgot-pass-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 15px;
+
+}
+
+/* Link sutil */
+.forgot-pass-link {
+  color: #888;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.forgot-pass-link:hover {
+  color: #FF4500; /* Naranja acento */
+  text-decoration: underline;
+}
+
+/* --- MODAL DE RECUPERACIÓN --- */
+.recover-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.85); /* Fondo bien oscuro */
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  animation: fadeIn 0.3s ease;
+}
+
+.recover-card {
+  background: #1e1e1e;
+  padding: 2rem;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 400px;
+  border: 1px solid #333;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  animation: slideUpLogin 0.3s ease-out;
+}
+
+.recover-close {
+  position: absolute;
+  top: 10px;
+  right: 15px;
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: color 0.2s;
+}
+
+.recover-close:hover {
+  color: #fff;
+}
+
+.recover-title {
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  margin: 0;
+  /* Detalle decorativo Teal */
+  border-left: 4px solid #00D2BE;
+  padding-left: 10px;
+}
+
+.recover-desc {
+  color: #aaa;
+  font-size: 0.9rem;
+  text-align: center;
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
+}
+
+.recover-form {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.recover-status-msg {
+  color: #00D2BE; /* Mensaje de éxito en Teal */
+  font-size: 0.9rem;
+  text-align: center;
+  margin-top: 10px;
+  font-weight: 600;
+}
+
+@keyframes slideUpLogin {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 /* --- ANIMACIONES --- */
@@ -1038,7 +1486,6 @@
   width: 100%;
   height: 100%;
   background: rgba(0, 0, 0, 0.85);
-  backdrop-filter: blur(5px);
   z-index: 1000;
   display: flex;
   justify-content: center;
@@ -1442,7 +1889,8 @@ textarea:disabled,
 
 /* --- LAYOUT PRINCIPAL --- */
 .plan-creator-container {
-  background-color: #121212; /* Fondo Negro Mate */
+  background-color: #121212;
+  /* Fondo Negro Mate */
   min-height: 100vh;
   width: 100%;
   max-width: 100vw;
@@ -1455,7 +1903,7 @@ textarea:disabled,
   align-items: center;
 }
 
-.plan-creator-header, 
+.plan-creator-header,
 form {
   width: 100%;
   max-width: 1200px;
@@ -1485,11 +1933,13 @@ form {
 /* --- BOTÓN AUTO-FILL (Estilo Fantasma Teal) --- */
 .plan-creator-btn-auto-fill {
   background: transparent;
-  color: #00D2BE; /* Teal */
+  color: #00D2BE;
+  /* Teal */
   border: 1px solid #00D2BE;
   padding: 0.75rem 1.5rem;
   font-weight: 700;
-  border-radius: 4px; /* Bordes más rectos, más técnico */
+  border-radius: 4px;
+  /* Bordes más rectos, más técnico */
   cursor: pointer;
   transition: all 0.2s ease;
   font-size: 0.85rem;
@@ -1516,10 +1966,14 @@ form {
 
 /* --- TARJETA DE DÍA (Estilo Widget Zapatillas) --- */
 .plan-creator-day-card {
-  background-color: #1E1E1E; /* Tu color de fondo */
-  border: 1px solid #333; /* Borde sutil alrededor */
-  border-left: 5px solid #00D2BE; /* EL BORDE TEAL MARCADO */
-  border-radius: 8px; /* Radio sutil */
+  background-color: #1E1E1E;
+  /* Tu color de fondo */
+  border: 1px solid #333;
+  /* Borde sutil alrededor */
+  border-left: 5px solid #00D2BE;
+  /* EL BORDE TEAL MARCADO */
+  border-radius: 8px;
+  /* Radio sutil */
   padding: 1.5rem;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
   display: flex;
@@ -1535,7 +1989,8 @@ form {
 
 /* Variante Descanso (Borde Gris y Opacidad) */
 .plan-creator-day-card.plan-creator-is-rest {
-  border-left-color: #555; /* Pierde el color Teal */
+  border-left-color: #555;
+  /* Pierde el color Teal */
   opacity: 0.6;
   background-color: #181818;
 }
@@ -1543,7 +1998,8 @@ form {
 /* TITULO DEL DÍA */
 .plan-creator-day-title {
   font-size: 1.5rem;
-  font-weight: 900; /* Extra Bold como 'count-number' */
+  font-weight: 900;
+  /* Extra Bold como 'count-number' */
   color: #fff;
   text-transform: uppercase;
   margin: 0 0 1.5rem 0;
@@ -1556,7 +2012,8 @@ form {
 /* Número o Icono decorativo naranja */
 .plan-creator-day-title::after {
   content: '•';
-  color: #FF4500; /* Naranja */
+  color: #FF4500;
+  /* Naranja */
   font-size: 2rem;
   line-height: 0;
 }
@@ -1573,7 +2030,8 @@ form {
 .plan-creator-textarea {
   width: 100%;
   padding: 1rem;
-  background-color: #2C2C2C; /* Un poco más claro que el fondo #1E1E1E */
+  background-color: #2C2C2C;
+  /* Un poco más claro que el fondo #1E1E1E */
   border: 1px solid #444;
   border-radius: 6px;
   color: #fff;
@@ -1611,7 +2069,7 @@ form {
 }
 
 .plan-creator-duration-group .plan-creator-input {
-  flex: 1; 
+  flex: 1;
 }
 
 .plan-creator-toggle-group {
@@ -1628,7 +2086,8 @@ form {
   cursor: pointer;
   font-weight: 700;
   font-size: 0.85rem;
-  color: #888; /* Gris apagado */
+  color: #888;
+  /* Gris apagado */
   background: transparent;
   transition: all 0.2s;
   border-radius: 4px;
@@ -1637,14 +2096,16 @@ form {
 
 /* TOGGLE ACTIVO: Fondo Naranja, Texto Blanco */
 .plan-creator-toggle-btn.plan-creator-active {
-  background-color: #FF4500; /* Naranja Fuego */
+  background-color: #FF4500;
+  /* Naranja Fuego */
   color: #fff;
 }
 
 /* --- FOOTER / SUBMIT --- */
 .plan-creator-submit-section {
   background-color: #1E1E1E;
-  border-top: 5px solid #FF4500; /* Línea superior Naranja */
+  border-top: 5px solid #FF4500;
+  /* Línea superior Naranja */
   border-radius: 8px;
   padding: 2.5rem;
   display: flex;
@@ -1672,7 +2133,8 @@ form {
 }
 
 .plan-creator-user-select:focus {
-  border-color: #FF4500; /* Naranja al enfocar selección de usuario */
+  border-color: #FF4500;
+  /* Naranja al enfocar selección de usuario */
 }
 
 /* BOTÓN CONFIRMAR: Naranja Sólido (El color de éxito de tu marca) */
@@ -1684,7 +2146,8 @@ form {
   width: 100%;
   max-width: 400px;
   font-size: 1.1rem;
-  font-weight: 900; /* Extra bold */
+  font-weight: 900;
+  /* Extra bold */
   text-transform: uppercase;
   letter-spacing: 1px;
   border-radius: 6px;
@@ -1870,6 +2333,7 @@ form {
   cursor: pointer;
   font-size: 1.2rem;
   transition: all 0.2s ease;
+
 }
 
 /* Botón Plan (Verde) */
@@ -1912,7 +2376,7 @@ form {
 
   .action-buttons {
     width: 100%;
-    justify-content: flex-end;
+    justify-content: center;
     border-top: 1px solid #333;
     padding-top: 15px;
   }
@@ -1936,6 +2400,391 @@ form {
   border: 1px dashed #333;
 }
 
+
+/* MODAL EDITAR USUARIO admin  */
+
+
+/* ModalEditUser.css */
+
+/* --- OVERLAY (Fondo oscuro borroso) --- */
+.modal-edit-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7);
+
+  /* Efecto vidrio esmerilado */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  animation: modal-edit-fadeIn 0.2s ease-out;
+}
+
+/* --- CONTENEDOR PRINCIPAL --- */
+.modal-edit-container {
+  background-color: #1E1E1E;
+  width: 100%;
+  max-width: 500px;
+  border-radius: 12px;
+  border: 1px solid #333;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  animation: modal-edit-slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* --- HEADER --- */
+.modal-edit-header {
+  padding: 1.5rem;
+  border-bottom: 1px solid #333;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #252525;
+}
+
+.modal-edit-title {
+  margin: 0;
+  color: #fff;
+  font-size: 1.25rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+}
+
+/* Decoración Teal al lado del título */
+.modal-edit-title::before {
+  content: '';
+  display: block;
+  width: 4px;
+  height: 24px;
+  background-color: #00D2BE;
+  border-radius: 2px;
+}
+
+.modal-edit-close-btn {
+  background: transparent;
+  border: none;
+  color: #888;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: color 0.2s;
+  line-height: 1;
+}
+
+.modal-edit-close-btn:hover {
+  color: #fff;
+}
+
+/* --- BODY (Formulario) --- */
+.modal-edit-body {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+/* Grid para Nombre/Apellido */
+.modal-edit-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.modal-edit-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.modal-edit-label {
+  font-size: 0.75rem;
+  font-weight: bold;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* --- INPUTS & SELECTS --- */
+.modal-edit-input,
+.modal-edit-select {
+  width: 100%;
+  /* CLAVE: Ocupar todo el ancho del contenedor padre */
+  box-sizing: border-box;
+  /* CLAVE: Que el padding no agrande el ancho total */
+  background-color: #2C2C2C;
+  border: 1px solid #444;
+  color: #fff;
+  padding: 0.8rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: all 0.2s ease
+}
+
+.modal-edit-input:focus,
+.modal-edit-select:focus {
+  border-color: #00D2BE;
+  /* Foco Teal */
+  background-color: #333;
+  box-shadow: 0 0 0 3px rgba(0, 210, 190, 0.1);
+}
+
+.modal-edit-input::placeholder {
+  color: #666;
+}
+
+/* --- FOOTER (Botones) --- */
+.modal-edit-footer {
+  padding: 1.5rem;
+  background-color: #252525;
+  border-top: 1px solid #333;
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.modal-edit-btn-cancel {
+  background: transparent;
+  border: 1px solid #444;
+  color: #ccc;
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.modal-edit-btn-cancel:hover {
+  background-color: #333;
+  color: #fff;
+}
+
+.modal-edit-btn-save {
+  background-color: #FF4500;
+  /* Naranja Acción */
+  border: none;
+  color: #fff;
+  padding: 0.75rem 2rem;
+  border-radius: 6px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(255, 69, 0, 0.3);
+  transition: all 0.2s;
+}
+
+.modal-edit-btn-save:hover {
+  background-color: #e03e00;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(255, 69, 0, 0.4);
+}
+
+/* --- ANIMACIONES --- */
+@keyframes modal-edit-fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modal-edit-slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+
+/* MODAL DELETE USER */
+
+
+/* ModalDeleteUser.css */
+
+/* --- OVERLAY --- */
+.modal-delete-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+
+  /* Efecto blur pro */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  animation: modal-delete-fadeIn 0.2s ease-out;
+}
+
+/* --- TARJETA --- */
+.modal-delete-card {
+  background-color: #1E1E1E;
+  border: 1px solid #333;
+  width: 100%;
+  max-width: 400px;
+  border-radius: 16px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  animation: modal-delete-popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* --- ÍCONO DE ADVERTENCIA ANIMADO --- */
+.modal-delete-icon-wrapper {
+  width: 80px;
+  height: 80px;
+  background-color: rgba(239, 68, 68, 0.1);
+  /* Rojo suave */
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  position: relative;
+}
+
+.modal-delete-icon-wrapper::after {
+  content: '';
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid #ef4444;
+  opacity: 0.5;
+  animation: modal-delete-pulse 2s infinite;
+}
+
+.modal-delete-icon {
+  font-size: 2.5rem;
+  color: #ef4444;
+  /* Rojo Alerta */
+}
+
+/* --- TEXTOS --- */
+.modal-delete-title {
+  color: #fff;
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin: 0 0 0.5rem 0;
+}
+
+.modal-delete-description {
+  color: #a1a1aa;
+  /* Gris claro */
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 2rem;
+}
+
+.modal-delete-user-highlight {
+  color: #fff;
+  font-weight: 700;
+  background-color: #2a2a2a;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+
+/* --- BOTONES --- */
+.modal-delete-actions {
+  display: flex;
+  gap: 1rem;
+  width: 100%;
+}
+
+.modal-delete-btn {
+  flex: 1;
+  padding: 0.85rem;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.modal-delete-btn-cancel {
+  background-color: transparent;
+  border: 1px solid #444;
+  color: #fff;
+}
+
+.modal-delete-btn-cancel:hover {
+  background-color: #333;
+}
+
+.modal-delete-btn-confirm {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+  /* Gradiente Rojo */
+  color: white;
+  box-shadow: 0 4px 6px -1px rgba(239, 68, 68, 0.3);
+}
+
+.modal-delete-btn-confirm:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgba(239, 68, 68, 0.4);
+}
+
+/* --- ANIMACIONES --- */
+@keyframes modal-delete-fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes modal-delete-popIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes modal-delete-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+
+  70% {
+    transform: scale(1.4);
+    opacity: 0;
+  }
+
+  100% {
+    transform: scale(1);
+    opacity: 0;
+  }
+}
 
 /* ----------------- MIS ZAPATILLAS ----------*/
 
@@ -2172,7 +3021,7 @@ form {
   height: 100%;
   background: rgba(0, 0, 0, 0.85);
   /* Fondo bien oscuro */
-  backdrop-filter: blur(8px);
+
   /* Efecto borroso moderno */
   z-index: 1050;
   display: flex;
@@ -2582,6 +3431,10 @@ form {
   background: #1e1e1e;
   border-radius: 16px;
   border: 1px dashed #444;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-weight: bold;
 }
 
 .create-plan-btn {
@@ -2593,6 +3446,9 @@ form {
   font-weight: bold;
   border-radius: 8px;
   cursor: pointer;
+  text-decoration: none;
+  width: fit-content;
+
 }
 
 /* --- MOBILE --- */
