@@ -163,7 +163,7 @@ const TrainingDetail = ({ training, onClose }) => {
                                             <input
                                                 type="number"
                                                 step="0.01"
-                                                value={kmReal}
+                    
                                                 onChange={(e) => setRealKm(e.target.value)}
                                                 disabled={isCompleted}
                                                 className={isCompleted ? "input-disabled" : "inputFormTraining"}
@@ -177,7 +177,6 @@ const TrainingDetail = ({ training, onClose }) => {
                                     <input
                                         type="number"
                                         step="0.01"
-                                        value={duracionReal}
                                         onChange={(e) => setDuracionReal(e.target.value)}
                                         disabled={isCompleted}
                                         className={isCompleted ? "input-disabled" : "inputFormTraining"}

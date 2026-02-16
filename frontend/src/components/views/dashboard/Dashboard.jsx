@@ -5,58 +5,78 @@ import { WeatherWidget, ShoeTracker } from "./Widgets";
 import RaceCountdown from "./RaceCountDown";
 import logo from "../../../assets/logo-zona-ultra.png";
 
+import Loader from "../../loader/Loader";
+
 const Dashboard = () => {
     const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(true); // Arranca cargando
     const [selectedTraining, setSelectedTraining] = useState(null);
     const [shoesList, setShoesList] = useState([]);
-    const url  = import.meta.env.VITE_API_URL;
+    const url = import.meta.env.VITE_API_URL;
 
-    const fetchShoes = async () => {
-        setLoading(true);
+    // --- FUNCIONES AUXILIARES (Para que el useEffect quede limpio) ---
+    const fetchUser = async (token) => {
         try {
-            const token = localStorage.getItem('token');
+            const res = await getUserLogued(token);
+            if (res.plan && res.plan.entrenamientos) {
+                res.plan.entrenamientos = res.plan.entrenamientos.map(t => ({
+                    ...t,
+                    completado: t.completado || false
+                }));
+            }
+            return res;
+        } catch (e) {
+            console.error("Error user:", e);
+            return null;
+        }
+    };
+
+    const fetchShoesData = async (token) => {
+        try {
             const res = await fetch(`${url}/api/shoes`, {
                 headers: { "Authorization": `Bearer ${token}` }
             });
             const data = await res.json();
 
-            if (Array.isArray(data)) {
-                setShoesList(data);
-            } else if (data.data) {
-                setShoesList(Array.isArray(data.data) ? data.data : [data.data]);
-            } else {
-                setShoesList([]);
-            }
-        } catch (error) {
-            console.error("Error:", error);
-        } finally {
-            setLoading(false);
+            if (Array.isArray(data)) return data;
+            if (data.data && Array.isArray(data.data)) return data.data;
+            if (data.data) return [data.data];
+            return [];
+        } catch (e) {
+            console.error("Error shoes:", e);
+            return [];
         }
     };
 
+    // --- EFECTO DE CARGA OPTIMIZADO ---
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        const obtenerUsuario = async (tokenParaUsar) => {
-            if (!tokenParaUsar) return;
-            try {
-                const res = await getUserLogued(tokenParaUsar);
+        const loadDashboardData = async () => {
+            const token = localStorage.getItem("token");
 
-                if (res.plan && res.plan.entrenamientos) {
-                    res.plan.entrenamientos = res.plan.entrenamientos.map(t => ({
-                        ...t,
-                        completado: t.completado || false
-                    }));
-                }
-                setUser(res);
+            if (!token) {
+                setLoading(false);
+                return;
+            }
+
+            try {
+                // Promise.all para esperar a ambos datos
+                const [userData, shoesData] = await Promise.all([
+                    fetchUser(token),
+                    fetchShoesData(token)
+                ]);
+
+                if (userData) setUser(userData);
+                setShoesList(shoesData);
+
             } catch (error) {
-                console.error("Error al obtener usuario:", error);
+                console.error("Error cargando dashboard:", error);
             } finally {
+
                 setLoading(false);
             }
-        }
-        obtenerUsuario(token);
-        fetchShoes();
+        };
+
+        loadDashboardData();
     }, []);
 
     // --- LÓGICA DE PROGRESO ---
@@ -64,13 +84,30 @@ const Dashboard = () => {
     const completados = user?.plan?.entrenamientos.filter(t => t.completado).length || 0;
     const porcentaje = totalEntrenamientos === 0 ? 0 : Math.round((completados / totalEntrenamientos) * 100);
 
+    // --- RENDERIZADO ---
 
-    if (loading) return <div className="loading-screen">Cargando tu plan...</div>;
-    if (!user) return <div className="error-screen">No hay usuario registrado.</div>;
+    // 2. ACÁ USAMOS TU LOADER PROPIO
+    if (loading) {
+        return (
+            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#121212' }}>
+                <Loader />
+            </div>
+        );
+    }
+
+    // Si terminó de cargar y no hay usuario (token inválido o error)
+    if (!user) {
+        return (
+            <div className="error-screen">
+                <h2>No se pudo cargar el perfil</h2>
+                <p>Por favor inicia sesión nuevamente.</p>
+            </div>
+        );
+    }
 
     return (
         <main className="dashboard-container">
-            {/* --- 1. HEADER --- */}
+            {/* ... Todo tu contenido del dashboard igual que antes ... */}
             <header className="dash-header">
                 <div className="header-left">
                     <div className="user-welcome">
@@ -87,21 +124,18 @@ const Dashboard = () => {
             </header>
 
             <section className="content-section">
-                {/* --- 2. BARRA DE PROGRESO --- */}
+                {/* ... Barra de progreso ... */}
                 <div className="progress-section">
                     <div className="progress-info">
                         <span>Progreso Semanal</span>
                         <span>{porcentaje}%</span>
                     </div>
                     <div className="progress-bar-bg">
-                        <div
-                            className="progress-bar-fill"
-                            style={{ width: `${porcentaje}%` }}
-                        ></div>
+                        <div className="progress-bar-fill" style={{ width: `${porcentaje}%` }}></div>
                     </div>
                 </div>
 
-                {/* --- 3. WIDGETS --- */}
+                {/* ... Widgets ... */}
                 <div className="widgets-row">
                     <RaceCountdown
                         initialFecha={user.nextRace?.date}
@@ -113,32 +147,28 @@ const Dashboard = () => {
 
                 <h2 className="section-title">Tu Semana de Ultra</h2>
 
-                {/* --- 4. GRID DE TARJETAS --- */}
+                {/* ... Grid de Tarjetas ... */}
                 <div className="cards-grid">
                     {user.plan && user.plan.entrenamientos.length > 0 ? (
                         user.plan.entrenamientos.map((item, index) => (
                             <div
                                 className={`training-card ${item.completado ? 'card-completed' : ''}`}
                                 key={index}
-                                // AHORA: Cualquier click en la tarjeta abre el modal
                                 onClick={() => setSelectedTraining(item)}
                                 style={{ cursor: "pointer" }}
                             >
                                 <div className="card-header">
                                     <span className="day-badge">{item.dia}</span>
-
-                                    {/* CHECKBOX: Ahora es solo visual */}
                                     <div className="checkbox-container">
                                         <input
                                             type="checkbox"
                                             checked={item.completado}
-                                            readOnly // Importante: React no se queja y el usuario no puede cambiarlo directo
-                                            style={{ pointerEvents: "none" }} // Evita que el click lo capture el input
+                                            readOnly
+                                            style={{ pointerEvents: "none" }}
                                         />
                                         <span className="checkmark"></span>
                                     </div>
                                 </div>
-
                                 <div className="card-body">
                                     <h3 className="training-title">{item.tipo}</h3>
                                     <p className="training-type">{item.titulo}</p>
@@ -146,7 +176,6 @@ const Dashboard = () => {
                                     <p className="training-desc">{item.descripcion}</p>
                                     <p className="duration-text">⏱ {item.duracion} {item.unidad === 'horas' ? 'hs' : 'min'}</p>
                                 </div>
-
                                 <div className="card-glow"></div>
                             </div>
                         ))
@@ -158,7 +187,6 @@ const Dashboard = () => {
                 </div>
             </section>
 
-            {/* --- 5. MODAL DE DETALLE --- */}
             {selectedTraining && (
                 <TrainingDetail
                     training={selectedTraining}

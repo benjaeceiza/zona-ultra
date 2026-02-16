@@ -1998,7 +1998,7 @@ textarea {
   font-family: inherit;
   font-size: 0.95rem;
   transition: border-color 0.2s;
-
+  padding: 10px;
 }
 
 input[type="number"]:focus,
