@@ -1,16 +1,21 @@
-import  { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
+import { toast } from "react-toastify"; // Importar Toastify
 
 const ModalEditUserAdmin = ({ isOpen, onClose, user, onSave }) => {
+  
   // Estado inicial del formulario
   const [formData, setFormData] = useState({
     nombre: "",
     apellido: "",
     telefono: "",
     email: "",
-    rol: "user", // user o admin
+    rol: "user",
   });
 
-  // Cuando el modal se abre o cambia el usuario, actualizamos el formulario
+  // Estado para saber si hubo cambios
+  const [isModified, setIsModified] = useState(false);
+
+  // Cuando el modal se abre o cambia el usuario
   useEffect(() => {
     if (user) {
       setFormData({
@@ -20,41 +25,59 @@ const ModalEditUserAdmin = ({ isOpen, onClose, user, onSave }) => {
         email: user.email || "",
         rol: user.rol || "user",
       });
+      setIsModified(false); // Reseteamos al abrir
     }
   }, [user, isOpen]);
 
   // Manejador de cambios en los inputs
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    
+    setFormData((prev) => {
+      const newFormData = { ...prev, [name]: value };
+      
+      // --- LÓGICA DE COMPARACIÓN ---
+      // Comparamos el nuevo valor con el original del usuario
+      const hasChanges = 
+        newFormData.nombre !== (user.nombre || "") ||
+        newFormData.apellido !== (user.apellido || "") ||
+        newFormData.telefono !== (user.telefono || "") ||
+        newFormData.email !== (user.email || "") ||
+        newFormData.rol !== (user.rol || "user");
+      
+      setIsModified(hasChanges);
+      
+      return newFormData;
+    });
   };
 
   // Enviar formulario
   const handleSubmit = (e) => {
     e.preventDefault();
-    // Devolvemos los datos actualizados junto con el ID del usuario
+    
+    // Doble chequeo de seguridad
+    if (!isModified) return;
+
+    // Ejecutamos la función de guardado
     onSave({ ...formData, _id: user._id });
+    
+    // Cerramos el modal
+    onClose(); 
   };
 
-  // Si no está abierto, no renderizamos nada
   if (!isOpen) return null;
 
   return (
     <div className="modal-edit-overlay" onClick={onClose}>
       <div 
         className="modal-edit-container" 
-        onClick={(e) => e.stopPropagation()} // Evita cerrar si clickeas adentro
+        onClick={(e) => e.stopPropagation()} 
       >
         
         {/* HEADER */}
         <div className="modal-edit-header">
           <h2 className="modal-edit-title">Editar Perfil</h2>
-          <button className="modal-edit-close-btn" onClick={onClose}>
-            &times;
-          </button>
+          <button className="modal-edit-close-btn" onClick={onClose}>&times;</button>
         </div>
 
         {/* BODY (FORM) */}
@@ -140,7 +163,9 @@ const ModalEditUserAdmin = ({ isOpen, onClose, user, onSave }) => {
             </button>
             <button 
               type="submit" 
-              className="modal-edit-btn-save"
+              className={`modal-edit-btn-save ${!isModified ? 'disabled' : ''}`}
+              disabled={!isModified} // AQUÍ LA MAGIA: Se deshabilita si no hay cambios
+              title={!isModified ? "No hay cambios para guardar" : "Guardar cambios"}
             >
               Guardar Cambios
             </button>

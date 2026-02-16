@@ -1,8 +1,8 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom"; // 1. IMPORTANTE: Traemos el hook
+import { useParams } from "react-router-dom"; 
+import { toast } from "react-toastify"; 
 import { addPlanUSer } from "../../../services/addPlanUser";
 import { getUsers } from "../../../services/getUsers";
-
 
 const DESCRIPCIONES_AUTO = {
   "pasadas aerobicas": "Cambios de ritmo graduales",
@@ -10,45 +10,37 @@ const DESCRIPCIONES_AUTO = {
   "rodaje largo": "Ritmo suave – medio constante",
   "pasadas anaerobicas": "Cambios de ritmo bruscos",
   "entrenamiento por desnivel": "Subida a ritmo controlado",
+  "Entrenamiento pro desnivel-escaleras": "Subida de escaleras a ritmo controlado",
   "ritmo umbral aerobico": "Ritmo exigente pero sostenido",
   "fartlek aerobico en montana": "Cambio de ritmo según el terreno",
   "power hiking": "Caminar Fuerte con bastones o sin ellos",
-  "full body": "",
-  "tren superior": "",
-  "tren inferior": "",
-  "streching": "",
   "descanso": "Recuperación"
 };
 
+// --- FUNCIÓN GENERADORA (CLAVE PARA EL RESET) ---
+// Esta función crea objetos nuevos cada vez que se llama.
+const getSemanaLimpia = () => {
+    const dias = ["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"];
+    return dias.map(dia => ({
+        dia: dia,
+        titulo: "", 
+        tipo: "", 
+        duracion: "", 
+        unidad: "minutos", 
+        km: "", 
+        descripcion: ""
+    }));
+};
+
 const AddPlan = () => {
-  // 2. CAPTURAMOS EL ID DE LA URL
-  // Asumo que en tu Router definiste la ruta como "/crear-plan/:id"
-  // Si le pusiste otro nombre al parametro (ej: :userId), cambialo aquí.
   const { id } = useParams(); 
-
-  const diaDefault = { 
-    titulo: "", 
-    tipo: "", 
-    duracion: "", 
-    unidad: "minutos", 
-    km: "", 
-    descripcion: "" 
-  };
-
-  const [semana, setSemana] = useState([
-    { ...diaDefault, dia: "lunes" },
-    { ...diaDefault, dia: "martes" },
-    { ...diaDefault, dia: "miercoles" },
-    { ...diaDefault, dia: "jueves" },
-    { ...diaDefault, dia: "viernes" },
-    { ...diaDefault, dia: "sabado" },
-    { ...diaDefault, dia: "domingo" },
-  ]);
-
-  const [users, setUsers] = useState([]);
   
-  // Inicializamos el estado vacío, pero el useEffect de abajo lo corregirá si hay ID
+  // Usamos la función para el estado inicial
+  const [semana, setSemana] = useState(getSemanaLimpia());
+  
+  const [users, setUsers] = useState([]);
   const [userId, setUserId] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -58,7 +50,6 @@ const AddPlan = () => {
     fetchUsers();
   }, []);
 
-  // 3. NUEVO EFECTO: Si viene un ID por URL, lo seteamos automáticamente
   useEffect(() => {
     if (id) {
       setUserId(id);
@@ -66,90 +57,91 @@ const AddPlan = () => {
   }, [id]);
 
   const handleChange = (index, campo, valor) => {
-    const nuevaSemana = [...semana];
-    nuevaSemana[index][campo] = valor;
+    // Copia profunda para no mutar referencias
+    const nuevaSemana = semana.map((dia, i) => {
+        if (i === index) {
+            return { ...dia, [campo]: valor };
+        }
+        return dia;
+    });
     
+    // Lógica extra para cambios de título
     if (campo === "titulo") {
-      nuevaSemana[index].tipo = "";
-      nuevaSemana[index].km = "";
-      nuevaSemana[index].descripcion = "";
+        nuevaSemana[index].tipo = "";
+        nuevaSemana[index].km = "";
+        nuevaSemana[index].descripcion = "";
+        
+        if(valor === "descanso"){
+            nuevaSemana[index].tipo = "descanso";
+            nuevaSemana[index].descripcion = "Recuperación";
+            nuevaSemana[index].duracion = "0";
+            nuevaSemana[index].km = "0";
+        }
     }
     
     setSemana(nuevaSemana);
   };
 
   const handleTipoChange = (index, valor) => {
-    const nuevaSemana = [...semana];
-    nuevaSemana[index].tipo = valor;
-
-    if (DESCRIPCIONES_AUTO[valor]) {
-      nuevaSemana[index].descripcion = DESCRIPCIONES_AUTO[valor];
-    }
+    const nuevaSemana = semana.map((dia, i) => {
+        if (i === index) {
+            let nuevoDia = { ...dia, tipo: valor };
+            if (DESCRIPCIONES_AUTO[valor]) {
+                nuevoDia.descripcion = DESCRIPCIONES_AUTO[valor];
+            }
+            return nuevoDia;
+        }
+        return dia;
+    });
 
     setSemana(nuevaSemana);
   };
 
-  const rellenarVacios = () => {
-    const semanaRellena = semana.map(dia => {
-      if (!dia.titulo || !dia.tipo) {
-        return {
-          ...dia,
-          titulo: "descanso",
-          tipo: "descanso",
-          duracion: "0",
-          unidad: "minutos",
-          km: "0",
-          descripcion: "Recuperación"
-        };
-      }
-      return dia;
-    });
-    setSemana(semanaRellena);
-  };
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!userId) return alert("Por favor selecciona un usuario.");
+    
+    if (!userId) return toast.warn("⚠️ Por favor selecciona un usuario.");
 
     const hayVacios = semana.some(dia => dia.titulo === "" || dia.tipo === "");
+    
     if (hayVacios) {
-      const confirmar = window.confirm("Hay días sin completar. ¿Quieres rellenarlos automáticamente como 'Descanso'?");
-      if (confirmar) {
-        rellenarVacios();
-        return;
-      } else {
-        return alert("Por favor completa todos los campos requeridos.");
-      }
+        return toast.error("❌ Hay días sin completar. Por favor revisa el plan.");
     }
 
-    const token = localStorage.getItem("token");
-    const res = await addPlanUSer(userId, semana, token);
+    setLoading(true);
 
-    if (res.success) {
-      alert(res.message);
-    } else {
-      alert("Error: " + res.message);
+    try {
+        const token = localStorage.getItem("token");
+        const res = await addPlanUSer(userId, semana, token);
+
+        if (res.success) {
+            toast.success("✅ ¡Plan asignado con éxito!");
+            
+            // --- RESETEO AHORA SÍ FUNCIONA ---
+            setSemana(getSemanaLimpia()); // Generamos una semana nueva y vacía
+            
+            if(!id) setUserId(""); // Solo limpiamos el usuario si no venimos de la URL
+            
+        } else {
+            toast.error("Error: " + res.message);
+        }
+    } catch (error) {
+        console.error(error);
+        toast.error("❌ Error de conexión al guardar el plan.");
+    } finally {
+        setLoading(false);
     }
   };
 
   return (
     <main className="plan-creator-container">
       
-      {/* HEADER */}
       <div className="plan-creator-header">
         <h1 className="plan-creator-title">Nuevo Plan Semanal</h1>
-        <button 
-          type="button" 
-          onClick={rellenarVacios} 
-          className="plan-creator-btn-auto-fill"
-        >
-          🪄 Rellenar vacíos
-        </button>
       </div>
 
       <form onSubmit={handleSubmit}>
         
-        {/* GRID DE DIAS */}
         <div className="plan-creator-days-grid">
           {semana.map((diaInfo, index) => (
             <div 
@@ -215,45 +207,37 @@ const AddPlan = () => {
                   </select>
                 )}
                 
-                {diaInfo.titulo === "descanso" && (
-                   <select
-                    className="plan-creator-select"
-                    value={diaInfo.tipo}
-                    onChange={(e) => handleTipoChange(index, e.target.value)}
-                    disabled
-                  >
-                    <option value="descanso">Descanso Total</option>
-                  </select>
+                {/* 3. INPUTS COMUNES (Duración) */}
+                {diaInfo.titulo !== "descanso" && diaInfo.titulo !== "" && (
+                    <div className="plan-creator-duration-group">
+                    <input
+                        className="plan-creator-input"
+                        type="number"
+                        placeholder="Duración"
+                        value={diaInfo.duracion}
+                        onChange={(e) => handleChange(index, "duracion", e.target.value)}
+                    />
+                    
+                    <div className="plan-creator-toggle-group">
+                        <button
+                        type="button"
+                        className={`plan-creator-toggle-btn ${diaInfo.unidad === "minutos" ? "plan-creator-active" : ""}`}
+                        onClick={() => handleChange(index, "unidad", "minutos")}
+                        >
+                        Min
+                        </button>
+                        <button
+                        type="button"
+                        className={`plan-creator-toggle-btn ${diaInfo.unidad === "horas" ? "plan-creator-active" : ""}`}
+                        onClick={() => handleChange(index, "unidad", "horas")}
+                        >
+                        Hs
+                        </button>
+                    </div>
+                    </div>
                 )}
 
-                {/* 3. INPUTS COMUNES (Duración) */}
-                <div className="plan-creator-duration-group">
-                  <input
-                    className="plan-creator-input"
-                    type="number"
-                    placeholder="Duración"
-                    value={diaInfo.duracion}
-                    onChange={(e) => handleChange(index, "duracion", e.target.value)}
-                  />
-                  
-                  <div className="plan-creator-toggle-group">
-                    <button
-                      type="button"
-                      className={`plan-creator-toggle-btn ${diaInfo.unidad === "minutos" ? "plan-creator-active" : ""}`}
-                      onClick={() => handleChange(index, "unidad", "minutos")}
-                    >
-                      Min
-                    </button>
-                    <button
-                      type="button"
-                      className={`plan-creator-toggle-btn ${diaInfo.unidad === "horas" ? "plan-creator-active" : ""}`}
-                      onClick={() => handleChange(index, "unidad", "horas")}
-                    >
-                      Hs
-                    </button>
-                  </div>
-                </div>
-
+                {/* TEXTAREA DESCRIPCIÓN */}
                 <textarea
                   className="plan-creator-textarea"
                   placeholder="Instrucciones o detalles técnicos..."
@@ -281,8 +265,8 @@ const AddPlan = () => {
             ))}
           </select>
 
-          <button type="submit" className="plan-creator-btn-submit">
-            CONFIRMAR PLAN
+          <button type="submit" className="plan-creator-btn-submit" disabled={loading}>
+            {loading ? "GUARDANDO..." : "CONFIRMAR PLAN"}
           </button>
         </div>
       </form>

@@ -1,4 +1,5 @@
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom"; // 1. Importamos useLocation
+import { useEffect } from "react"; // 1. Importar useEffect
+import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
 import Login from "./components/views/login/Login";
 import Register from "./components/views/register/Register";
 import Dashboard from "./components/views/dashboard/Dashboard";
@@ -11,20 +12,30 @@ import { LoaderProvider } from "./context/LoaderContext";
 import RouteHandler from "./components/loader/RouteHandler";
 import ShoesPage from "./components/views/shoes/ShoesPage";
 import DetallePlan from "./components/views/detalle-plan-admin/DetallePlan";
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
-// 2. Creamos este componente auxiliar
+// --- COMPONENTE MÁGICO PARA EL SCROLL ---
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    // Cada vez que cambia la ruta (pathname), scrolleamos arriba
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null; // No renderiza nada visualmente
+};
+
+// --- TU NAVBAR CONDICIONAL ---
 const ConditionalNavbar = () => {
   const location = useLocation();
-  
-  // Aquí ponés las rutas donde NO querés que aparezca el Navbar
-  const hiddenPaths = ["/login"]; 
+  const hiddenPaths = ["/login"];
 
-  // Si la ruta actual está en la lista negra, no devolvemos nada (null)
   if (hiddenPaths.includes(location.pathname)) {
     return null;
   }
 
-  // Si no es login ni register, devolvemos el Navbar
   return <Navbar />;
 };
 
@@ -34,10 +45,23 @@ function App() {
     <>
       <LoaderProvider>
         <BrowserRouter>
-          
-          {/* 3. Reemplazamos <Navbar /> por nuestro componente condicional */}
+
+          <ScrollToTop />
+
           <ConditionalNavbar />
-          
+          <ToastContainer
+            position="top-right"
+            autoClose={3000}
+            hideProgressBar={false}
+            newestOnTop={false}
+            closeOnClick
+            rtl={false}
+            pauseOnFocusLoss
+            draggable
+            pauseOnHover
+            theme="dark"
+          />
+
           <RouteHandler />
           <Routes>
             <Route path="/login" element={<Login />} />

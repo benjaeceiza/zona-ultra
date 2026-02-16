@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { getUserLogued } from "../../../services/getUserLogued";
-// Borramos updateTrainingStatus porque ya no lo usaremos directamente desde aquí
 import TrainingDetail from "../detalle-plan/TrainingDetail";
 import { WeatherWidget, ShoeTracker } from "./Widgets";
 import RaceCountdown from "./RaceCountDown";

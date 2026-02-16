@@ -4,12 +4,12 @@ import { IoMdCreate, IoIosAddCircle } from "react-icons/io";
 import { MdDelete } from "react-icons/md";
 import { FaUserCircle } from "react-icons/fa";
 import { IoSearch } from "react-icons/io5";
-import { Link, useNavigate } from "react-router-dom"; // Importamos useNavigate
+import { Link, useNavigate } from "react-router-dom"; 
 import ModalEditUserAdmin from "./ModalEditUserAdmin";
 import { updateUserAdmin } from "../../../services/updateUser";
 import ModalDeleteUser from "./ModalDeleteUser";
 import { deleteUserService } from "../../../services/deleteUser";
-
+import { toast } from "react-toastify"; // 1. IMPORTAR TOAST
 
 const UserList = () => {
     const [users, setUsers] = useState([]);
@@ -18,7 +18,7 @@ const UserList = () => {
     const [selectedUser, setSelectedUser] = useState(null);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [userToDelete, setUserToDelete] = useState(null);
-    const navigate = useNavigate(); // Hook para navegar programáticamente
+    const navigate = useNavigate(); 
 
     const obtenerUsuarios = async () => {
         try {
@@ -29,6 +29,7 @@ const UserList = () => {
             }
         } catch (error) {
             console.log("Error del backend");
+            toast.error("Error al cargar los usuarios"); // Feedback visual
         }
     };
 
@@ -47,24 +48,18 @@ const UserList = () => {
     };
 
     const handleSaveUser = async (updatedData) => {
-        // 1. Obtener token (si usás auth)
         const token = localStorage.getItem('token');
-
-        // 2. Llamar al servicio
         const res = await updateUserAdmin(updatedData._id, updatedData, token);
 
         if (res.success) {
-            // 3. EXITO: Actualizamos la lista VISUALMENTE sin recargar pag
-            // Recorremos el array de usuarios y reemplazamos solo el que se editó
             setUsers(prevUsers => prevUsers.map(user =>
                 user._id === updatedData._id ? { ...user, ...updatedData } : user
             ));
 
-            // 4. Cerramos modal y avisamos
             setIsEditOpen(false);
-            alert("Usuario actualizado correctamente!"); // O un toast lindo
+            toast.success("Usuario actualizado correctamente"); // Toast de éxito
         } else {
-            alert("Error: " + res.message);
+            toast.error("Error al actualizar el usuario"); // Toast de error
         }
     };
 
@@ -74,31 +69,21 @@ const UserList = () => {
     };
 
     const confirmDelete = async (id) => {
-        // 1. Obtener token
         const token = localStorage.getItem('token');
-
-        // 2. Llamar al servicio
         const res = await deleteUserService(id, token);
 
         if (res.success) {
-            // 3. ACTUALIZAR UI: Filtramos la lista para sacar al usuario borrado
-            // Esto hace que desaparezca de la pantalla instantáneamente sin recargar
             setUsers(prevUsers => prevUsers.filter(user => user._id !== id));
-
-            // 4. Cerrar modal y avisar
             setIsDeleteOpen(false);
-            // Opcional: un toast o alert
-            // alert("Usuario eliminado con éxito");
+            toast.success("Usuario eliminado con éxito"); // Toast de éxito
         } else {
-            alert("Error al eliminar: " + res.message);
+            toast.error("Error al eliminar: " + res.message); // Toast de error (antes era alert)
         }
     };
 
-
-    // Esta función recibe el evento (e), lo detiene y ejecuta la acción
     const handleAction = (e, action) => {
-        e.preventDefault(); // Evita que el Link padre navegue
-        e.stopPropagation(); // Detiene la propagación del click hacia arriba
+        e.preventDefault(); 
+        e.stopPropagation(); 
         action();
     };
 
@@ -138,14 +123,12 @@ const UserList = () => {
             <section className="user-list-grid">
                 {filteredUsers.length > 0 ? (
                     filteredUsers.map((item) => (
-                        // EL LINK PADRE (Envuelve toda la card)
                         <Link
                             key={item._id}
                             className="user-card-link"
                             to={"/detalle-plan/" + item._id}
                         >
                             <div className="user-card">
-                                {/* Info Usuario */}
                                 <div className="user-info">
                                     <div className="avatar-placeholder">
                                         <FaUserCircle />
@@ -157,10 +140,7 @@ const UserList = () => {
                                     </div>
                                 </div>
 
-                                {/* Acciones (BOTONES HIJOS) */}
                                 <div className="action-buttons">
-
-                                    {/* Botón 1: Crear Plan */}
                                     <button
                                         className="btn-icon btn-plan"
                                         title="Asignar Plan"
@@ -169,7 +149,6 @@ const UserList = () => {
                                         <IoIosAddCircle />
                                     </button>
 
-                                    {/* Botón 2: Editar Usuario */}
                                     <button
                                         className="btn-icon btn-edit"
                                         title="Editar Usuario"
@@ -178,7 +157,6 @@ const UserList = () => {
                                         <IoMdCreate />
                                     </button>
 
-                                    {/* Botón 3: Eliminar */}
                                     <button
                                         className="btn-icon btn-delete"
                                         title="Eliminar"

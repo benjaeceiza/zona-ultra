@@ -1,7 +1,21 @@
 import { useState, useEffect } from 'react';
 import { getUserShoes } from "../../../services/getUserShoes.js";
-import { updateFeedback } from "../../../services/updateFeedback.js"; 
+import { updateFeedback } from "../../../services/updateFeedback.js";
 import { useLoader } from '../../../context/LoaderContext.jsx';
+
+const BORG_SCALE = {
+    0: { label: "MUY MUY SUAVE", color: "#6CA0DC" },
+    1: { label: "MUY SUAVE", color: "#FFD700" },
+    2: { label: "MUY SUAVE", color: "#FFD700" },
+    3: { label: "SUAVE", color: "#FFC107" },
+    4: { label: "MODERADO", color: "#FFB300" },
+    5: { label: "ALGO DURO", color: "#FF9800" },
+    6: { label: "DURO", color: "#F57C00" },
+    7: { label: "MUY DURO", color: "#E65100" },
+    8: { label: "MUY DURO", color: "#D84315" },
+    9: { label: "MUY DURO", color: "#C62828" },
+    10: { label: "MUY MUY DURO", color: "#B71C1C" }
+};
 
 const TrainingDetail = ({ training, onClose }) => {
 
@@ -14,7 +28,7 @@ const TrainingDetail = ({ training, onClose }) => {
     const tipoNormalizado = training.titulo ? training.titulo.toLowerCase() : "";
     const isRestDay = tipoNormalizado === 'descanso';
     // Detectamos si es fuerza (por si dice "entrenamiento de fuerza" o "fuerza")
-    const isStrength = tipoNormalizado.includes('fuerza'); 
+    const isStrength = tipoNormalizado.includes('fuerza');
 
     // Estados iniciales
     const [rpe, setRpe] = useState(feedbackGuardado.rpe || 5);
@@ -24,7 +38,7 @@ const TrainingDetail = ({ training, onClose }) => {
     const [selectedShoe, setSelectedShoe] = useState(feedbackGuardado.shoeId || "");
     const [kmReal, setRealKm] = useState(feedbackGuardado.kmReal || training.km || 0);
 
-    const {showLoader} = useLoader();
+    const { showLoader } = useLoader();
 
     useEffect(() => {
         if (training && !isRestDay) {
@@ -56,7 +70,7 @@ const TrainingDetail = ({ training, onClose }) => {
             // LOGICA NUEVA: Si es descanso O es fuerza, los km son 0
             kmReal: (isRestDay || isStrength) ? 0 : Number(kmReal)
         };
-        
+
         const resultado = await updateFeedback(feedbackData);
 
         if (resultado.success) {
@@ -101,7 +115,7 @@ const TrainingDetail = ({ training, onClose }) => {
                                 ⏱ {training.duracion} {training.unidad === 'horas' ? 'hs' : 'min'}
                             </span>
                         </div>
-                        
+
                         {/* CONDICIONAL: Solo mostramos la distancia planificada si NO es fuerza */}
                         {!isStrength && (
                             <div className="stat-box">
@@ -141,7 +155,7 @@ const TrainingDetail = ({ training, onClose }) => {
                         {!isRestDay ? (
                             <>
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '20px' }}>
-                                    
+
                                     {/* CONDICIONAL: Ocultamos input de Distancia si es Fuerza */}
                                     {!isStrength && (
                                         <>
@@ -187,19 +201,33 @@ const TrainingDetail = ({ training, onClose }) => {
                                 </div>
 
                                 {/* Slider RPE */}
-                                <div className="rpe-control">
-                                    <label>Esfuerzo (RPE): <span className="rpe-value">{rpe}/10</span></label>
+                                <div className="borg-wrapper">
+                                    <label className="completion-label">Esfuerzo Percibido (RPE)</label>
+
+                                    {/* Texto dinámico que cambia de color */}
+                                    <div className="borg-feedback" style={{ color: BORG_SCALE[rpe].color }}>
+                                        <span className="borg-number">{rpe}</span>
+                                        <span className="borg-text">{BORG_SCALE[rpe].label}</span>
+                                    </div>
+
+                                    {/* La barra mágica */}
                                     <input
                                         type="range"
-                                        min="1" max="10"
+                                        min="0"
+                                        max="10"
+                                        step="1"
+                                        name="rpe" // Asegurate que coincida con tu estado
                                         value={rpe}
-                                        onChange={(e) => setRpe(e.target.value)}
-                                        disabled={isCompleted}
-                                        className="range-slider"
+                                        onChange={(e) => setRpe(e.target.value)} // O tu función de cambio
+                                        className="borg-slider"
+                                        style={{
+                                            // Esto pinta la barra del color correcto hasta donde arrastres
+                                            background: `linear-gradient(to right, ${BORG_SCALE[rpe].color} 0%, ${BORG_SCALE[rpe].color} ${(rpe / 10) * 100}%, #333 ${(rpe / 10) * 100}%, #333 100%)`
+                                        }}
                                     />
-                                    <div className="rpe-labels">
-                                        <span>Suave</span>
-                                        <span>Mortal</span>
+
+                                    <div className="borg-ticks">
+                                        <span>0</span><span>5</span><span>10</span>
                                     </div>
                                 </div>
 
@@ -218,7 +246,7 @@ const TrainingDetail = ({ training, onClose }) => {
                         ) : (
                             /* --- SI ES DESCANSO --- */
                             <div style={{ textAlign: 'center', padding: '20px', color: '#888', fontStyle: 'italic' }}>
-                                <p>🍃 Hoy toca recargar energías. <br/>¡Confirmá tu descanso para completar el día!</p>
+                                <p>🍃 Hoy toca recargar energías. <br />¡Confirmá tu descanso para completar el día!</p>
                             </div>
                         )}
 

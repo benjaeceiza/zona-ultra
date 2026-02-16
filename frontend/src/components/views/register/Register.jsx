@@ -1,64 +1,214 @@
-import { useState } from "react";
-import { userRegister } from "../../../services/register.js"; 
+import { useState } from 'react';
+import { toast } from 'react-toastify';
+import { FaEye, FaEyeSlash, FaUserPlus } from 'react-icons/fa';
 
 
 const Register = () => {
-
-    const [nombre, setNombre] = useState("");
-    const [apellido, setApellido] = useState("");
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const [telefono, setTelefono] = useState("");
     
-    const [mensaje, setMensaje] = useState(""); 
+    const API_URL = import.meta.env.VITE_API_URL;
 
-    const submitUser = async (e) => { 
+    const initialFormState = {
+        nombre: '',
+        apellido: '',
+        email: '',
+        telefono: '',
+        password: '',
+        confirmPassword: '',
+        rol: 'user' 
+    };
+
+    const [formData, setFormData] = useState(initialFormState);
+    const [showPass, setShowPass] = useState(false);
+    const [showConfirmPass, setShowConfirmPass] = useState(false);
+    const [loading, setLoading] = useState(false);
+
+    const { nombre, apellido, email, telefono, password, confirmPassword, rol } = formData;
+
+    const onChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    const onSubmit = async (e) => {
         e.preventDefault();
-        const token = localStorage.getItem("token"); 
 
-        if (!token) {
-            setMensaje("No tienes permisos (Falta token)");
-            return;
+        // Validaciones
+        if (password.length < 8) {
+            return toast.warn("⚠️ La contraseña debe tener al menos 8 caracteres.");
         }
+
+        if (password !== confirmPassword) {
+            return toast.error("❌ Las contraseñas no coinciden.");
+        }
+
+        setLoading(true);
 
         try {
-            const res = await userRegister(nombre, apellido, email, telefono, password, token);
+            const token = localStorage.getItem('token'); 
+            const dataToSend = { nombre, apellido, email, telefono, password, rol };
 
-            if (res.success) {
-                alert("¡Usuario creado con éxito!");
-                setMensaje(""); 
-                // Opcional: Podrías limpiar los inputs aquí reseteando los estados
-            } else {
-                setMensaje(res.message); 
+            const response = await fetch(`${API_URL}/api/auth/admin/register`, { 
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}` 
+                },
+                body: JSON.stringify(dataToSend)
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.message || "Error al registrar usuario");
             }
+
+            toast.success(`✅ Usuario registrado con éxito!`);
+            setFormData(initialFormState); 
+
         } catch (error) {
             console.error(error);
-            setMensaje("Error inesperado en el frontend");
+            toast.error(error.message);
+        } finally {
+            setLoading(false);
         }
-    }
+    };
 
     return (
-        // 2. Agregué la clase 'register-page' para centrar todo en la pantalla
-        <main className="register-login-page">
-            
-            <div className="formAuthContainer">
-                <h1 className="titleAuth">Registrar <span>Usuario</span></h1>
+        <div className="register-page-container">
+            <div className="register-card">
                 
-                <form onSubmit={submitUser} className="formAuth">
-                    <input className="inputFormAuth" type="text" placeholder="Nombre" required onChange={(e) => setNombre(e.target.value)} />
-                    <input className="inputFormAuth" type="text" placeholder="Apellido" required onChange={(e) => setApellido(e.target.value)} />
-                    <input className="inputFormAuth" type="email" placeholder="Correo electrónico" required onChange={(e) => setEmail(e.target.value)} />
-                    {/* El CSS se encarga de quitar las flechas feas del number */}
-                    <input className="inputFormAuth" type="number" placeholder="Teléfono" required onChange={(e) => setTelefono(e.target.value)} />
-                    <input className="inputFormAuth" type="password" placeholder="Contraseña" required onChange={(e) => setPassword(e.target.value)} />
+                {/* HEADER */}
+                <div className="register-header">
+                    <FaUserPlus className="register-header-icon" />
+                    <h2 className="register-title">Registrar Usuario</h2>
+                </div>
+
+                <form onSubmit={onSubmit} className="register-form">
                     
-                    <input className="buttonFormAuth" type="submit" value="Crear Cuenta" />
-                    
-                    {mensaje && <p className="errorMsgForm">{mensaje}</p>}
+                    {/* FILA 1: NOMBRE Y APELLIDO */}
+                    <div className="register-row">
+                        <div className="register-group">
+                            <label className="register-label">Nombre</label>
+                            <input 
+                                className="register-input" 
+                                type="text" 
+                                name="nombre" 
+                                value={nombre} 
+                                onChange={onChange} 
+                                required 
+                                placeholder="Ej: Lionel" 
+                            />
+                        </div>
+                        <div className="register-group">
+                            <label className="register-label">Apellido</label>
+                            <input 
+                                className="register-input" 
+                                type="text" 
+                                name="apellido" 
+                                value={apellido} 
+                                onChange={onChange} 
+                                required 
+                                placeholder="Ej: Messi" 
+                            />
+                        </div>
+                    </div>
+
+                    {/* FILA 2: EMAIL */}
+                    <div className="register-group">
+                        <label className="register-label">Email</label>
+                        <input 
+                            className="register-input" 
+                            type="email" 
+                            name="email" 
+                            value={email} 
+                            onChange={onChange} 
+                            required 
+                            placeholder="correo@ejemplo.com" 
+                        />
+                    </div>
+
+                    {/* FILA 3: TELÉFONO Y ROL */}
+                    <div className="register-row">
+                        <div className="register-group">
+                            <label className="register-label">Teléfono</label>
+                            <input 
+                                className="register-input" 
+                                type="tel" 
+                                name="telefono" 
+                                value={telefono} 
+                                onChange={onChange} 
+                                placeholder="+54 9 ..." 
+                            />
+                        </div>
+                        <div className="register-group">
+                            <label className="register-label">Rol</label>
+                            <select 
+                                className="register-input register-select" 
+                                name="rol" 
+                                value={rol} 
+                                onChange={onChange}
+                            >
+                                <option value="user">Corredor (User)</option>
+                                <option value="admin">Administrador</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    {/* FILA 4: CONTRASEÑAS (CON OJITO) */}
+                    <div className="register-row">
+                        <div className="register-group">
+                            <label className="register-label">Contraseña</label>
+                            <div className="register-password-wrapper">
+                                <input 
+                                    className="register-input register-input-pass"
+                                    type={showPass ? "text" : "password"} 
+                                    name="password" 
+                                    value={password} 
+                                    onChange={onChange} 
+                                    required 
+                                    placeholder="Mínimo 8 caracteres"
+                                />
+                                <button 
+                                    type="button" 
+                                    className="register-eye-btn" 
+                                    onClick={() => setShowPass(!showPass)}
+                                >
+                                    {showPass ? <FaEyeSlash /> : <FaEye />}
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="register-group">
+                            <label className="register-label">Confirmar</label>
+                            <div className="register-password-wrapper">
+                                <input 
+                                    className="register-input register-input-pass"
+                                    type={showConfirmPass ? "text" : "password"} 
+                                    name="confirmPassword" 
+                                    value={confirmPassword} 
+                                    onChange={onChange} 
+                                    required 
+                                    placeholder="Repetir contraseña"
+                                />
+                                <button 
+                                    type="button" 
+                                    className="register-eye-btn" 
+                                    onClick={() => setShowConfirmPass(!showConfirmPass)}
+                                >
+                                    {showConfirmPass ? <FaEyeSlash /> : <FaEye />}
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* BOTÓN SUBMIT */}
+                    <button type="submit" className="register-btn-submit" disabled={loading}>
+                        {loading ? "Creando..." : "Crear Usuario"}
+                    </button>
+
                 </form>
             </div>
-        </main>
-    )
-}
+        </div>
+    );
+};
 
 export default Register;
