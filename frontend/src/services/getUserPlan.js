@@ -1,11 +1,11 @@
 // Ajusta la URL base según tu entorno ( o producción)
-const API_URL = "https://zona-ultra.onrender.com/api/users";
+const url  = import.meta.env.VITE_API_URL;
 
 export const getUserWithPlan = async (userId) => {
     const token = localStorage.getItem("token");
 
     try {
-        const response = await fetch(`${API_URL}/admin/${userId}`, {
+        const response = await fetch(`${url}/api/users/admin/${userId}`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",

@@ -1,12 +1,13 @@
 
 
+const url  = import.meta.env.VITE_API_URL;
 // services/shoeService.js
 
 export const getUserShoes = async () => {
     try {
         const token = localStorage.getItem("token");
 
-        const response = await fetch(`https://zona-ultra.onrender.com/api/shoes`, {
+        const response = await fetch(`${url}/api/shoes`, {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",

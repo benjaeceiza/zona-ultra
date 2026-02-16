@@ -1,8 +1,10 @@
+const url  = import.meta.env.VITE_API_URL;
+
 export const userRegister = async (nombre, apellido, email, telefono, password, token) => {
   const data = { nombre, apellido, email, telefono, password };
 
   try {
-    const res = await fetch("https://zona-ultra.onrender.com/api/auth/admin/register", {
+    const res = await fetch(`${url}/api/auth/admin/register`, {
       method: "POST",
       headers: {
         "Authorization": `Bearer ${token}`,

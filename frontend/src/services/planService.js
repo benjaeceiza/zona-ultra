@@ -1,10 +1,12 @@
 // services/planService.js
 
 // Cambiamos 'trainingId' por 'index'
+const url  = import.meta.env.VITE_API_URL;
+
 export const updateTrainingStatus = async (token, index, completado) => {
     
     
-    const response = await fetch('https://zona-ultra.onrender.com/api/plans/admin/actualizar-progreso', { 
+    const response = await fetch(`${url}/api/plans/admin/actualizar-progreso`, { 
         method: 'PATCH',
         headers: {
             'Content-Type': 'application/json',

@@ -1,6 +1,9 @@
 import { useState } from 'react';
 
 const AddShoeForm = ({ onShoeAdded }) => {
+
+    const url  = import.meta.env.VITE_API_URL;
+
     const [formData, setFormData] = useState({
         brand: '',
         model: '',
@@ -21,7 +24,7 @@ const AddShoeForm = ({ onShoeAdded }) => {
 
         try {
             const token = localStorage.getItem('token');
-            const response = await fetch('http://:8080/api/shoes', {
+            const response = await fetch(`${url}/api/shoes`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

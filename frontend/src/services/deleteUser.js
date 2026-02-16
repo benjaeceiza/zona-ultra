@@ -1,7 +1,13 @@
+
+
+const url  = import.meta.env.VITE_API_URL;
+    
 // services/deleteUser.js
 export const deleteUserService = async (id, token) => {
+
+
     try {
-        const response = await fetch(`https://zona-ultra.onrender.com/api/users/${id}`, {
+        const response = await fetch(`${url}/api/users/${id}`, {
             method: 'DELETE',
             headers: {
                 'Content-Type': 'application/json',

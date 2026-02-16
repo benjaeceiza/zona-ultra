@@ -3,12 +3,13 @@ import { useState, useEffect } from 'react';
 const ShoeList = ({ refreshTrigger }) => { // refreshTrigger es opcional, por si querés recargar cuando agregás una nueva
     const [shoes, setShoes] = useState([]);
     const [loading, setLoading] = useState(true);
+    const url = import.meta.env.VITE_API_URL;
 
     useEffect(() => {
         const fetchShoes = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const res = await fetch('http://:8080/api/shoes', { // Ojo con el puerto, vi 8080 acá y 5000 antes
+                const res = await fetch(`${url}/api/shoes`, { // Ojo con el puerto, vi 8080 acá y 5000 antes
                     headers: {
                         "Authorization": `Bearer ${token}`, // Asegurate que tu backend espere "Bearer" y no "x-auth-token"
                         // Si usabas mi código anterior de backend, en headers era: 'x-auth-token': token

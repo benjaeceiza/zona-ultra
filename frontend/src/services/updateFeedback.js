@@ -1,12 +1,14 @@
 
 
+const url  = import.meta.env.VITE_API_URL;
+
 export const updateFeedback = async (feedbackData) => {
     
     try {
         const token = localStorage.getItem("token");
         
         // Ajusta la URL a tu ruta real
-        const response = await fetch(`https://zona-ultra.onrender.com/api/plans/feedback`, {
+        const response = await fetch(`${url}/api/plans/feedback`, {
             method: "PUT", // Usamos PUT o PATCH porque es una actualización
             headers: {
                 "Content-Type": "application/json",

@@ -11,12 +11,13 @@ const Dashboard = () => {
     const [loading, setLoading] = useState(true);
     const [selectedTraining, setSelectedTraining] = useState(null);
     const [shoesList, setShoesList] = useState([]);
+    const url  = import.meta.env.VITE_API_URL;
 
     const fetchShoes = async () => {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('http://:8080/api/shoes', {
+            const res = await fetch(`${url}/api/shoes`, {
                 headers: { "Authorization": `Bearer ${token}` }
             });
             const data = await res.json();

@@ -1,8 +1,11 @@
+
+const url = import.meta.env.VITE_API_URL;
+
 export const userLogin = async (email, password) => {
-  const data = { email, password };
+  const data = { email, password };  
 
   try {
-    const res = await fetch("https://zona-ultra.onrender.com/api/auth/login", {
+    const res = await fetch(`${url}/api/auth/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -20,10 +23,10 @@ export const userLogin = async (email, password) => {
     // ✅ Si llega acá, fue correcto el login
     if (result?.token) {
       localStorage.setItem("token", result.token);
-  
+
     }
 
-    return {token:result.token};
+    return { token: result.token };
 
   } catch (err) {
     console.error("Error en el login:", err);

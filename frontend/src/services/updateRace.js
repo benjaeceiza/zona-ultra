@@ -1,13 +1,13 @@
 
 
-const API_URL = "https://zona-ultra.onrender.com/api/users"; 
+const url  = import.meta.env.VITE_API_URL;
 
 export const updateUserRace = async (userId, raceData) => {
     
     const token = localStorage.getItem('token'); 
 
     try {
-        const response = await fetch(`${API_URL}/race/${userId}`, {
+        const response = await fetch(`${url}/api/users/race/${userId}`, {
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',

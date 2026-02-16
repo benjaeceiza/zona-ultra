@@ -1,9 +1,12 @@
 
+
+const url  = import.meta.env.VITE_API_URL;
+
 export const getUsers = async () => {
     const token = localStorage.getItem("token");
 
     try {
-        const res = await fetch("https://zona-ultra.onrender.com/api/users", {
+        const res = await fetch(`${url}/api/users`, {
             method: "GET",
             headers: {
                 "Authorization": `Bearer ${token}`,

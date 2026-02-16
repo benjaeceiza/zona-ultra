@@ -1,7 +1,10 @@
 // services/updateUser.js
+
+const url  = import.meta.env.VITE_API_URL;
+
 export const updateUserAdmin = async (id, userData, token) => {
     try {
-        const response = await fetch(`https://zona-ultra.onrender.com/api/users/admin-edit/${id}`, { 
+        const response = await fetch(`${url}/api/users/admin-edit/${id}`, { 
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',
@@ -23,7 +26,7 @@ export const updateUserAdmin = async (id, userData, token) => {
 
 export const updateUser = async (id, userData, token) => {
     try {
-        const response = await fetch(`https://zona-ultra.onrender.com/api/users/edit/${id}`, { 
+        const response = await fetch(`${url}/api/users/edit/${id}`, { 
             method: 'PUT',
             headers: {
                 'Content-Type': 'application/json',

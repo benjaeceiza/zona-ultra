@@ -7,6 +7,7 @@ const ShoesPage = () => {
     const [shoes, setShoes] = useState([]);
     const [loading, setLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
+    const url = import.meta.env.VITE_API_URL; 
 
     // Array de colores "Neon" para los fondos de los íconos
     const iconColors = [
@@ -25,7 +26,7 @@ const ShoesPage = () => {
         setLoading(true);
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch('http://:8080/api/shoes', {
+            const res = await fetch(`${url}/api/shoes`, {
                 headers: { "Authorization": `Bearer ${token}` }
             });
             const data = await res.json();
@@ -50,7 +51,7 @@ const ShoesPage = () => {
         if (!window.confirm("¿Estás seguro de que querés borrar esta zapatilla?")) return;
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`http://:8080/api/shoes/${id}`, {
+            const res = await fetch(`${url}/api/shoes/${id}`, {
                 method: 'DELETE',
                 headers: { "Authorization": `Bearer ${token}` }
             });

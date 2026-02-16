@@ -1,6 +1,10 @@
+
+const url  = import.meta.env.VITE_API_URL;
+
 export const addPlanUSer = async (userId, semana,token) => {
+
     try {
-        const response = await fetch(`https://zona-ultra.onrender.com/api/plans/admin/${userId}`, {
+        const response = await fetch(`${url}/api/plans/admin/${userId}`, {
             method: "POST",
                 headers: {
             "Authorization": `Bearer ${token}`,
