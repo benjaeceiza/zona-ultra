@@ -2,17 +2,107 @@ import { useState, useEffect } from "react";
 
 // --- COMPONENTE 2: CLIMA (Mockup Visual) ---
 
+const getWeatherIcon = (weatherId, isNight) => {
+    if (weatherId >= 200 && weatherId < 300) return "⛈️"; // Tormenta
+    if (weatherId >= 300 && weatherId < 500) return "🌦️"; // Llovizna
+    if (weatherId >= 500 && weatherId < 600) return "🌧️"; // Lluvia
+    if (weatherId >= 600 && weatherId < 700) return "❄️"; // Nieve
+    if (weatherId >= 700 && weatherId < 800) return "🌫️"; // Niebla
+    if (weatherId === 800) return isNight ? "🌙" : "☀️"; // Despejado
+    if (weatherId > 800) return "☁️"; // Nublado
+    return "🌤️"; // Default
+};
+
 export const WeatherWidget = () => {
-    return (
-        <div className=" weather-card">
-            <div className="weather-icon">🌤️</div>
+    // Estado para guardar los datos
+    const [weather, setWeather] = useState(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    // TU API KEY (Si esta falla, registrate gratis en OpenWeatherMap y poné la tuya)
+    const API_KEY = "831cbbc051686ead8ff1bf31a04e1dbd"; // Esta es una key pública de prueba
+
+    useEffect(() => {
+        // Función para pedir el clima
+        const fetchWeather = async (lat, lon) => {
+            try {
+                const url = `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&units=metric&lang=es&appid=${API_KEY}`;
+                const res = await fetch(url);
+                const data = await res.json();
+
+                if (data.cod !== 200) throw new Error("Error en API");
+
+                setWeather({
+                    temp: Math.round(data.main.temp),
+                    city: data.name,
+                    humidity: data.main.humidity,
+                    wind: Math.round(data.wind.speed * 3.6), // Convertimos m/s a km/h
+                    id: data.weather[0].id,
+                    isNight: data.weather[0].icon.includes('n') // Detectamos si es de noche
+                });
+
+            } catch (err) {
+                console.error(err);
+                setError("Sin datos");
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        // Pedimos la ubicación al navegador
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                fetchWeather(position.coords.latitude, position.coords.longitude);
+            },
+            (err) => {
+                // Si el usuario niega la ubicación, usamos una por defecto (ej: Villa Mercedes)
+                // Coordenadas de Villa Mercedes: -33.6757, -65.4585
+                fetchWeather(-33.6757, -65.4585); 
+                console.log("Ubicación denegada, usando default.");
+            }
+        );
+    }, []);
+
+    // --- RENDERIZADO ---
+
+    // 1. Estado de carga (mantenemos la estructura visual)
+    if (loading) return (
+        <div className="weather-card">
+            <div className="weather-icon">⏳</div>
             <div className="weather-info">
-                <span className="temp">18°C</span>
-                <span className="location">Montaña</span>
+                <span className="location">Cargando...</span>
             </div>
+        </div>
+    );
+
+    // 2. Estado de error (o fallback visual)
+    if (error || !weather) return (
+        <div className="weather-card">
+            <div className="weather-icon">❌</div>
+            <div className="weather-info">
+                <span className="location">Offline</span>
+            </div>
+        </div>
+    );
+
+    // 3. Widget Funcional
+    return (
+        <div className="weather-card">
+            <div className="weather-icon">
+                {getWeatherIcon(weather.id, weather.isNight)}
+            </div>
+            
+            <div className="weather-info">
+                <span className="temp">{weather.temp}°C</span>
+                {/* Recortamos el nombre si es muy largo */}
+                <span className="location">
+                    {weather.city.length > 12 ? weather.city.substring(0, 10) + '...' : weather.city}
+                </span>
+            </div>
+            
             <div className="weather-detail">
-                <span>💧 10%</span>
-                <span>💨 15km/h</span>
+                <span title="Humedad">💧 {weather.humidity}%</span>
+                <span title="Viento">💨 {weather.wind}km/h</span>
             </div>
         </div>
     );
