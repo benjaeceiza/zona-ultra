@@ -1,5 +1,5 @@
-import { useEffect } from "react"; // 1. Importar useEffect
-import { BrowserRouter, Routes, Route, useLocation } from "react-router-dom";
+import { useEffect } from "react"; 
+import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom"; // 1. IMPORTANTE: Agregué Navigate
 import Login from "./components/views/login/Login";
 import Register from "./components/views/register/Register";
 import Dashboard from "./components/views/dashboard/Dashboard";
@@ -15,22 +15,21 @@ import DetallePlan from "./components/views/detalle-plan-admin/DetallePlan";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-// --- COMPONENTE MÁGICO PARA EL SCROLL ---
+// --- COMPONENTE PARA EL SCROLL ---
 const ScrollToTop = () => {
   const { pathname } = useLocation();
 
   useEffect(() => {
-    // Cada vez que cambia la ruta (pathname), scrolleamos arriba
     window.scrollTo(0, 0);
   }, [pathname]);
 
-  return null; // No renderiza nada visualmente
+  return null;
 };
 
-// --- TU NAVBAR CONDICIONAL ---
+// --- NAVBAR CONDICIONAL ---
 const ConditionalNavbar = () => {
   const location = useLocation();
-  const hiddenPaths = ["/login"];
+  const hiddenPaths = ["/login"]; 
 
   if (hiddenPaths.includes(location.pathname)) {
     return null;
@@ -39,17 +38,30 @@ const ConditionalNavbar = () => {
   return <Navbar />;
 };
 
+// --- 2. NUEVO COMPONENTE: RUTA PÚBLICA ---
+// Si ya estás logueado (hay token), te patea al Home ("/").
+// Si no estás logueado, te deja ver el Login.
+const PublicRoute = ({ children }) => {
+  const token = localStorage.getItem("token"); 
+  
+  if (token) {
+    return <Navigate to="/" replace />;
+  }
+  
+  return children;
+};
+
 function App() {
 
   return (
     <>
       <LoaderProvider>
         <BrowserRouter>
-
+          
           <ScrollToTop />
-
+          
           <ConditionalNavbar />
-          <ToastContainer
+          <ToastContainer 
             position="top-right"
             autoClose={3000}
             hideProgressBar={false}
@@ -59,12 +71,14 @@ function App() {
             pauseOnFocusLoss
             draggable
             pauseOnHover
-            theme="dark"
+            theme="dark" 
           />
 
           <RouteHandler />
           <Routes>
-            <Route path="/login" element={<Login />} />
+            {/* 3. ENVIO EL LOGIN CON PUBLIC ROUTE */}
+            <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
+            
             <Route path="/register" element={<AdminRoute><Register /></AdminRoute>} />
             <Route path="/" element={<LoginRoute><Dashboard /></LoginRoute>} />
             <Route path="/mis-zapatillas" element={<LoginRoute><ShoesPage /></LoginRoute>} />

@@ -223,6 +223,15 @@
   flex-direction: column;
 }
 
+.username-nav-role{
+  font-size: 10px;
+  color: #00a89d;
+  font-weight:900;
+  text-transform: uppercase;
+  
+
+}
+
 .username-nav-row {
   display: flex;
   align-items: center;

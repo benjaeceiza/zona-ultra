@@ -13,7 +13,6 @@ const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
     
-    // Estado donde vive la verdad absoluta del usuario
     const [currentUser, setCurrentUser] = useState(null);
 
     const token = localStorage.getItem("token");
@@ -22,32 +21,24 @@ const Navbar = () => {
     useEffect(() => {
         if (token) {
             try {
-                // Decodificamos solo para tener algo rápido que mostrar (placeholders)
                 const decoded = jwtDecode(token);
-                
-                // Seteamos data preliminar del token (puede ser vieja)
                 setCurrentUser({
                     _id: decoded.id || decoded._id,
                     nombre: decoded.nombre,
                     rol: decoded.rol,
-                    // Si el token no tiene apellido/tel, no pasa nada, el fetch lo arregla
                 });
-
-                // Inmediatamente buscamos la data REAL y FRESCA a la base de datos
                 refreshUserData(); 
-
             } catch (error) {
                 localStorage.clear();
             }
         }
     }, [token]);
 
-    // --- FUNCIÓN AUXILIAR PARA REFRESCAR DATOS ---
     const refreshUserData = async () => {
         if (!token) return;
         const freshUser = await getUserLogued(token);
         if (freshUser) {
-            setCurrentUser(freshUser); // Esto actualiza la UI al instante
+            setCurrentUser(freshUser); 
         }
     };
 
@@ -60,21 +51,13 @@ const Navbar = () => {
     const toggleMenu = () => setIsOpen(!isOpen);
     const closeMenu = () => setIsOpen(false);
 
-    // --- 2. ACÁ ESTÁ EL CAMBIO CLAVE ---
     const handleSaveProfile = async (updatedData) => {
-        // Guardamos en el backend
         const res = await updateUser(updatedData._id, updatedData, token);
 
         if (res.success) {
-            // EXITO: No deslogueamos.
-            
-            // 1. Refrescamos los datos del usuario localmente llamando a la API de nuevo
             await refreshUserData(); 
-
-            // 2. Avisamos y cerramos
             alert("¡Perfil actualizado con éxito!");
             setIsProfileModalOpen(false);
-            
         } else {
             alert("Error al actualizar: " + res.message);
         }
@@ -86,7 +69,7 @@ const Navbar = () => {
                 <ModalEditNormal
                     isOpen={isProfileModalOpen}
                     onClose={() => setIsProfileModalOpen(false)}
-                    user={currentUser} // Le pasamos siempre el usuario actualizado
+                    user={currentUser} 
                     onSave={handleSaveProfile}
                 />
             )}
@@ -109,9 +92,10 @@ const Navbar = () => {
                             <FaUserCircle />
                         </div>
                         <div className="username-nav-info">
+                            
+                            {/* FILA 1: Nombre + Botón Editar */}
                             <div className="username-nav-row">
                                 <span className="username-nav-name">
-                                    {/* Acá se verá el nombre nuevo automáticamente */}
                                     {currentUser.nombre || "Corredor"} 
                                 </span>
                                 <button
@@ -122,6 +106,12 @@ const Navbar = () => {
                                     <IoMdCreate />
                                 </button>
                             </div>
+
+                            {/* FILA 2: ROL (Agregado aquí abajo) */}
+                            <span className="username-nav-role">
+                                {currentUser.rol === 'admin' ? 'Admin' : 'User'}
+                            </span>
+
                         </div>
                     </div>
                 ) : (
@@ -131,6 +121,7 @@ const Navbar = () => {
                 )}
 
                 <ul className="navbarList">
+                    {/* ... (El resto de tu lista de links sigue igual) ... */}
                     {token && (
                         <li className="navbarItem">
                             <NavLink className="navbarLink" to="/" onClick={closeMenu}>Dashboard</NavLink>
