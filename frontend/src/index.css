@@ -223,12 +223,12 @@
   flex-direction: column;
 }
 
-.username-nav-role{
+.username-nav-role {
   font-size: 10px;
   color: #00a89d;
-  font-weight:900;
+  font-weight: 900;
   text-transform: uppercase;
-  
+
 
 }
 
@@ -804,6 +804,29 @@
   text-align: center;
   margin-top: 10px;
   font-weight: 600;
+}
+
+
+/* Estilo del Spinner */
+.login-spinner {
+  width: 18px;
+  height: 18px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin-login 0.8s linear infinite;
+}
+
+@keyframes spin-login {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Opcional: que el botón se vea un poco más oscuro cuando está deshabilitado */
+.buttonFormAuth:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
 }
 
 @keyframes slideUpLogin {
@@ -1444,11 +1467,26 @@
 
 /* --- 1. COUNTDOWN (CUENTA REGRESIVA) --- */
 .countdown-card {
-  background: linear-gradient(135deg, #1E1E1E 60%, #252525 100%);
-  border-left: 5px solid #FF4500;
-  /* Borde Naranja */
+  display: flex;
   justify-content: space-between;
   align-items: center;
+  background: #1a1a1a;
+  /* Fondo oscuro facherito */
+  padding: 20px;
+  border-radius: 12px;
+}
+
+.countdown-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 70px;
+    height: 70px;
+    border-radius: 10px;
+    color: #000; /* Texto oscuro sobre el color vibrante */
+    font-weight: 800;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
 .widget-content {
@@ -1481,18 +1519,25 @@
 }
 
 .count-number {
-  display: block;
-  font-size: 2rem;
-  line-height: 1;
-  font-weight: 900;
-  color: #FF4500;
+    font-size: 1.8rem;
+    line-height: 1;
 }
 
 .count-label {
-  font-size: 0.6rem;
-  color: #fff;
-  letter-spacing: 1px;
+    font-size: 0.6rem;
 }
+
+.edit-race-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    opacity: 0.5;
+}
+
+.edit-race-btn:hover { opacity: 1; }
 
 /* --- 2. SHOE TRACKER (ZAPATILLAS) --- */
 .shoe-card-widget {
@@ -3598,6 +3643,8 @@ form {
   color: #888;
   text-transform: uppercase;
   letter-spacing: 1px;
+  color: #00D2BE;
+  font-weight: bold;
 }
 
 .user-name {
@@ -3607,6 +3654,89 @@ form {
   background: linear-gradient(90deg, #fff, #aaa);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+}
+
+
+/* --- SELECTOR DE SEMANAS --- */
+.week-selector-container {
+  margin: 20px 0;
+  overflow-x: auto;
+  /* Scroll horizontal si hay muchas semanas */
+  padding-bottom: 10px;
+}
+
+.week-tabs {
+  display: flex;
+  gap: 10px;
+}
+
+.week-tab {
+  background: #1e1e1e;
+  border: 1px solid #333;
+  color: #888;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.week-tab:hover {
+  background: #2a2a2a;
+  color: #fff;
+}
+
+.week-tab.active {
+  background: rgba(0, 210, 190, 0.1);
+  border-color: #00D2BE;
+  color: #00D2BE;
+  font-weight: bold;
+}
+
+/* Puntito de estado */
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #555;
+}
+
+.status-dot.activo {
+  background: #00D2BE;
+  box-shadow: 0 0 5px #00D2BE;
+}
+
+.status-dot.pendiente {
+  background: #f1c40f;
+}
+
+.status-dot.finalizado {
+  background: #666;
+}
+
+.status-text {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+/* Estado activo/pendiente en el borde */
+.week-tab.activo.active {
+  border-color: #00D2BE;
+}
+
+.week-tab.pendiente.active {
+  border-color: #f1c40f;
+  color: #f1c40f;
+  background: rgba(241, 196, 15, 0.1);
+}
+
+.week-tab.finalizado.active {
+  border-color: #666;
+  color: #aaa;
 }
 
 /* --- STATS DASHBOARD (WIDGETS) --- */

@@ -9,20 +9,29 @@ import Loader from "../../loader/Loader";
 
 const Dashboard = () => {
     const [user, setUser] = useState(null);
-    const [loading, setLoading] = useState(true); // Arranca cargando
+    const [loading, setLoading] = useState(true);
     const [selectedTraining, setSelectedTraining] = useState(null);
     const [shoesList, setShoesList] = useState([]);
     const url = import.meta.env.VITE_API_URL;
 
-    // --- FUNCIONES AUXILIARES (Para que el useEffect quede limpio) ---
+    // --- 1. FUNCIONES DE CARGA DE DATOS ---
     const fetchUser = async (token) => {
         try {
             const res = await getUserLogued(token);
-            if (res.plan && res.plan.entrenamientos) {
-                res.plan.entrenamientos = res.plan.entrenamientos.map(t => ({
-                    ...t,
-                    completado: t.completado || false
-                }));
+            
+            // PROTECCIÓN: Si el backend devuelve null o undefined, cortamos acá.
+            if (!res) return null;
+
+            // ADAPTACIÓN: Aseguramos que 'completado' sea booleano en todos los planes
+            if (res.planes && res.planes.length > 0) {
+                res.planes.forEach(plan => {
+                    if (plan.entrenamientos) {
+                        plan.entrenamientos = plan.entrenamientos.map(t => ({
+                            ...t,
+                            completado: t.completado || false
+                        }));
+                    }
+                });
             }
             return res;
         } catch (e) {
@@ -48,7 +57,7 @@ const Dashboard = () => {
         }
     };
 
-    // --- EFECTO DE CARGA OPTIMIZADO ---
+    // --- 2. EFECTO DE CARGA INICIAL ---
     useEffect(() => {
         const loadDashboardData = async () => {
             const token = localStorage.getItem("token");
@@ -59,7 +68,7 @@ const Dashboard = () => {
             }
 
             try {
-                // Promise.all para esperar a ambos datos
+                // Promise.all para cargar todo junto y evitar parpadeos
                 const [userData, shoesData] = await Promise.all([
                     fetchUser(token),
                     fetchShoesData(token)
@@ -71,7 +80,6 @@ const Dashboard = () => {
             } catch (error) {
                 console.error("Error cargando dashboard:", error);
             } finally {
-
                 setLoading(false);
             }
         };
@@ -79,14 +87,56 @@ const Dashboard = () => {
         loadDashboardData();
     }, []);
 
-    // --- LÓGICA DE PROGRESO ---
-    const totalEntrenamientos = user?.plan?.entrenamientos.length || 0;
-    const completados = user?.plan?.entrenamientos.filter(t => t.completado).length || 0;
+    // --- 3. LÓGICA DE PROGRESO Y VALIDACIÓN ---
+    
+    // Buscamos el plan ACTIVO en el array
+    // Usamos ?. para que no explote si user es null
+    const activePlan = user?.planes?.find(plan => plan.estado === 'activo');
+    const entrenamientosDisplay = activePlan ? activePlan.entrenamientos : [];
+
+    const totalEntrenamientos = entrenamientosDisplay.length || 0;
+    const completados = entrenamientosDisplay.filter(t => t.completado).length || 0;
+    
     const porcentaje = totalEntrenamientos === 0 ? 0 : Math.round((completados / totalEntrenamientos) * 100);
 
-    // --- RENDERIZADO ---
+    // 🔥 VALIDACIÓN CLAVE: ¿Está la semana al 100%?
+    const semanaCompleta = totalEntrenamientos > 0 && completados === totalEntrenamientos;
 
-    // 2. ACÁ USAMOS TU LOADER PROPIO
+    // --- 4. FUNCIÓN PARA CERRAR LA SEMANA ---
+    const handleFinishWeek = async () => {
+        // Doble seguridad: por si habilitan el botón desde el inspector
+        if (!semanaCompleta) {
+            alert("⛔ Aún te faltan entrenamientos por completar.");
+            return;
+        }
+
+        const confirm = window.confirm("¿Terminaste tu semana? 🏁\n\nAl confirmar, esta semana pasará al historial y se activará la siguiente automáticamente.");
+        
+        if (!confirm) return;
+
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${url}/api/plans/complete-week/${user._id}`, {
+                method: 'PUT',
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+
+            const data = await res.json();
+
+            if (res.ok) {
+                alert(data.message || "¡Semana completada con éxito!");
+                window.location.reload(); // Recargamos para ver el plan nuevo
+            } else {
+                alert("Error: " + data.message);
+            }
+        } catch (error) {
+            console.error(error);
+            alert("Error de conexión al cerrar la semana.");
+        }
+    };
+
+    // --- 5. RENDERIZADO ---
+
     if (loading) {
         return (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#121212' }}>
@@ -95,7 +145,6 @@ const Dashboard = () => {
         );
     }
 
-    // Si terminó de cargar y no hay usuario (token inválido o error)
     if (!user) {
         return (
             <div className="error-screen">
@@ -107,7 +156,7 @@ const Dashboard = () => {
 
     return (
         <main className="dashboard-container">
-            {/* ... Todo tu contenido del dashboard igual que antes ... */}
+            {/* HEADER */}
             <header className="dash-header">
                 <div className="header-left">
                     <div className="user-welcome">
@@ -124,10 +173,11 @@ const Dashboard = () => {
             </header>
 
             <section className="content-section">
-                {/* ... Barra de progreso ... */}
+                
+                {/* BARRA DE PROGRESO */}
                 <div className="progress-section">
                     <div className="progress-info">
-                        <span>Progreso Semanal</span>
+                        <span>Progreso Semanal {activePlan ? `(Semana ${activePlan.numeroSemana || 1})` : ''}</span>
                         <span>{porcentaje}%</span>
                     </div>
                     <div className="progress-bar-bg">
@@ -135,7 +185,7 @@ const Dashboard = () => {
                     </div>
                 </div>
 
-                {/* ... Widgets ... */}
+                {/* WIDGETS */}
                 <div className="widgets-row">
                     <RaceCountdown
                         initialFecha={user.nextRace?.date}
@@ -145,12 +195,14 @@ const Dashboard = () => {
                     <ShoeTracker userShoes={shoesList} />
                 </div>
 
-                <h2 className="section-title">Tu Semana de Ultra</h2>
+                <h2 className="section-title">
+                    {activePlan ? "Tu Semana de Ultra" : "Sin Plan Activo"}
+                </h2>
 
-                {/* ... Grid de Tarjetas ... */}
+                {/* GRID DE ENTRENAMIENTOS */}
                 <div className="cards-grid">
-                    {user.plan && user.plan.entrenamientos.length > 0 ? (
-                        user.plan.entrenamientos.map((item, index) => (
+                    {entrenamientosDisplay.length > 0 ? (
+                        entrenamientosDisplay.map((item, index) => (
                             <div
                                 className={`training-card ${item.completado ? 'card-completed' : ''}`}
                                 key={index}
@@ -181,12 +233,66 @@ const Dashboard = () => {
                         ))
                     ) : (
                         <div className="empty-state">
-                            <p>No tienes plan asignado.</p>
+                            <p>No tienes una semana activa en este momento.</p>
+                            {/* Aviso si hay cola de espera */}
+                            {user.planes?.some(p => p.estado === 'pendiente') && (
+                                <p style={{color: '#00D2BE', marginTop: '10px', fontSize: '0.9rem'}}>
+                                    (Tienes semanas pendientes. Finaliza la anterior para activar esta.)
+                                </p>
+                            )}
                         </div>
                     )}
                 </div>
+
+                {/* BOTÓN CERRAR SEMANA CON VALIDACIÓN 100% */}
+                {activePlan && (
+                    <div style={{ marginTop: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
+                        
+                        {/* Mensaje de ayuda si está bloqueado */}
+                        {!semanaCompleta && (
+                            <span style={{ color: '#666', fontSize: '0.85rem', fontStyle: 'italic' }}>
+                                * Completa todos los entrenamientos para avanzar
+                            </span>
+                        )}
+
+                        <button 
+                            className="btn-finish-week"
+                            onClick={handleFinishWeek}
+                            disabled={!semanaCompleta} // BLOQUEO HTML
+                            style={{
+                                background: semanaCompleta ? '#1e1e1e' : '#2a2a2a', // Gris oscuro si está disabled
+                                border: semanaCompleta ? '1px solid #00D2BE' : '1px solid #444',
+                                color: semanaCompleta ? '#00D2BE' : '#555',
+                                padding: '12px 30px',
+                                borderRadius: '8px',
+                                cursor: semanaCompleta ? 'pointer' : 'not-allowed',
+                                fontSize: '1rem',
+                                fontWeight: 'bold',
+                                transition: 'all 0.3s ease',
+                                opacity: semanaCompleta ? 1 : 0.6,
+                                boxShadow: semanaCompleta ? '0 4px 12px rgba(0, 210, 190, 0.1)' : 'none'
+                            }}
+                            onMouseOver={(e) => {
+                                if (semanaCompleta) {
+                                    e.target.style.background = '#00D2BE';
+                                    e.target.style.color = '#121212';
+                                }
+                            }}
+                            onMouseOut={(e) => {
+                                if (semanaCompleta) {
+                                    e.target.style.background = '#1e1e1e';
+                                    e.target.style.color = '#00D2BE';
+                                }
+                            }}
+                        >
+                            {semanaCompleta ? "🏁 Cerrar Semana y Avanzar" : "🔒 Semana Incompleta"}
+                        </button>
+                    </div>
+                )}
+
             </section>
 
+            {/* MODAL DETALLE */}
             {selectedTraining && (
                 <TrainingDetail
                     training={selectedTraining}

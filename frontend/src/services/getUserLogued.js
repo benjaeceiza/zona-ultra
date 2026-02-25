@@ -16,6 +16,7 @@ export const getUserLogued = async (token) => {
 
 
     const result = await res.json();
+    
 
     return result.user
 

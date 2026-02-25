@@ -124,7 +124,7 @@ const Navbar = () => {
                     {/* ... (El resto de tu lista de links sigue igual) ... */}
                     {token && (
                         <li className="navbarItem">
-                            <NavLink className="navbarLink" to="/" onClick={closeMenu}>Dashboard</NavLink>
+                            <NavLink className="navbarLink" to="/" onClick={closeMenu}>Panel de control</NavLink>
                             <NavLink className="navbarLink" to="/mis-zapatillas" onClick={closeMenu}>Mis Zapatillas</NavLink>
                         </li>
                     )}

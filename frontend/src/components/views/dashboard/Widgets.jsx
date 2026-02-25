@@ -20,7 +20,7 @@ export const WeatherWidget = () => {
     const [error, setError] = useState(null);
 
     // TU API KEY (Si esta falla, registrate gratis en OpenWeatherMap y poné la tuya)
-    const API_KEY = "831cbbc051686ead8ff1bf31a04e1dbd"; // Esta es una key pública de prueba
+    const API_KEY = "831cbbc051686ead8ff1bf31a04e1dbd"; 
 
     useEffect(() => {
         // Función para pedir el clima

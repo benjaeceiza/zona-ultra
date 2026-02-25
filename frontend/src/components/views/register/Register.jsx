@@ -62,6 +62,8 @@ const Register = () => {
             }
 
             toast.success(`✅ Usuario registrado con éxito!`);
+            
+            // 🔥 RESETEO DEL FORMULARIO
             setFormData(initialFormState); 
 
         } catch (error) {
@@ -153,7 +155,7 @@ const Register = () => {
                         </div>
                     </div>
 
-                    {/* FILA 4: CONTRASEÑAS (CON OJITO) */}
+                    {/* FILA 4: CONTRASEÑAS */}
                     <div className="register-row">
                         <div className="register-group">
                             <label className="register-label">Contraseña</label>
@@ -200,9 +202,20 @@ const Register = () => {
                         </div>
                     </div>
 
-                    {/* BOTÓN SUBMIT */}
-                    <button type="submit" className="register-btn-submit" disabled={loading}>
-                        {loading ? "Creando..." : "Crear Usuario"}
+                    {/* 🔥 BOTÓN SUBMIT CON LOADER */}
+                    <button 
+                        type="submit" 
+                        className="register-btn-submit" 
+                        disabled={loading}
+                        style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px' }}
+                    >
+                        {loading ? (
+                            <>
+                                <span className="login-spinner"></span>
+                            </>
+                        ) : (
+                            "Crear Usuario"
+                        )}
                     </button>
 
                 </form>

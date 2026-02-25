@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom"; 
 import { toast } from "react-toastify"; 
-import { addPlanUSer } from "../../../services/addPlanUser";
+import { addPlanUSer } from "../../../services/addPlanUser"; 
 import { getUsers } from "../../../services/getUsers";
 
 const DESCRIPCIONES_AUTO = {
@@ -17,8 +17,6 @@ const DESCRIPCIONES_AUTO = {
   "descanso": "Recuperación"
 };
 
-// --- FUNCIÓN GENERADORA (CLAVE PARA EL RESET) ---
-// Esta función crea objetos nuevos cada vez que se llama.
 const getSemanaLimpia = () => {
     const dias = ["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"];
     return dias.map(dia => ({
@@ -35,37 +33,79 @@ const getSemanaLimpia = () => {
 const AddPlan = () => {
   const { id } = useParams(); 
   
-  // Usamos la función para el estado inicial
   const [semana, setSemana] = useState(getSemanaLimpia());
-  
   const [users, setUsers] = useState([]);
   const [userId, setUserId] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const [canAdd, setCanAdd] = useState(true); 
+  const [statusMsg, setStatusMsg] = useState(""); 
+  const [statusColor, setStatusColor] = useState(""); 
+
   useEffect(() => {
     const fetchUsers = async () => {
-      const result = await getUsers();
-      if (result?.users) setUsers(result.users);
+      try {
+        const result = await getUsers();
+        if (result?.users) {
+            setUsers(result.users);
+            if (id) {
+                setUserId(id);
+                checkUserStatus(id, result.users);
+            }
+        }
+      } catch (error) {
+          console.error("Error cargando usuarios", error);
+      }
     };
     fetchUsers();
-  }, []);
-
-  useEffect(() => {
-    if (id) {
-      setUserId(id);
-    }
   }, [id]);
 
+  // 🔥 CAMBIO: Lógica ajustada para 4 semanas (el mes completo)
+  const checkUserStatus = (selectedId, userList = users) => {
+      if (!selectedId) {
+          setCanAdd(false);
+          setStatusMsg("");
+          return;
+      }
+
+      const usuario = userList.find(u => u._id === selectedId);
+
+      if (usuario && usuario.planes) {
+          const planesEnCola = usuario.planes.filter(p => p.estado !== 'finalizado');
+          const count = planesEnCola.length;
+
+          if (count >= 4) {
+              setCanAdd(false);
+              setStatusMsg(`⛔ MES COMPLETO: El usuario ya tiene 4 semanas cargadas. No puedes cargar más.`);
+              setStatusColor("#ff4d4d"); 
+          } else if (count > 0 && count < 4) {
+              setCanAdd(true);
+              setStatusMsg(`⚠️ ATENCIÓN: El usuario tiene ${count}/4 semanas cargadas. Este plan entrará como 'Pendiente'.`);
+              setStatusColor("#f1c40f"); 
+          } else {
+              setCanAdd(true);
+              setStatusMsg("✅ Todo despejado: Este será el primer plan del mes ('Activo').");
+              setStatusColor("#00D2BE"); 
+          }
+      } else {
+          setCanAdd(true);
+          setStatusMsg("✅ Usuario libre.");
+          setStatusColor("#00D2BE");
+      }
+  };
+
+  const handleUserChange = (e) => {
+      const newId = e.target.value;
+      setUserId(newId);
+      checkUserStatus(newId);
+  };
+
   const handleChange = (index, campo, valor) => {
-    // Copia profunda para no mutar referencias
     const nuevaSemana = semana.map((dia, i) => {
-        if (i === index) {
-            return { ...dia, [campo]: valor };
-        }
+        if (i === index) return { ...dia, [campo]: valor };
         return dia;
     });
     
-    // Lógica extra para cambios de título
     if (campo === "titulo") {
         nuevaSemana[index].tipo = "";
         nuevaSemana[index].km = "";
@@ -78,7 +118,6 @@ const AddPlan = () => {
             nuevaSemana[index].km = "0";
         }
     }
-    
     setSemana(nuevaSemana);
   };
 
@@ -93,7 +132,6 @@ const AddPlan = () => {
         }
         return dia;
     });
-
     setSemana(nuevaSemana);
   };
 
@@ -101,12 +139,10 @@ const AddPlan = () => {
     e.preventDefault();
     
     if (!userId) return toast.warn("⚠️ Por favor selecciona un usuario.");
+    if (!canAdd) return toast.error("⛔ No puedes agregar más planes a este usuario.");
 
     const hayVacios = semana.some(dia => dia.titulo === "" || dia.tipo === "");
-    
-    if (hayVacios) {
-        return toast.error("❌ Hay días sin completar. Por favor revisa el plan.");
-    }
+    if (hayVacios) return toast.error("❌ Hay días sin completar.");
 
     setLoading(true);
 
@@ -117,17 +153,22 @@ const AddPlan = () => {
         if (res.success) {
             toast.success("✅ ¡Plan asignado con éxito!");
             
-            // --- RESETEO AHORA SÍ FUNCIONA ---
-            setSemana(getSemanaLimpia()); // Generamos una semana nueva y vacía
-            
-            if(!id) setUserId(""); // Solo limpiamos el usuario si no venimos de la URL
+            const updatedUsers = await getUsers();
+            if(updatedUsers?.users) {
+                setUsers(updatedUsers.users);
+                checkUserStatus(userId, updatedUsers.users); 
+            }
+
+            setSemana(getSemanaLimpia());
+            if(!id) setUserId(""); 
+            setStatusMsg(""); 
             
         } else {
             toast.error("Error: " + res.message);
         }
     } catch (error) {
         console.error(error);
-        toast.error("❌ Error de conexión al guardar el plan.");
+        toast.error("❌ Error de conexión.");
     } finally {
         setLoading(false);
     }
@@ -152,7 +193,6 @@ const AddPlan = () => {
 
               <div className="plan-creator-inputs-wrapper">
                 
-                {/* 1. SELECCIONAR TIPO PRINCIPAL */}
                 <select
                   className="plan-creator-select"
                   value={diaInfo.titulo}
@@ -164,7 +204,6 @@ const AddPlan = () => {
                   <option value="descanso">Descanso</option>
                 </select>
 
-                {/* 2. SELECCIONAR SUB-TIPO */}
                 {diaInfo.titulo === "entrenamiento aerobico" && (
                   <>
                     <select
@@ -207,7 +246,6 @@ const AddPlan = () => {
                   </select>
                 )}
                 
-                {/* 3. INPUTS COMUNES (Duración) */}
                 {diaInfo.titulo !== "descanso" && diaInfo.titulo !== "" && (
                     <div className="plan-creator-duration-group">
                     <input
@@ -237,7 +275,6 @@ const AddPlan = () => {
                     </div>
                 )}
 
-                {/* TEXTAREA DESCRIPCIÓN */}
                 <textarea
                   className="plan-creator-textarea"
                   placeholder="Instrucciones o detalles técnicos..."
@@ -249,25 +286,51 @@ const AddPlan = () => {
           ))}
         </div>
 
-        {/* FOOTER */}
         <div className="plan-creator-submit-section">
-          <label className="plan-creator-label">Asignar Plan al Alumno:</label>
-          <select
-            className="plan-creator-select plan-creator-user-select"
-            value={userId}
-            onChange={(e) => setUserId(e.target.value)}
-          >
-            <option value="">-- Seleccionar Usuario --</option>
-            {users?.map((item) => (
-              <option key={item._id} value={item._id}>
-                {item.nombre} {item.apellido}
-              </option>
-            ))}
-          </select>
+            
+            <div className="user-selection-block">
+                <label className="plan-creator-label">Asignar Plan al Alumno:</label>
+                <select
+                    className="plan-creator-select plan-creator-user-select"
+                    value={userId}
+                    onChange={handleUserChange}
+                >
+                    <option value="">-- Seleccionar Usuario --</option>
+                    {users?.map((item) => (
+                    <option key={item._id} value={item._id}>
+                        {item.nombre} {item.apellido}
+                    </option>
+                    ))}
+                </select>
+            </div>
 
-          <button type="submit" className="plan-creator-btn-submit" disabled={loading}>
-            {loading ? "GUARDANDO..." : "CONFIRMAR PLAN"}
-          </button>
+            {userId && statusMsg && (
+                <div style={{
+                    marginBottom: '15px',
+                    padding: '10px 15px',
+                    borderRadius: '8px',
+                    border: `2px solid ${statusColor}`,
+                    backgroundColor: 'rgba(30, 30, 30, 0.8)',
+                    color: statusColor,
+                    fontWeight: 'bold',
+                    textAlign: 'center',
+                    fontSize: '0.9rem'
+                }}>
+                    {statusMsg}
+                </div>
+            )}
+
+            <button 
+                type="submit" 
+                className="plan-creator-btn-submit" 
+                disabled={loading || !canAdd}
+                style={{ 
+                    opacity: (!canAdd || loading) ? 0.5 : 1, 
+                    cursor: (!canAdd || loading) ? 'not-allowed' : 'pointer' 
+                }}
+            >
+                {loading ? "GUARDANDO..." : "CONFIRMAR PLAN"}
+            </button>
         </div>
       </form>
     </main>
