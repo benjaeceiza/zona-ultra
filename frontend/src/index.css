@@ -573,12 +573,7 @@
 /*Formulario de autenticacion*/
 /* --- FONDO GENERAL --- */
 
-#loginContainer {
-  background-image: url("../src/assets/fondos/fondo-login.png");
-  background-position: center;
-  background-size: cover;
-  background-repeat: no-repeat;
-}
+
 
 
 .register-login-page {
@@ -1433,6 +1428,102 @@
   }
 
   /* Widgets uno abajo del otro */
+}
+
+/* =========================================
+   MODAL CERRAR SEMANA (Zona Ultra Style)
+   ========================================= */
+
+.modal-cerrar-semana-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.2s ease-in-out;
+}
+
+.modal-cerrar-semana-card {
+    background-color: #1a1a1a;
+    border: 1px solid #00D2BE;
+    border-radius: 12px;
+    padding: 30px;
+    width: 90%;
+    max-width: 400px;
+    box-shadow: 0 8px 25px rgba(0, 210, 190, 0.15);
+    text-align: center;
+    animation: slideUp 0.3s ease-out;
+}
+
+.modal-cerrar-semana-title {
+    color: #ffffff;
+    font-size: 1.4rem;
+    margin-bottom: 15px;
+    font-weight: 700;
+}
+
+.modal-cerrar-semana-text {
+    color: #aaaaaa;
+    font-size: 0.95rem;
+    line-height: 1.5;
+    margin-bottom: 25px;
+}
+
+.modal-cerrar-semana-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+}
+
+.modal-cerrar-semana-btn-cancelar {
+    flex: 1;
+    background-color: transparent;
+    border: 1px solid #444;
+    color: #fff;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.modal-cerrar-semana-btn-cancelar:hover {
+    background-color: #333;
+    border-color: #666;
+}
+
+.modal-cerrar-semana-btn-aceptar {
+    flex: 1;
+    background-color: #00D2BE;
+    border: 1px solid #00D2BE;
+    color: #121212;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.modal-cerrar-semana-btn-aceptar:hover {
+    background-color: #00b09f;
+    border-color: #00b09f;
+    box-shadow: 0 0 10px rgba(0, 210, 190, 0.4);
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 /*Widget dashboard*/

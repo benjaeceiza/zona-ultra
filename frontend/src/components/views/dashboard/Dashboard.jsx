@@ -4,25 +4,28 @@ import TrainingDetail from "../detalle-plan/TrainingDetail";
 import { WeatherWidget, ShoeTracker } from "./Widgets";
 import RaceCountdown from "./RaceCountDown";
 import logo from "../../../assets/logo-zona-ultra.png";
-
 import Loader from "../../loader/Loader";
+
+// 🔥 Agregamos toastify para las notificaciones
+import { toast } from "react-toastify"; 
 
 const Dashboard = () => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [selectedTraining, setSelectedTraining] = useState(null);
     const [shoesList, setShoesList] = useState([]);
+    
+    // --- ESTADO DEL MODAL CERRAR SEMANA ---
+    const [isModalCerrarSemanaOpen, setIsModalCerrarSemanaOpen] = useState(false);
+    
     const url = import.meta.env.VITE_API_URL;
 
     // --- 1. FUNCIONES DE CARGA DE DATOS ---
     const fetchUser = async (token) => {
         try {
             const res = await getUserLogued(token);
-            
-            // PROTECCIÓN: Si el backend devuelve null o undefined, cortamos acá.
             if (!res) return null;
 
-            // ADAPTACIÓN: Aseguramos que 'completado' sea booleano en todos los planes
             if (res.planes && res.planes.length > 0) {
                 res.planes.forEach(plan => {
                     if (plan.entrenamientos) {
@@ -68,7 +71,6 @@ const Dashboard = () => {
             }
 
             try {
-                // Promise.all para cargar todo junto y evitar parpadeos
                 const [userData, shoesData] = await Promise.all([
                     fetchUser(token),
                     fetchShoesData(token)
@@ -88,9 +90,6 @@ const Dashboard = () => {
     }, []);
 
     // --- 3. LÓGICA DE PROGRESO Y VALIDACIÓN ---
-    
-    // Buscamos el plan ACTIVO en el array
-    // Usamos ?. para que no explote si user es null
     const activePlan = user?.planes?.find(plan => plan.estado === 'activo');
     const entrenamientosDisplay = activePlan ? activePlan.entrenamientos : [];
 
@@ -98,21 +97,11 @@ const Dashboard = () => {
     const completados = entrenamientosDisplay.filter(t => t.completado).length || 0;
     
     const porcentaje = totalEntrenamientos === 0 ? 0 : Math.round((completados / totalEntrenamientos) * 100);
-
-    // 🔥 VALIDACIÓN CLAVE: ¿Está la semana al 100%?
     const semanaCompleta = totalEntrenamientos > 0 && completados === totalEntrenamientos;
 
-    // --- 4. FUNCIÓN PARA CERRAR LA SEMANA ---
-    const handleFinishWeek = async () => {
-        // Doble seguridad: por si habilitan el botón desde el inspector
-        if (!semanaCompleta) {
-            alert("⛔ Aún te faltan entrenamientos por completar.");
-            return;
-        }
-
-        const confirm = window.confirm("¿Terminaste tu semana? 🏁\n\nAl confirmar, esta semana pasará al historial y se activará la siguiente automáticamente.");
-        
-        if (!confirm) return;
+    // --- 4. FUNCIÓN QUE EJECUTA EL CIERRE (Llamada desde el Modal) ---
+    const executeFinishWeek = async () => {
+        setIsModalCerrarSemanaOpen(false); // Cerramos el modal primero
 
         try {
             const token = localStorage.getItem('token');
@@ -124,19 +113,20 @@ const Dashboard = () => {
             const data = await res.json();
 
             if (res.ok) {
-                alert(data.message || "¡Semana completada con éxito!");
-                window.location.reload(); // Recargamos para ver el plan nuevo
+                toast.success(data.message || "¡Semana completada con éxito!");
+                setTimeout(() => {
+                    window.location.reload(); 
+                }, 1500); // Pequeño delay para que se vea el toast antes de recargar
             } else {
-                alert("Error: " + data.message);
+                toast.error("Error: " + data.message);
             }
         } catch (error) {
             console.error(error);
-            alert("Error de conexión al cerrar la semana.");
+            toast.error("Error de conexión al cerrar la semana.");
         }
     };
 
     // --- 5. RENDERIZADO ---
-
     if (loading) {
         return (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#121212' }}>
@@ -234,7 +224,6 @@ const Dashboard = () => {
                     ) : (
                         <div className="empty-state">
                             <p>No tienes una semana activa en este momento.</p>
-                            {/* Aviso si hay cola de espera */}
                             {user.planes?.some(p => p.estado === 'pendiente') && (
                                 <p style={{color: '#00D2BE', marginTop: '10px', fontSize: '0.9rem'}}>
                                     (Tienes semanas pendientes. Finaliza la anterior para activar esta.)
@@ -247,8 +236,6 @@ const Dashboard = () => {
                 {/* BOTÓN CERRAR SEMANA CON VALIDACIÓN 100% */}
                 {activePlan && (
                     <div style={{ marginTop: '40px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '12px' }}>
-                        
-                        {/* Mensaje de ayuda si está bloqueado */}
                         {!semanaCompleta && (
                             <span style={{ color: '#666', fontSize: '0.85rem', fontStyle: 'italic' }}>
                                 * Completa todos los entrenamientos para avanzar
@@ -257,10 +244,16 @@ const Dashboard = () => {
 
                         <button 
                             className="btn-finish-week"
-                            onClick={handleFinishWeek}
-                            disabled={!semanaCompleta} // BLOQUEO HTML
+                            onClick={() => {
+                                if (!semanaCompleta) {
+                                    toast.warn("⛔ Aún te faltan entrenamientos por completar.");
+                                    return;
+                                }
+                                setIsModalCerrarSemanaOpen(true); // Abre el modal en vez del window.confirm
+                            }}
+                            disabled={!semanaCompleta}
                             style={{
-                                background: semanaCompleta ? '#1e1e1e' : '#2a2a2a', // Gris oscuro si está disabled
+                                background: semanaCompleta ? '#1e1e1e' : '#2a2a2a',
                                 border: semanaCompleta ? '1px solid #00D2BE' : '1px solid #444',
                                 color: semanaCompleta ? '#00D2BE' : '#555',
                                 padding: '12px 30px',
@@ -291,6 +284,26 @@ const Dashboard = () => {
                 )}
 
             </section>
+
+            {/* --- MODAL NATIVO: CERRAR SEMANA --- */}
+            {isModalCerrarSemanaOpen && (
+                <div className="modal-cerrar-semana-overlay" onClick={() => setIsModalCerrarSemanaOpen(false)}>
+                    <div className="modal-cerrar-semana-card" onClick={(e) => e.stopPropagation()}>
+                        <h2 className="modal-cerrar-semana-title">¿Terminaste tu semana? 🏁</h2>
+                        <p className="modal-cerrar-semana-text">
+                            Al aceptar, esta semana pasará al historial y se activará la siguiente automáticamente.
+                        </p>
+                        <div className="modal-cerrar-semana-actions">
+                            <button className="modal-cerrar-semana-btn-cancelar" onClick={() => setIsModalCerrarSemanaOpen(false)}>
+                                Cancelar
+                            </button>
+                            <button className="modal-cerrar-semana-btn-aceptar" onClick={executeFinishWeek}>
+                                Aceptar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* MODAL DETALLE */}
             {selectedTraining && (

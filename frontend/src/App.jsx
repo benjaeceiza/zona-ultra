@@ -63,7 +63,7 @@ function App() {
           
           <ConditionalNavbar />
           <ToastContainer 
-            position="top-right"
+            position="top-left"
             autoClose={3000}
             hideProgressBar={false}
             newestOnTop={false}
