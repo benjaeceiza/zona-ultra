@@ -17,38 +17,40 @@ const DetallePlan = () => {
         const fetchData = async () => {
             try {
                 const data = await getUserWithPlan(id);
-
                 if (data.user) {
                     setUsuario(data.user);
 
                     if (data.user.planes && data.user.planes.length > 0) {
+                        // --- 1. FILTRADO DE SEGURIDAD (FIX PRODUCCIÓN) ---
+                        // Ignora planes que sean null o no tengan _id (evita el error de toString)
+                        const planesValidos = data.user.planes.filter(p => p && p._id);
 
-                        // --- 1. ORDENAMIENTO CRONOLÓGICO ---
-                        const planesOrdenados = data.user.planes.sort((a, b) => a._id.toString().localeCompare(b._id.toString()));
+                        // --- 2. ORDENAMIENTO CRONOLÓGICO ---
+                        const planesOrdenados = planesValidos.sort((a, b) =>
+                            a._id.toString().localeCompare(b._id.toString())
+                        );
 
-                        // --- 2. DIVIDIR EN MESES (Bloques de 4 semanas) ---
+                        // --- 3. DIVIDIR EN BLOQUES DE 4 (MESES) ---
                         const bloquesDeMes = [];
                         for (let i = 0; i < planesOrdenados.length; i += 4) {
                             bloquesDeMes.push(planesOrdenados.slice(i, i + 4));
                         }
 
-                        // --- 3. FILTRAR MESES VIEJOS ---
-                        // Dejamos pasar solo los meses que tengan al menos 1 plan activo o pendiente.
-                        // Si un bloque de 4 semanas tiene TODOS sus planes en 'finalizado', lo ocultamos.
-                        let bloquesVisibles = bloquesDeMes.filter(bloque => !bloque.every(p => p.estado === 'finalizado'));
+                        // --- 4. FILTRAR MESES VIEJOS (Solo mostrar lo actual/futuro) ---
+                        // Ocultamos bloques donde TODAS las semanas estén finalizadas
+                        let bloquesVisibles = bloquesDeMes.filter(bloque =>
+                            !bloque.every(p => p.estado === 'finalizado')
+                        );
 
-                        // Si por algún motivo TODOS los planes de la historia están finalizados, 
-                        // mostramos el último mes para que no quede la pantalla vacía.
+                        // Si todo está finalizado, mostramos el último bloque por defecto
                         if (bloquesVisibles.length === 0 && bloquesDeMes.length > 0) {
                             bloquesVisibles = [bloquesDeMes[bloquesDeMes.length - 1]];
                         }
 
-                        // "Aplanamos" los bloques para que vuelvan a ser una lista simple de pestañas
                         const planesAMostrar = bloquesVisibles.flat();
-
                         setPlanes(planesAMostrar);
 
-                        // --- 4. SELECCIÓN AUTOMÁTICA DE LA PESTAÑA ---
+                        // --- 5. SELECCIÓN AUTOMÁTICA ---
                         if (planesAMostrar.length > 0) {
                             const activeIndex = planesAMostrar.findIndex(p => p.estado === 'activo');
                             setSelectedPlanIndex(activeIndex !== -1 ? activeIndex : planesAMostrar.length - 1);
@@ -61,10 +63,9 @@ const DetallePlan = () => {
                 setLoading(false);
             }
         };
-
         if (id) fetchData();
     }, [id]);
-
+    
     const planDisplay = planes.length > 0 ? planes[selectedPlanIndex] : null;
 
     const totalSesiones = planDisplay?.entrenamientos?.length || 0;
@@ -126,7 +127,7 @@ const DetallePlan = () => {
                             <Link
                                 to={`/editar-plan/${planDisplay._id}`}
                                 className="plan-creator-btn-submit"
-                                style={{ width: 'auto', padding: '10px 20px', backgroundColor: '#f1c40f', color: '#000' ,textDecoration: 'none', borderRadius: '5px' }}
+                                style={{ width: 'auto', padding: '10px 20px', backgroundColor: '#f1c40f', color: '#000', textDecoration: 'none', borderRadius: '5px' }}
                             >
                                 ✏️ Editar esta Semana
                             </Link>

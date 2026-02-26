@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom"; 
-import { toast } from "react-toastify"; 
-import { addPlanUSer } from "../../../services/addPlanUser"; 
+import { useParams } from "react-router-dom";
+import { toast } from "react-toastify";
+import { addPlanUSer } from "../../../services/addPlanUser";
 import { getUsers } from "../../../services/getUsers";
 
 const DESCRIPCIONES_AUTO = {
@@ -18,43 +18,43 @@ const DESCRIPCIONES_AUTO = {
 };
 
 const getSemanaLimpia = () => {
-    const dias = ["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"];
-    return dias.map(dia => ({
-        dia: dia,
-        titulo: "", 
-        tipo: "", 
-        duracion: "", 
-        unidad: "minutos", 
-        km: "", 
-        descripcion: ""
-    }));
+  const dias = ["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"];
+  return dias.map(dia => ({
+    dia: dia,
+    titulo: "",
+    tipo: "",
+    duracion: "",
+    unidad: "minutos",
+    km: "",
+    descripcion: ""
+  }));
 };
 
 const AddPlan = () => {
-  const { id } = useParams(); 
-  
+  const { id } = useParams();
+
   const [semana, setSemana] = useState(getSemanaLimpia());
   const [users, setUsers] = useState([]);
   const [userId, setUserId] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const [canAdd, setCanAdd] = useState(true); 
-  const [statusMsg, setStatusMsg] = useState(""); 
-  const [statusColor, setStatusColor] = useState(""); 
+  const [canAdd, setCanAdd] = useState(true);
+  const [statusMsg, setStatusMsg] = useState("");
+  const [statusColor, setStatusColor] = useState("");
 
   useEffect(() => {
     const fetchUsers = async () => {
       try {
         const result = await getUsers();
         if (result?.users) {
-            setUsers(result.users);
-            if (id) {
-                setUserId(id);
-                checkUserStatus(id, result.users);
-            }
+          setUsers(result.users);
+          if (id) {
+            setUserId(id);
+            checkUserStatus(id, result.users);
+          }
         }
       } catch (error) {
-          console.error("Error cargando usuarios", error);
+        console.error("Error cargando usuarios", error);
       }
     };
     fetchUsers();
@@ -62,82 +62,79 @@ const AddPlan = () => {
 
   // 🔥 CAMBIO: Lógica ajustada para 4 semanas (el mes completo)
   const checkUserStatus = (selectedId, userList = users) => {
-      if (!selectedId) {
-          setCanAdd(false);
-          setStatusMsg("");
-          return;
-      }
+    if (!selectedId) {
+      setCanAdd(false);
+      setStatusMsg("");
+      return;
+    }
 
-      const usuario = userList.find(u => u._id === selectedId);
+    const usuario = userList.find(u => u._id === selectedId);
 
-      if (usuario && usuario.planes) {
-          const planesEnCola = usuario.planes.filter(p => p.estado !== 'finalizado');
-          const count = planesEnCola.length;
+    if (usuario && usuario.planes) {
+      // Solo contamos los que NO están finalizados
+      const planesEnCola = usuario.planes.filter(p => p && p.estado !== 'finalizado');
+      const count = planesEnCola.length;
 
-          if (count >= 4) {
-              setCanAdd(false);
-              setStatusMsg(`⛔ MES COMPLETO: El usuario ya tiene 4 semanas cargadas. No puedes cargar más.`);
-              setStatusColor("#ff4d4d"); 
-          } else if (count > 0 && count < 4) {
-              setCanAdd(true);
-              setStatusMsg(`⚠️ ATENCIÓN: El usuario tiene ${count}/4 semanas cargadas. Este plan entrará como 'Pendiente'.`);
-              setStatusColor("#f1c40f"); 
-          } else {
-              setCanAdd(true);
-              setStatusMsg("✅ Todo despejado: Este será el primer plan del mes ('Activo').");
-              setStatusColor("#00D2BE"); 
-          }
+      if (count >= 4) {
+        setCanAdd(false);
+        setStatusMsg(`⛔ MES COMPLETO: Ya hay 4 semanas cargadas.`);
+        setStatusColor("#ff4d4d");
+      } else if (count > 0) {
+        setCanAdd(true);
+        setStatusMsg(`⚠️ ATENCIÓN: Tiene ${count}/4 semanas. Entra como 'Pendiente'.`);
+        setStatusColor("#f1c40f");
       } else {
-          setCanAdd(true);
-          setStatusMsg("✅ Usuario libre.");
-          setStatusColor("#00D2BE");
+        setCanAdd(true);
+        setStatusMsg("✅ Todo despejado: Entra como 'Activo'.");
+        setStatusColor("#00D2BE");
       }
+    }
   };
 
   const handleUserChange = (e) => {
-      const newId = e.target.value;
-      setUserId(newId);
-      checkUserStatus(newId);
+    const newId = e.target.value;
+    setUserId(newId);
+    checkUserStatus(newId);
   };
 
   const handleChange = (index, campo, valor) => {
     const nuevaSemana = semana.map((dia, i) => {
-        if (i === index) return { ...dia, [campo]: valor };
-        return dia;
+      if (i === index) return { ...dia, [campo]: valor };
+      return dia;
     });
-    
+
     if (campo === "titulo") {
-        nuevaSemana[index].tipo = "";
-        nuevaSemana[index].km = "";
-        nuevaSemana[index].descripcion = "";
-        
-        if(valor === "descanso"){
-            nuevaSemana[index].tipo = "descanso";
-            nuevaSemana[index].descripcion = "Recuperación";
-            nuevaSemana[index].duracion = "0";
-            nuevaSemana[index].km = "0";
-        }
+      nuevaSemana[index].tipo = "";
+      nuevaSemana[index].km = "";
+      nuevaSemana[index].descripcion = "";
+
+      if (valor === "descanso") {
+        nuevaSemana[index].tipo = "descanso";
+        nuevaSemana[index].descripcion = "Recuperación";
+        nuevaSemana[index].duracion = "0";
+        nuevaSemana[index].km = "0";
+      }
     }
     setSemana(nuevaSemana);
   };
 
   const handleTipoChange = (index, valor) => {
     const nuevaSemana = semana.map((dia, i) => {
-        if (i === index) {
-            let nuevoDia = { ...dia, tipo: valor };
-            if (DESCRIPCIONES_AUTO[valor]) {
-                nuevoDia.descripcion = DESCRIPCIONES_AUTO[valor];
-            }
-            return nuevoDia;
+      if (i === index) {
+        let nuevoDia = { ...dia, tipo: valor };
+        if (DESCRIPCIONES_AUTO[valor]) {
+          nuevoDia.descripcion = DESCRIPCIONES_AUTO[valor];
         }
-        return dia;
+        return nuevoDia;
+      }
+      return dia;
     });
     setSemana(nuevaSemana);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!userId) return toast.warn("⚠️ Por favor selecciona un usuario.");
     if (!canAdd) return toast.error("⛔ No puedes agregar más planes a este usuario.");
 
@@ -147,52 +144,52 @@ const AddPlan = () => {
     setLoading(true);
 
     try {
-        const token = localStorage.getItem("token");
-        const res = await addPlanUSer(userId, semana, token);
+      const token = localStorage.getItem("token");
+      const res = await addPlanUSer(userId, semana, token);
 
-        if (res.success) {
-            toast.success("✅ ¡Plan asignado con éxito!");
-            
-            const updatedUsers = await getUsers();
-            if(updatedUsers?.users) {
-                setUsers(updatedUsers.users);
-                checkUserStatus(userId, updatedUsers.users); 
-            }
+      if (res.success) {
+        toast.success("✅ ¡Plan asignado con éxito!");
 
-            setSemana(getSemanaLimpia());
-            if(!id) setUserId(""); 
-            setStatusMsg(""); 
-            
-        } else {
-            toast.error("Error: " + res.message);
+        const updatedUsers = await getUsers();
+        if (updatedUsers?.users) {
+          setUsers(updatedUsers.users);
+          checkUserStatus(userId, updatedUsers.users);
         }
+
+        setSemana(getSemanaLimpia());
+        if (!id) setUserId("");
+        setStatusMsg("");
+
+      } else {
+        toast.error("Error: " + res.message);
+      }
     } catch (error) {
-        console.error(error);
-        toast.error("❌ Error de conexión.");
+      console.error(error);
+      toast.error("❌ Error de conexión.");
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
   };
 
   return (
     <main className="plan-creator-container">
-      
+
       <div className="plan-creator-header">
         <h1 className="plan-creator-title">Nuevo Plan Semanal</h1>
       </div>
 
       <form onSubmit={handleSubmit}>
-        
+
         <div className="plan-creator-days-grid">
           {semana.map((diaInfo, index) => (
-            <div 
-              key={diaInfo.dia} 
+            <div
+              key={diaInfo.dia}
               className={`plan-creator-day-card ${diaInfo.tipo === 'descanso' ? 'plan-creator-is-rest' : ''}`}
             >
               <h3 className="plan-creator-day-title">{diaInfo.dia}</h3>
 
               <div className="plan-creator-inputs-wrapper">
-                
+
                 <select
                   className="plan-creator-select"
                   value={diaInfo.titulo}
@@ -221,7 +218,7 @@ const AddPlan = () => {
                       <option value="fartlek aerobico en montana">Fartlek aeróbico en montaña</option>
                       <option value="power hiking">Power hiking</option>
                     </select>
-                    
+
                     <input
                       className="plan-creator-input"
                       type="number"
@@ -245,34 +242,34 @@ const AddPlan = () => {
                     <option value="streching">Stretching</option>
                   </select>
                 )}
-                
+
                 {diaInfo.titulo !== "descanso" && diaInfo.titulo !== "" && (
-                    <div className="plan-creator-duration-group">
+                  <div className="plan-creator-duration-group">
                     <input
-                        className="plan-creator-input"
-                        type="number"
-                        placeholder="Duración"
-                        value={diaInfo.duracion}
-                        onChange={(e) => handleChange(index, "duracion", e.target.value)}
+                      className="plan-creator-input"
+                      type="number"
+                      placeholder="Duración"
+                      value={diaInfo.duracion}
+                      onChange={(e) => handleChange(index, "duracion", e.target.value)}
                     />
-                    
+
                     <div className="plan-creator-toggle-group">
-                        <button
+                      <button
                         type="button"
                         className={`plan-creator-toggle-btn ${diaInfo.unidad === "minutos" ? "plan-creator-active" : ""}`}
                         onClick={() => handleChange(index, "unidad", "minutos")}
-                        >
+                      >
                         Min
-                        </button>
-                        <button
+                      </button>
+                      <button
                         type="button"
                         className={`plan-creator-toggle-btn ${diaInfo.unidad === "horas" ? "plan-creator-active" : ""}`}
                         onClick={() => handleChange(index, "unidad", "horas")}
-                        >
+                      >
                         Hs
-                        </button>
+                      </button>
                     </div>
-                    </div>
+                  </div>
                 )}
 
                 <textarea
@@ -287,50 +284,50 @@ const AddPlan = () => {
         </div>
 
         <div className="plan-creator-submit-section">
-            
-            <div className="user-selection-block">
-                <label className="plan-creator-label">Asignar Plan al Alumno:</label>
-                <select
-                    className="plan-creator-select plan-creator-user-select"
-                    value={userId}
-                    onChange={handleUserChange}
-                >
-                    <option value="">-- Seleccionar Usuario --</option>
-                    {users?.map((item) => (
-                    <option key={item._id} value={item._id}>
-                        {item.nombre} {item.apellido}
-                    </option>
-                    ))}
-                </select>
-            </div>
 
-            {userId && statusMsg && (
-                <div style={{
-                    marginBottom: '15px',
-                    padding: '10px 15px',
-                    borderRadius: '8px',
-                    border: `2px solid ${statusColor}`,
-                    backgroundColor: 'rgba(30, 30, 30, 0.8)',
-                    color: statusColor,
-                    fontWeight: 'bold',
-                    textAlign: 'center',
-                    fontSize: '0.9rem'
-                }}>
-                    {statusMsg}
-                </div>
-            )}
-
-            <button 
-                type="submit" 
-                className="plan-creator-btn-submit" 
-                disabled={loading || !canAdd}
-                style={{ 
-                    opacity: (!canAdd || loading) ? 0.5 : 1, 
-                    cursor: (!canAdd || loading) ? 'not-allowed' : 'pointer' 
-                }}
+          <div className="user-selection-block">
+            <label className="plan-creator-label">Asignar Plan al Alumno:</label>
+            <select
+              className="plan-creator-select plan-creator-user-select"
+              value={userId}
+              onChange={handleUserChange}
             >
-                {loading ? "GUARDANDO..." : "CONFIRMAR PLAN"}
-            </button>
+              <option value="">-- Seleccionar Usuario --</option>
+              {users?.map((item) => (
+                <option key={item._id} value={item._id}>
+                  {item.nombre} {item.apellido}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {userId && statusMsg && (
+            <div style={{
+              marginBottom: '15px',
+              padding: '10px 15px',
+              borderRadius: '8px',
+              border: `2px solid ${statusColor}`,
+              backgroundColor: 'rgba(30, 30, 30, 0.8)',
+              color: statusColor,
+              fontWeight: 'bold',
+              textAlign: 'center',
+              fontSize: '0.9rem'
+            }}>
+              {statusMsg}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            className="plan-creator-btn-submit"
+            disabled={loading || !canAdd}
+            style={{
+              opacity: (!canAdd || loading) ? 0.5 : 1,
+              cursor: (!canAdd || loading) ? 'not-allowed' : 'pointer'
+            }}
+          >
+            {loading ? "GUARDANDO..." : "CONFIRMAR PLAN"}
+          </button>
         </div>
       </form>
     </main>

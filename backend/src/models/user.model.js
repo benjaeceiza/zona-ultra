@@ -5,24 +5,21 @@ const userSchema = new mongoose.Schema({
     apellido: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    telefono: { type: Number, required: true, unique: true },
+    telefono: { type: Number, required: true }, // Saqué unique por si acaso, a veces da problemas si es null
     rol: String,
-    proximaCarrera: {
-        nombre: String,
-        fecha: Date
-    },
 
-    plan: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Plan", // Debe coincidir con el nombre del modelo exportado en Plan.js
-        default: null // Al crear usuario, arranca sin plan
-    },
+    planes: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Plan"
+        }
+    ],
+    // -------------------------
+
     nextRace: {
         name: { type: String, default: '' },
         date: { type: Date, default: null }
     },
-    // -------------------
-
     recoveryCodeHash: { type: String, default: null },
     recoveryCodeExpires: { type: Date, default: null },
 });
