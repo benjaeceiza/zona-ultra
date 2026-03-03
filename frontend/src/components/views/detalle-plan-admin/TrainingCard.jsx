@@ -22,7 +22,6 @@ const TrainingCard = ({ entrenamiento }) => {
     {
       metrica: "Tiempo",
       Estimado: entrenamiento.duracion || 0,
-      // Si está completado (aunque sea no logrado), mostramos lo que haya puesto en duracionReal
       Real: isCompleted ? (feedback.duracionReal || 0) : 0, 
       unidad: entrenamiento.unidad === 'horas' ? 'hs' : 'min'
     },
@@ -49,7 +48,6 @@ const TrainingCard = ({ entrenamiento }) => {
   };
 
   return (
-    // Si fue completado con éxito, le damos el glow normal. Si falló, le sacamos el glow o le podés poner una clase "card-failed-border" en tu CSS
     <div className={`training-card ${isCompleted && !isFailed ? "card-glow-border" : ""}`} style={isFailed ? { border: '1px solid rgba(255, 77, 77, 0.3)' } : {}}>
       
       {/* --- CABECERA --- */}
@@ -60,7 +58,6 @@ const TrainingCard = ({ entrenamiento }) => {
           <p className="card-subtitle">{entrenamiento.titulo}</p>
         </div>
         
-        {/* 🔥 LÓGICA DE ESTADO DINÁMICO */}
         <div 
             className={`status-pill ${isCompleted ? (isFailed ? "status-failed" : "status-success") : "status-pending"}`}
             style={isFailed ? { backgroundColor: 'rgba(255, 77, 77, 0.1)', color: '#ff4d4d', border: '1px solid #ff4d4d' } : {}}
@@ -68,6 +65,38 @@ const TrainingCard = ({ entrenamiento }) => {
           {isCompleted ? (isFailed ? "NO LOGRADO" : "COMPLETADO") : "PENDIENTE"}
         </div>
       </div>
+
+      {/* --- 🔥 DESCRIPCIÓN DEL ENTRENAMIENTO (NUEVO) --- */}
+      {entrenamiento.descripcion && (
+        <div style={{
+            backgroundColor: 'rgba(255, 255, 255, 0.03)',
+            padding: '12px 16px',
+            margin: '0 20px 15px 20px', // Alineado con los márgenes internos de tu tarjeta
+            borderRadius: '8px',
+            borderLeft: '3px solid #00D2BE',
+        }}>
+            <span style={{ 
+                display: 'block', 
+                color: '#fff', 
+                fontSize: '0.7rem', 
+                textTransform: 'uppercase', 
+                letterSpacing: '1px', 
+                marginBottom: '6px',
+                opacity: 0.8
+            }}>
+                🎯 La Misión
+            </span>
+            <p style={{ 
+                color: '#cbd5e1', // Un gris clarito muy elegante
+                fontSize: '0.85rem', 
+                lineHeight: '1.5', 
+                margin: 0,
+                whiteSpace: 'pre-line' // ¡Clave para que respete los Enters!
+            }}>
+                {entrenamiento.descripcion}
+            </p>
+        </div>
+      )}
 
       <div className="card-body-grid">
         
@@ -86,7 +115,6 @@ const TrainingCard = ({ entrenamiento }) => {
                 </linearGradient>
 
                 <linearGradient id="colorReal" x1="0" y1="0" x2="1" y2="0">
-                  {/* Si es no logrado, pintamos la barra "Real" de gris/rojo oscuro o dejamos tu naranja original. Acá dejé el naranja. */}
                   <stop offset="0%" stopColor="#FF4500" stopOpacity={0.8}/>
                   <stop offset="100%" stopColor="#ff7849" stopOpacity={1}/>
                 </linearGradient>
@@ -122,7 +150,6 @@ const TrainingCard = ({ entrenamiento }) => {
                 <span>comentarios</span>
              </div>
              <p className="feedback-text">
-               {/* 🔥 Usamos el comentario limpio */}
                {cleanComment.trim() !== "" 
                  ? `"${cleanComment}"` 
                  : <span style={{opacity: 0.5}}>Sin comentarios.</span>}
