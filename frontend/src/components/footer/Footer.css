@@ -1,0 +1,75 @@
+/* =========================================
+   FOOTER ZONA ULTRA
+   ========================================= */
+.footer-container {
+    width: 100%;
+    padding: 20px 0;
+    margin-top: auto; 
+    border-top: 1px solid #1e1e1e;
+
+     background-color: #1a1a1a;
+}
+
+.footer-content {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.footer-text {
+    color: #888888;
+    font-size: 0.85rem;
+    margin: 0;
+}
+
+.footer-brand {
+    color: #00D2BE;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+}
+
+/* Pastilla facherita para la versión */
+.footer-version-badge {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background-color: rgba(0, 210, 190, 0.05);
+    color: #00D2BE;
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    letter-spacing: 1px;
+    border: 1px solid rgba(0, 210, 190, 0.2);
+    user-select: none;
+}
+
+/* El puntito verde que titila */
+.version-dot {
+    width: 6px;
+    height: 6px;
+    background-color: #00D2BE;
+    border-radius: 50%;
+    box-shadow: 0 0 6px #00D2BE;
+    animation: pulseDot 2s infinite ease-in-out;
+}
+
+@keyframes pulseDot {
+    0% { transform: scale(0.8); opacity: 0.5; }
+    50% { transform: scale(1.2); opacity: 1; }
+    100% { transform: scale(0.8); opacity: 0.5; }
+}
+
+/* Modo Mobile: apilamos el texto y la pastilla en el centro */
+@media (max-width: 768px) {
+    .footer-content {
+        flex-direction: column;
+        text-align: center;
+        justify-content: center;
+    }
+}
