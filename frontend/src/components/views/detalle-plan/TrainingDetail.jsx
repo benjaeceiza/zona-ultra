@@ -171,7 +171,6 @@ const TrainingDetail = ({ training, onClose }) => {
                                             />
                                         </>
                                     )}
-
                                     <label className="input-label input-number">Duración Real (min)</label>
                                     <input
                                         type="number"

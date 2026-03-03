@@ -5,17 +5,10 @@ const userSchema = new mongoose.Schema({
     apellido: { type: String, required: true },
     email: { type: String, required: true, unique: true },
     password: { type: String, required: true },
-    telefono: { type: Number, required: true }, // Saqué unique por si acaso, a veces da problemas si es null
+    telefono: { type: Number, required: true }, 
     rol: String,
 
-    planes: [
-        {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Plan"
-        }
-    ],
-    // -------------------------
-
+    
     nextRace: {
         name: { type: String, default: '' },
         date: { type: Date, default: null }

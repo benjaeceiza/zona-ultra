@@ -1,16 +1,13 @@
-
 import { usuarioModelo } from "../models/user.model.js";
+import { planModelo } from "../models/plan.model.js"; // 🔥 IMPORTANTE: Asegurate de importar el modelo de planes acá
 import bcrypt from "bcrypt";
 
-
-//Le agrega al usuario una nueva carrera.
+// Le agrega al usuario una nueva carrera.
 export const updateNextRace = async (req, res) => {
-    const { id } = req.params; // El ID del usuario
-    const { name, date } = req.body; // Los datos que vienen del front
+    const { id } = req.params; 
+    const { name, date } = req.body; 
 
     try {
-        // Buscamos y actualizamos. 
-        // { new: true } nos devuelve el usuario ya actualizado.
         const user = await usuarioModelo.findByIdAndUpdate(
             id,
             {
@@ -37,15 +34,11 @@ export const updateNextRace = async (req, res) => {
     }
 };
 
-
-
 export const updateUserAdmin = async (req, res) => {
     const { id } = req.params;
-    // Desestructuramos solo lo que permitimos actualizar para evitar inyecciones de datos raros
     const { nombre, apellido, email, telefono, rol } = req.body;
 
     try {
-        // 1. Buscamos al usuario actual
         const userToUpdate = await usuarioModelo.findById(id);
 
         if (!userToUpdate) {
@@ -55,8 +48,6 @@ export const updateUserAdmin = async (req, res) => {
             });
         }
 
-        // 2. VALIDACIÓN DE EMAIL:
-        // Si viene un email y es distinto al que ya tenía, verificamos que no esté ocupado.
         if (email && email !== userToUpdate.email) {
             const emailExists = await usuarioModelo.findOne({ email });
             if (emailExists) {
@@ -67,8 +58,6 @@ export const updateUserAdmin = async (req, res) => {
             }
         }
 
-        // 3. Preparamos el objeto con los datos nuevos
-        // Usamos el operador || para mantener el dato viejo si no envían nada nuevo
         const updateData = {
             nombre: nombre || userToUpdate.nombre,
             apellido: apellido || userToUpdate.apellido,
@@ -77,8 +66,6 @@ export const updateUserAdmin = async (req, res) => {
             rol: rol || userToUpdate.rol
         };
 
-        // 4. Ejecutamos la actualización
-        // { new: true } es clave: devuelve el objeto YA actualizado, no el viejo.
         const updatedUser = await usuarioModelo.findByIdAndUpdate(id, updateData, { new: true }).select("-password");
 
         return res.status(200).json({
@@ -96,12 +83,11 @@ export const updateUserAdmin = async (req, res) => {
     }
 };
 
-
+// 🔥 ACÁ ESTÁ EL CAMBIO CLAVE DE LIMPIEZA
 export const deleteUser = async (req, res) => {
     const { id } = req.params;
 
     try {
-        // 1. Verificamos que exista primero (opcional, findByIdAndDelete ya lo maneja, pero sirve para validar)
         const user = await usuarioModelo.findById(id);
 
         if (!user) {
@@ -111,18 +97,20 @@ export const deleteUser = async (req, res) => {
             });
         }
 
-        // --- ZONA DE LIMPIEZA (CASCADA) ---
-        // Aquí podrías borrar sus planes para no dejar datos huérfanos
-        // await Plan.deleteMany({ usuario: id });
-        // await Shoe.deleteMany({ userId: id });
-        // ----------------------------------
+        // --- ZONA DE LIMPIEZA (CASCADA) ACTIVADA ---
+        // Borramos todos los planes que tengan el ID de este usuario
+        await planModelo.deleteMany({ usuario: id });
+        
+        // Si tenés modelo de Zapatillas, descomentá esto y asegurate de importarlo arriba:
+        // await shoeModelo.deleteMany({ userId: id });
+        // ------------------------------------------
 
-        // 2. Eliminamos al usuario
+        // Finalmente, eliminamos al usuario
         await usuarioModelo.findByIdAndDelete(id);
 
         return res.status(200).json({
             success: true,
-            message: "Usuario eliminado correctamente"
+            message: "Usuario y todo su historial eliminados correctamente"
         });
 
     } catch (error) {
@@ -134,15 +122,11 @@ export const deleteUser = async (req, res) => {
     }
 };
 
-
 export const updateUser = async (req, res) => {
     const { id } = req.params;
-    
-    // Desestructuramos los datos que vienen del front
     const { nombre, apellido, email, telefono, rol, newPassword } = req.body;
 
     try {
-        // 1. Buscamos el usuario actual
         const userToUpdate = await usuarioModelo.findById(id);
 
         if (!userToUpdate) {
@@ -152,7 +136,6 @@ export const updateUser = async (req, res) => {
             });
         }
 
-        // 2. VALIDACIÓN DE EMAIL (Si lo cambia, que sea único)
         if (email && email !== userToUpdate.email) {
             const emailExists = await usuarioModelo.findOne({ email });
             if (emailExists) {
@@ -163,18 +146,15 @@ export const updateUser = async (req, res) => {
             }
         }
 
-        // 3. PREPARAMOS EL OBJETO DE ACTUALIZACIÓN
         const updateData = {
             nombre: nombre || userToUpdate.nombre,
             apellido: apellido || userToUpdate.apellido,
             email: email || userToUpdate.email,
             telefono: telefono || userToUpdate.telefono,
-            rol: rol || userToUpdate.rol // Ojo: Si es usuario normal, podrías quitar esto para que no se auto-ascienda
+            rol: rol || userToUpdate.rol 
         };
 
-        // 4. LÓGICA DE CONTRASEÑA (Nueva)
         if (newPassword) {
-            // Validación extra de backend
             if (newPassword.length < 8) {
                 return res.status(400).json({
                     success: false,
@@ -182,13 +162,10 @@ export const updateUser = async (req, res) => {
                 });
             }
 
-            // Encriptamos la contraseña
             const salt = await bcrypt.genSalt(10);
             updateData.password = await bcrypt.hash(newPassword, salt);
         }
 
-        // 5. GUARDAMOS CAMBIOS
-        // { new: true } devuelve el usuario ya modificado
         const updatedUser = await usuarioModelo.findByIdAndUpdate(id, updateData, { new: true }).select("-password");
 
         return res.status(200).json({

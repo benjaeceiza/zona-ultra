@@ -577,8 +577,7 @@ main{
 /*Formulario de autenticacion*/
 /* --- FONDO GENERAL --- */
 
-
-
+ 
 
 .register-login-page {
   display: flex;
@@ -589,6 +588,7 @@ main{
   /* Fondo muy oscuro */
   background-image: radial-gradient(circle at -100% 20%, rgba(0, 212, 255, 0.1) 0%, transparent 20%);
   padding: 0px 20px;
+  
 }
 
 /* --- TARJETA DEL FORMULARIO --- */
@@ -603,6 +603,7 @@ main{
   max-width: 400px;
   border: 1px solid #333;
   animation: fadeIn 0.5s ease-in-out;
+  z-index: 2;
 }
 
 /* --- TÍTULO --- */

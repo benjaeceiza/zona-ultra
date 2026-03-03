@@ -6,7 +6,6 @@ import Shoe from "../models/shoe.model.js";
 
 export const toggleTrainingStatus = async (req, res) => {
   
-
   // 1. CORRECCIÓN CLAVE: Sacamos 'id' (que es como viene en tu token)
   const { id } = req.user;
   const { index, completado } = req.body;
@@ -65,15 +64,20 @@ export const createPlan = async (req, res) => {
   const { entrenamientos } = req.body;
 
   try {
-    const usuario = await usuarioModelo.findById(idUsuario).populate('planes');
+    // 1. Buscamos al usuario NORMAL (Sin populate)
+    const usuario = await usuarioModelo.findById(idUsuario);
 
     if (!usuario) {
       return res.status(404).json({ message: "Usuario no encontrado" });
     }
 
-    const planesEnCurso = usuario.planes.filter(p => p.estado !== 'finalizado');
+    // 2. Buscamos todos los planes de este usuario en la BD de planes
+    const planesDelUsuario = await planModelo.find({ usuario: idUsuario });
 
-    // 🔥 CAMBIO: Ahora el límite es 4
+    // Filtramos los que están en curso
+    const planesEnCurso = planesDelUsuario.filter(p => p.estado !== 'finalizado');
+
+    // Límite de 4
     if (planesEnCurso.length >= 4) {
       return res.status(400).json({ 
         success: false, 
@@ -82,8 +86,10 @@ export const createPlan = async (req, res) => {
     }
 
     const estadoInicial = planesEnCurso.length === 0 ? 'activo' : 'pendiente';
-    const numeroSemana = (usuario.planes.length % 4) + 1;
+    // Calculamos el número de semana basado en el total de planes que tiene el usuario
+    const numeroSemana = (planesDelUsuario.length % 4) + 1;
 
+    // 3. Creamos el plan
     const nuevoPlan = await planModelo.create({
       usuario: idUsuario,
       entrenamientos,
@@ -91,8 +97,7 @@ export const createPlan = async (req, res) => {
       numeroSemana: numeroSemana
     });
 
-    usuario.planes.push(nuevoPlan._id);
-    await usuario.save();
+    // 🔥 MAGIA: Ya no hacemos push() al usuario ni lo guardamos. El plan ya se asoció gracias al "usuario: idUsuario" arriba.
 
     res.status(201).json({ 
       success: true,
@@ -236,18 +241,14 @@ export const deletePlan = async (req, res) => {
     const { idPlan } = req.params;
 
     try {
-        const plan = await planModelo.findById(idPlan);
-        if (!plan) {
+        // 🔥 MAGIA: Solo borramos el plan de la base de datos
+        const planBorrado = await planModelo.findByIdAndDelete(idPlan);
+        
+        if (!planBorrado) {
             return res.status(404).json({ message: "Plan no encontrado" });
         }
 
-        // 1. Borramos el ID del plan del array del usuario
-        await usuarioModelo.findByIdAndUpdate(plan.usuario, {
-            $pull: { planes: idPlan }
-        });
-
-        // 2. Borramos el plan de la base de datos
-        await planModelo.findByIdAndDelete(idPlan);
+        // Ya no necesitamos buscar al usuario ni hacer $pull
 
         res.status(200).json({ success: true, message: "Plan eliminado correctamente." });
     } catch (error) {

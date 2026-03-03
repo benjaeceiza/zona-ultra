@@ -134,7 +134,8 @@ const Register = () => {
                             <label className="register-label">Teléfono</label>
                             <input 
                                 className="register-input" 
-                                type="tel" 
+                                type="number"
+                                onWheel={(e) => e.target.blur()} 
                                 name="telefono" 
                                 value={telefono} 
                                 onChange={onChange} 
