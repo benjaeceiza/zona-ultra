@@ -223,6 +223,7 @@ const AddPlan = () => {
                       className="plan-creator-input"
                       type="number"
                       placeholder="Distancia (km)"
+                      onWheel={(e) => e.target.blur()}
                       value={diaInfo.km}
                       onChange={(e) => handleChange(index, "km", e.target.value)}
                     />
@@ -249,6 +250,7 @@ const AddPlan = () => {
                       className="plan-creator-input"
                       type="number"
                       placeholder="Duración"
+                      onWheel={(e) => e.target.blur()}
                       value={diaInfo.duracion}
                       onChange={(e) => handleChange(index, "duracion", e.target.value)}
                     />

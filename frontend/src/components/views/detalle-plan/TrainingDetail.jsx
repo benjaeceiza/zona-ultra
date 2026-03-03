@@ -158,10 +158,11 @@ const TrainingDetail = ({ training, onClose }) => {
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '20px' }}>
                                     {!isStrength && (
                                         <>
-                                            <label className="input-label">Distancia Real (km)</label>
+                                            <label className="input-label input-number">Distancia Real (km)</label>
                                             <input
                                                 type="number"
                                                 step="0.01"
+                                                onWheel={(e) => e.target.blur()}
                                                 placeholder='Km'
                                                 onChange={(e) => setRealKm(e.target.value)}
                                                 disabled={isCompleted}
@@ -171,10 +172,11 @@ const TrainingDetail = ({ training, onClose }) => {
                                         </>
                                     )}
 
-                                    <label className="input-label">Duración Real (min)</label>
+                                    <label className="input-label input-number">Duración Real (min)</label>
                                     <input
                                         type="number"
                                         placeholder='Minutos'
+                                        onWheel={(e) => e.target.blur()}
                                         step="0.01"
                                         onChange={(e) => setDuracionReal(e.target.value)}
                                         disabled={isCompleted}

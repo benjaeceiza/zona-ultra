@@ -4,6 +4,10 @@
   padding: 0;
 }
 
+main{
+  background-color: #121212;
+}
+
 
 
 /* LOADER */
@@ -878,6 +882,7 @@
   background-image: radial-gradient(circle at top right, rgba(0, 210, 190, 0.08), transparent 40%),
     radial-gradient(circle at bottom left, rgba(138, 43, 226, 0.08), transparent 40%);
   padding: 20px;
+  
   /* Espacio para que no se pegue al Navbar */
 }
 
@@ -1354,6 +1359,19 @@
   color: #aaa;
   font-size: 0.9rem;
 }
+
+input[type=number]::-webkit-inner-spin-button, 
+input[type=number]::-webkit-outer-spin-button { 
+  -webkit-appearance: none; 
+  margin: 0; 
+}
+
+/* Ocultar flechas en Firefox */
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
+
 
 /* CHECKBOX PERSONALIZADO */
 .checkbox-container {
@@ -2590,7 +2608,6 @@ form {
 .admin-container {
   padding: 100px 2rem 2rem 2rem;
   background-color: #121212;
-  min-height: 100vh;
   color: white;
   font-family: 'Inter', system-ui, sans-serif;
   /* Clave para que no se rompa el layout */
@@ -3284,7 +3301,6 @@ form {
 /* --- CONTENEDOR PRINCIPAL --- */
 .shoes-container {
   padding: 100px 32px 32px;
-  min-height: 100vh;
   background-color: #121212;
   color: white;
   font-family: 'Inter', sans-serif;
