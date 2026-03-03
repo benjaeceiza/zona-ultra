@@ -202,13 +202,20 @@ const Dashboard = () => {
                                 <div className="card-header">
                                     <span className="day-badge">{item.dia}</span>
                                     <div className="checkbox-container">
-                                        <input
-                                            type="checkbox"
-                                            checked={item.completado}
-                                            readOnly
-                                            style={{ pointerEvents: "none" }}
-                                        />
-                                        <span className="checkmark"></span>
+                                        {/* 🔥 ACÁ ESTÁ LA MAGIA DEL "NO LOGRADO" 🔥 */}
+                                        {item.completado && (item.feedback?.noLogrado || item.feedback?.comentario?.includes('[NO LOGRADO]')) ? (
+                                            <span style={{ color: '#ff4d4d', fontSize: '1.2rem', fontWeight: 'bold' }}>❌</span>
+                                        ) : (
+                                            <>
+                                                <input
+                                                    type="checkbox"
+                                                    checked={item.completado}
+                                                    readOnly
+                                                    style={{ pointerEvents: "none" }}
+                                                />
+                                                <span className="checkmark"></span>
+                                            </>
+                                        )}
                                     </div>
                                 </div>
                                 <div className="card-body">
@@ -249,7 +256,7 @@ const Dashboard = () => {
                                     toast.warn("⛔ Aún te faltan entrenamientos por completar.");
                                     return;
                                 }
-                                setIsModalCerrarSemanaOpen(true); // Abre el modal en vez del window.confirm
+                                setIsModalCerrarSemanaOpen(true); 
                             }}
                             disabled={!semanaCompleta}
                             style={{

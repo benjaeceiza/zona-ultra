@@ -19,20 +19,19 @@ const BORG_SCALE = {
 
 const TrainingDetail = ({ training, onClose }) => {
 
-    // Lógica: Si ya tiene feedback guardado, es "Solo Lectura" (isCompleted = true)
     const isCompleted = training.completado;
     const feedbackGuardado = training.feedback || {};
 
+    // 🔥 DETECCIÓN DE NO LOGRADO
+    const fueNoLogrado = feedbackGuardado.noLogrado || (feedbackGuardado.comentario && feedbackGuardado.comentario.includes('[NO LOGRADO]'));
+
     // --- DETECCIONES DE TIPO ---
-    // Normalizamos a minúsculas
     const tipoNormalizado = training.titulo ? training.titulo.toLowerCase() : "";
     const isRestDay = tipoNormalizado === 'descanso';
-    // Detectamos si es fuerza (por si dice "entrenamiento de fuerza" o "fuerza")
     const isStrength = tipoNormalizado.includes('fuerza');
 
-    // Estados iniciales
     const [rpe, setRpe] = useState(feedbackGuardado.rpe || 5);
-    const [comentario, setComentario] = useState(feedbackGuardado.comentario || "");
+    const [comentario, setComentario] = useState((feedbackGuardado.comentario || "").replace('[NO LOGRADO] ', ''));
     const [duracionReal, setDuracionReal] = useState(feedbackGuardado.duracionReal || 0);
     const [userShoes, setUserShoes] = useState([]);
     const [selectedShoe, setSelectedShoe] = useState(feedbackGuardado.shoeId || "");
@@ -57,18 +56,22 @@ const TrainingDetail = ({ training, onClose }) => {
 
     if (!training) return null;
 
-    const handleSubmitFeedback = async (e) => {
-        e.preventDefault();
+    const handleSubmitFeedback = async (e, isNotAchieved = false) => {
+        if (e) e.preventDefault();
 
+        const comentarioFinal = isNotAchieved 
+            ? `[NO LOGRADO] ${comentario}` 
+            : (isRestDay ? "Día de descanso completado" : comentario);
+
+        // 🔥 LÓGICA ACTUALIZADA: RPE, Duración y Km se van a 0 si no lo logró
         const feedbackData = {
             trainingId: training._id,
-            // Si es descanso, forzamos valores neutros
-            rpe: isRestDay ? 1 : rpe,
-            comentario: isRestDay ? "Día de descanso completado" : comentario,
-            duracionReal: isRestDay ? 0 : duracionReal,
+            rpe: isNotAchieved ? 0 : (isRestDay ? 1 : rpe), // <-- ACÁ ESTÁ EL FIX
+            comentario: comentarioFinal,
+            duracionReal: (isRestDay || isNotAchieved) ? 0 : duracionReal,
             shoeId: isRestDay ? null : selectedShoe,
-            // LOGICA NUEVA: Si es descanso O es fuerza, los km son 0
-            kmReal: (isRestDay || isStrength) ? 0 : Number(kmReal)
+            kmReal: (isRestDay || isStrength || isNotAchieved) ? 0 : Number(kmReal),
+            noLogrado: isNotAchieved
         };
 
         const resultado = await updateFeedback(feedbackData);
@@ -87,7 +90,7 @@ const TrainingDetail = ({ training, onClose }) => {
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
 
                 {/* --- HEADER --- */}
-                <div className={`modal-header ${isCompleted ? 'header-completed' : ''}`}>
+                <div className={`modal-header ${isCompleted ? (fueNoLogrado ? 'header-failed' : 'header-completed') : ''}`} style={fueNoLogrado ? { background: '#ff4d4d' } : {}}>
                     <button className="close-btn" onClick={onClose}>
                         <span style={{ lineHeight: 0, paddingBottom: '2px' }}>&times;</span>
                     </button>
@@ -97,7 +100,9 @@ const TrainingDetail = ({ training, onClose }) => {
                     </span>
 
                     <h2 style={{ textTransform: 'capitalize', textAlign: "center" }}>
-                        {isCompleted ? "¡Objetivo Completado!" : training.tipo}
+                        {isCompleted 
+                            ? (fueNoLogrado ? "Entrenamiento No Logrado ❌" : "¡Objetivo Completado! ✅") 
+                            : training.tipo}
                     </h2>
 
                     <div className="header-meta">
@@ -116,7 +121,6 @@ const TrainingDetail = ({ training, onClose }) => {
                             </span>
                         </div>
 
-                        {/* CONDICIONAL: Solo mostramos la distancia planificada si NO es fuerza */}
                         {!isStrength && (
                             <div className="stat-box">
                                 <span className="stat-label">Distancia Plan</span>
@@ -132,7 +136,6 @@ const TrainingDetail = ({ training, onClose }) => {
                         </div>
                     </div>
 
-                    {/* --- DESCRIPCIÓN --- */}
                     <div className="workout-structure">
                         <h3>📋 La Misión</h3>
                         <div className="structure-item">
@@ -145,25 +148,21 @@ const TrainingDetail = ({ training, onClose }) => {
 
                     <hr className="modal-divider" />
 
-                    {/* --- FORMULARIO DE FEEDBACK --- */}
-                    <form className="feedback-section" onSubmit={handleSubmitFeedback}>
+                    <form className="feedback-section" onSubmit={(e) => handleSubmitFeedback(e, false)}>
                         <h3>
                             {isCompleted ? "📝 Tu Reporte (Solo lectura)" : "📝 Reporte de sesión"}
                         </h3>
 
-                        {/* --- LÓGICA CONDICIONAL: SI NO ES DESCANSO --- */}
                         {!isRestDay ? (
                             <>
                                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '20px' }}>
-
-                                    {/* CONDICIONAL: Ocultamos input de Distancia si es Fuerza */}
                                     {!isStrength && (
                                         <>
                                             <label className="input-label">Distancia Real (km)</label>
                                             <input
                                                 type="number"
                                                 step="0.01"
-                    
+                                                placeholder='Km'
                                                 onChange={(e) => setRealKm(e.target.value)}
                                                 disabled={isCompleted}
                                                 className={isCompleted ? "input-disabled" : "inputFormTraining"}
@@ -172,10 +171,10 @@ const TrainingDetail = ({ training, onClose }) => {
                                         </>
                                     )}
 
-                                    {/* Duración siempre se muestra */}
                                     <label className="input-label">Duración Real (min)</label>
                                     <input
                                         type="number"
+                                        placeholder='Minutos'
                                         step="0.01"
                                         onChange={(e) => setDuracionReal(e.target.value)}
                                         disabled={isCompleted}
@@ -199,42 +198,32 @@ const TrainingDetail = ({ training, onClose }) => {
                                     </select>
                                 </div>
 
-                                {/* Slider RPE */}
                                 <div className="borg-wrapper">
                                     <label className="completion-label">Esfuerzo Percibido (RPE)</label>
-
-                                    {/* Texto dinámico que cambia de color */}
                                     <div className="borg-feedback" style={{ color: BORG_SCALE[rpe].color }}>
                                         <span className="borg-number">{rpe}</span>
                                         <span className="borg-text">{BORG_SCALE[rpe].label}</span>
                                     </div>
-
-                                    {/* La barra mágica */}
                                     <input
                                         type="range"
                                         min="0"
                                         max="10"
                                         step="1"
-                                        name="rpe" // Asegurate que coincida con tu estado
                                         value={rpe}
-                                        onChange={(e) => setRpe(e.target.value)} // O tu función de cambio
+                                        onChange={(e) => setRpe(e.target.value)}
+                                        disabled={isCompleted}
                                         className="borg-slider"
-                                        style={{
-                                            // Esto pinta la barra del color correcto hasta donde arrastres
-                                            background: `linear-gradient(to right, ${BORG_SCALE[rpe].color} 0%, ${BORG_SCALE[rpe].color} ${(rpe / 10) * 100}%, #333 ${(rpe / 10) * 100}%, #333 100%)`
-                                        }}
+                                        style={{ background: `linear-gradient(to right, ${BORG_SCALE[rpe].color} 0%, ${BORG_SCALE[rpe].color} ${(rpe / 10) * 100}%, #333 ${(rpe / 10) * 100}%, #333 100%)` }}
                                     />
-
                                     <div className="borg-ticks">
                                         <span>0</span><span>5</span><span>10</span>
                                     </div>
                                 </div>
 
-                                {/* Comentario */}
                                 <div>
                                     <label className="input-label">Comentarios / Sensaciones</label>
                                     <textarea
-                                        placeholder="Notas: Me sentí pesado, mucho barro, me dolió la rodilla..."
+                                        placeholder="Notas: Me sentí pesado, me dolió la rodilla, no tuve tiempo..."
                                         value={comentario}
                                         onChange={(e) => setComentario(e.target.value)}
                                         disabled={isCompleted}
@@ -243,7 +232,6 @@ const TrainingDetail = ({ training, onClose }) => {
                                 </div>
                             </>
                         ) : (
-                            /* --- SI ES DESCANSO --- */
                             <div style={{ textAlign: 'center', padding: '20px', color: '#888', fontStyle: 'italic' }}>
                                 <p>🍃 Hoy toca recargar energías. <br />¡Confirmá tu descanso para completar el día!</p>
                             </div>
@@ -251,13 +239,29 @@ const TrainingDetail = ({ training, onClose }) => {
 
                         {/* --- BOTONES DE ACCIÓN --- */}
                         {!isCompleted && (
-                            <button type="submit" className="action-btn">
-                                {isRestDay ? "CONFIRMAR DESCANSO" : "GUARDAR SESIÓN"}
-                            </button>
+                            <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
+                                <button type="submit" className="action-btn" style={{ flex: 1 }}>
+                                    {isRestDay ? "CONFIRMAR DESCANSO" : "GUARDAR SESIÓN"}
+                                </button>
+                                
+                                {!isRestDay && (
+                                    <button 
+                                        type="button" 
+                                        className="action-btn" 
+                                        style={{ flex: 1, background: 'transparent', border: '1px solid #ff4d4d', color: '#ff4d4d' }}
+                                        onClick={(e) => {
+                                            const confirmar = window.confirm("¿Estás seguro que querés marcar este entrenamiento como NO LOGRADO?");
+                                            if (confirmar) handleSubmitFeedback(e, true);
+                                        }}
+                                    >
+                                        NO LOGRADO
+                                    </button>
+                                )}
+                            </div>
                         )}
 
                         {isCompleted && (
-                            <button type="button" className="action-btn" style={{ background: '#444', color: '#fff' }} onClick={onClose}>
+                            <button type="button" className="action-btn" style={{ background: '#444', color: '#fff', marginTop: '20px' }} onClick={onClose}>
                                 CERRAR
                             </button>
                         )}

@@ -142,7 +142,8 @@ export const submitFeedback = async (req, res) => {
             comentario: comentario,
             kmReal: Number(kmReal),
             duracionReal: Number(duracionReal),
-            shoeId: shoeId || ""
+            shoeId: shoeId || "",
+            noLogrado: Boolean(req.body.noLogrado)
         };
 
         // 4. LÓGICA DE ZAPATILLAS (Sigue igual, es necesaria)
@@ -228,4 +229,29 @@ export const getPlan = async (req, res) => {
     console.error(error);
     res.status(500).json({ error: error.message });
   }
+};
+
+
+export const deletePlan = async (req, res) => {
+    const { idPlan } = req.params;
+
+    try {
+        const plan = await planModelo.findById(idPlan);
+        if (!plan) {
+            return res.status(404).json({ message: "Plan no encontrado" });
+        }
+
+        // 1. Borramos el ID del plan del array del usuario
+        await usuarioModelo.findByIdAndUpdate(plan.usuario, {
+            $pull: { planes: idPlan }
+        });
+
+        // 2. Borramos el plan de la base de datos
+        await planModelo.findByIdAndDelete(idPlan);
+
+        res.status(200).json({ success: true, message: "Plan eliminado correctamente." });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ error: error.message });
+    }
 };

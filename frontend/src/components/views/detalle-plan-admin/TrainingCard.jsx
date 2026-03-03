@@ -1,36 +1,36 @@
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Legend } from "recharts";
 
-
 const TrainingCard = ({ entrenamiento }) => {
   
   // 1. PREPARAR DATOS
-  // Chequeamos si existe feedback, sino usamos defaults
   const feedback = entrenamiento.feedback || {};
   const isCompleted = entrenamiento.completado;
+
+  // 🔥 DETECCIÓN DE "NO LOGRADO"
+  const isFailed = isCompleted && (feedback.noLogrado || (feedback.comentario && feedback.comentario.includes('[NO LOGRADO]')));
+
+  // Limpiamos el texto para que no muestre la etiqueta fea "[NO LOGRADO]" al usuario
+  const cleanComment = feedback.comentario ? feedback.comentario.replace('[NO LOGRADO] ', '').replace('[NO LOGRADO]', '') : "";
 
   const dataGrafico = [
     {
       metrica: "Km",
-      // Si no hay km planificados, ponemos 0
       Estimado: entrenamiento.km || 0,
-      // Usamos realKm que viene del backend
       Real: feedback.kmReal || 0, 
       unidad: "km"
     },
     {
       metrica: "Tiempo",
       Estimado: entrenamiento.duracion || 0,
-      // LOGICA: Como no pedimos "Tiempo Real" en el formulario, 
-      // asumimos que si está completado, hizo el tiempo del plan.
-      Real: isCompleted ? (feedback.duracionReal) : 0, 
+      // Si está completado (aunque sea no logrado), mostramos lo que haya puesto en duracionReal
+      Real: isCompleted ? (feedback.duracionReal || 0) : 0, 
       unidad: entrenamiento.unidad === 'horas' ? 'hs' : 'min'
     },
   ];
 
-  // 2. TOOLTIP PERSONALIZADO (Para que muestre "km" o "min")
+  // 2. TOOLTIP PERSONALIZADO
   const CustomTooltip = ({ active, payload, label }) => {
     if (active && payload && payload.length) {
-      // Buscamos la unidad correspondiente a la métrica actual
       const dataItem = dataGrafico.find(d => d.metrica === label);
       const unit = dataItem ? dataItem.unidad : "";
 
@@ -49,7 +49,8 @@ const TrainingCard = ({ entrenamiento }) => {
   };
 
   return (
-    <div className={`training-card ${isCompleted ? "card-glow-border" : ""}`}>
+    // Si fue completado con éxito, le damos el glow normal. Si falló, le sacamos el glow o le podés poner una clase "card-failed-border" en tu CSS
+    <div className={`training-card ${isCompleted && !isFailed ? "card-glow-border" : ""}`} style={isFailed ? { border: '1px solid rgba(255, 77, 77, 0.3)' } : {}}>
       
       {/* --- CABECERA --- */}
       <div className="card-header-row">
@@ -59,8 +60,12 @@ const TrainingCard = ({ entrenamiento }) => {
           <p className="card-subtitle">{entrenamiento.titulo}</p>
         </div>
         
-        <div className={`status-pill ${isCompleted ? "status-success" : "status-pending"}`}>
-          {isCompleted ? "COMPLETADO" : "PENDIENTE"}
+        {/* 🔥 LÓGICA DE ESTADO DINÁMICO */}
+        <div 
+            className={`status-pill ${isCompleted ? (isFailed ? "status-failed" : "status-success") : "status-pending"}`}
+            style={isFailed ? { backgroundColor: 'rgba(255, 77, 77, 0.1)', color: '#ff4d4d', border: '1px solid #ff4d4d' } : {}}
+        >
+          {isCompleted ? (isFailed ? "NO LOGRADO" : "COMPLETADO") : "PENDIENTE"}
         </div>
       </div>
 
@@ -75,21 +80,20 @@ const TrainingCard = ({ entrenamiento }) => {
                 margin={{ top: 0, right: 10, left: -20, bottom: 0 }}
             >
               <defs>
-                {/* Degradado Gris para Planificado */}
                 <linearGradient id="colorPlan" x1="0" y1="0" x2="1" y2="0">
                   <stop offset="0%" stopColor="#475569" stopOpacity={0.3}/>
                   <stop offset="100%" stopColor="#64748b" stopOpacity={0.5}/>
                 </linearGradient>
 
-                {/* Degradado Naranja para Real */}
                 <linearGradient id="colorReal" x1="0" y1="0" x2="1" y2="0">
+                  {/* Si es no logrado, pintamos la barra "Real" de gris/rojo oscuro o dejamos tu naranja original. Acá dejé el naranja. */}
                   <stop offset="0%" stopColor="#FF4500" stopOpacity={0.8}/>
                   <stop offset="100%" stopColor="#ff7849" stopOpacity={1}/>
                 </linearGradient>
               </defs>
 
               <CartesianGrid strokeDasharray="3 3" horizontal={false} stroke="#333" />
-              <XAxis type="number" hide /> {/* Ocultamos números abajo para limpiar */}
+              <XAxis type="number" hide />
               
               <YAxis 
                 dataKey="metrica" 
@@ -100,9 +104,7 @@ const TrainingCard = ({ entrenamiento }) => {
                 tickLine={false} 
               />
               
-              {/* Usamos el Tooltip nuevo */}
               <Tooltip content={<CustomTooltip />} cursor={{fill: 'rgba(255,255,255,0.05)'}} />
-              
               <Legend iconType="circle" wrapperStyle={{ paddingTop: '10px', fontSize: '0.75rem', opacity: 0.7 }}/>
               
               <Bar dataKey="Estimado" fill="url(#colorPlan)" radius={[0, 4, 4, 0]} barSize={14} name="Plan" />
@@ -120,8 +122,9 @@ const TrainingCard = ({ entrenamiento }) => {
                 <span>comentarios</span>
              </div>
              <p className="feedback-text">
-               {feedback.comentario 
-                 ? `"${feedback.comentario}"` 
+               {/* 🔥 Usamos el comentario limpio */}
+               {cleanComment.trim() !== "" 
+                 ? `"${cleanComment}"` 
                  : <span style={{opacity: 0.5}}>Sin comentarios.</span>}
              </p>
           </div>

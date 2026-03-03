@@ -7,6 +7,7 @@ import { IoIosArrowBack } from 'react-icons/io';
 const DetallePlan = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const apiUrl = import.meta.env.VITE_API_URL; // Asegurate de tener esto para pegarle al backend
 
     const [usuario, setUsuario] = useState(null);
     const [planes, setPlanes] = useState([]);
@@ -21,28 +22,21 @@ const DetallePlan = () => {
                     setUsuario(data.user);
 
                     if (data.user.planes && data.user.planes.length > 0) {
-                        // --- 1. FILTRADO DE SEGURIDAD (FIX PRODUCCIÓN) ---
-                        // Ignora planes que sean null o no tengan _id (evita el error de toString)
                         const planesValidos = data.user.planes.filter(p => p && p._id);
 
-                        // --- 2. ORDENAMIENTO CRONOLÓGICO ---
                         const planesOrdenados = planesValidos.sort((a, b) =>
                             a._id.toString().localeCompare(b._id.toString())
                         );
 
-                        // --- 3. DIVIDIR EN BLOQUES DE 4 (MESES) ---
                         const bloquesDeMes = [];
                         for (let i = 0; i < planesOrdenados.length; i += 4) {
                             bloquesDeMes.push(planesOrdenados.slice(i, i + 4));
                         }
 
-                        // --- 4. FILTRAR MESES VIEJOS (Solo mostrar lo actual/futuro) ---
-                        // Ocultamos bloques donde TODAS las semanas estén finalizadas
                         let bloquesVisibles = bloquesDeMes.filter(bloque =>
                             !bloque.every(p => p.estado === 'finalizado')
                         );
 
-                        // Si todo está finalizado, mostramos el último bloque por defecto
                         if (bloquesVisibles.length === 0 && bloquesDeMes.length > 0) {
                             bloquesVisibles = [bloquesDeMes[bloquesDeMes.length - 1]];
                         }
@@ -50,7 +44,6 @@ const DetallePlan = () => {
                         const planesAMostrar = bloquesVisibles.flat();
                         setPlanes(planesAMostrar);
 
-                        // --- 5. SELECCIÓN AUTOMÁTICA ---
                         if (planesAMostrar.length > 0) {
                             const activeIndex = planesAMostrar.findIndex(p => p.estado === 'activo');
                             setSelectedPlanIndex(activeIndex !== -1 ? activeIndex : planesAMostrar.length - 1);
@@ -67,6 +60,32 @@ const DetallePlan = () => {
     }, [id]);
     
     const planDisplay = planes.length > 0 ? planes[selectedPlanIndex] : null;
+
+    const handleDeletePlan = async () => {
+        if (!planDisplay) return;
+
+        const confirmDelete = window.confirm("¿Estás seguro que querés eliminar toda esta semana? Esta acción no se puede deshacer.");
+        if (!confirmDelete) return;
+
+        try {
+            const token = localStorage.getItem('token');
+            const res = await fetch(`${apiUrl}/api/plans/admin/${planDisplay._id}`, {
+                method: 'DELETE',
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+
+            if (res.ok) {
+                alert("Semana eliminada correctamente.");
+                window.location.reload(); // Recargamos para que el frontend limpie la semana borrada
+            } else {
+                const errorData = await res.json();
+                alert("Error al eliminar: " + errorData.message);
+            }
+        } catch (error) {
+            console.error(error);
+            alert("Error de conexión al servidor.");
+        }
+    };
 
     const totalSesiones = planDisplay?.entrenamientos?.length || 0;
     const sesionesCompletadas = planDisplay?.entrenamientos?.filter(e => e.completado).length || 0;
@@ -121,9 +140,9 @@ const DetallePlan = () => {
             {/* --- CONTENIDO DEL PLAN SELECCIONADO --- */}
             {planDisplay && (
                 <>
-                    {/* 🔥 BOTÓN DE EDITAR (Solo Activo o Pendiente) */}
+                    {/* 🔥 BOTONES DE ACCIÓN (Editar / Eliminar) */}
                     {(planDisplay.estado === 'activo' || planDisplay.estado === 'pendiente') && (
-                        <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '15px' }}>
+                        <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginBottom: '15px' }}>
                             <Link
                                 to={`/editar-plan/${planDisplay._id}`}
                                 className="plan-creator-btn-submit"
@@ -131,8 +150,18 @@ const DetallePlan = () => {
                             >
                                 ✏️ Editar esta Semana
                             </Link>
+                            
+                            {/* NUEVO BOTÓN ELIMINAR */}
+                            <button
+                                onClick={handleDeletePlan}
+                                className="plan-creator-btn-submit"
+                                style={{ width: 'auto', padding: '10px 20px', backgroundColor: '#ff4d4d', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}
+                            >
+                                🗑️ Eliminar Semana
+                            </button>
                         </div>
                     )}
+
                     <section className="stats-dashboard">
                         <div className="stat-widget">
                             <span className="stat-title">Cumplimiento</span>
