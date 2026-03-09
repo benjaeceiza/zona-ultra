@@ -170,20 +170,22 @@ export const submitFeedback = async (req, res) => {
     }
 };
 
-
-// Cierra la semana actual y activa la siguiente en la cola
 export const completeCurrentWeek = async (req, res) => {
   const { idUsuario } = req.params;
+  
   try {
-    const usuario = await usuarioModelo.findById(idUsuario).populate('planes');
-    const planActivo = usuario.planes.find(p => p.estado === 'activo');
+    // 1. Buscamos DIRECTAMENTE en la colección de planes el que esté activo para este usuario
+    const planActivo = await planModelo.findOne({ usuario: idUsuario, estado: 'activo' });
     
-    if (!planActivo) return res.status(400).json({ message: "No hay semana activa." });
+    if (!planActivo) {
+        return res.status(400).json({ message: "No hay semana activa." });
+    }
 
-    // Finalizamos la actual
+    // 2. Finalizamos la semana actual
     await planModelo.findByIdAndUpdate(planActivo._id, { estado: 'finalizado' });
 
-    const planesPendientes = usuario.planes.filter(p => p && p.estado === 'pendiente');
+    // 3. Buscamos todos los planes que estén pendientes para este usuario
+    const planesPendientes = await planModelo.find({ usuario: idUsuario, estado: 'pendiente' });
 
     if (planesPendientes.length > 0) {
       // 🔥 ORDEN CRONOLÓGICO: Siempre activar la que se creó primero
@@ -192,12 +194,14 @@ export const completeCurrentWeek = async (req, res) => {
       const planQueSigue = planesPendientes[0]; 
       await planModelo.findByIdAndUpdate(planQueSigue._id, { estado: 'activo' });
     }
+    
     res.json({ success: true, message: "Semana rotada con éxito." });
+    
   } catch (error) {
+    console.error("Error al rotar la semana:", error);
     res.status(500).json({ error: error.message });
   }
 };
-
 
 export const updatePlan = async (req, res) => {
   const { idPlan } = req.params;
