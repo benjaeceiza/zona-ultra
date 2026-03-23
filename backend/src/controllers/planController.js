@@ -245,18 +245,50 @@ export const deletePlan = async (req, res) => {
     const { idPlan } = req.params;
 
     try {
-        // 🔥 MAGIA: Solo borramos el plan de la base de datos
+        console.log("====================================");
+        console.log(`🚀 [PASO 1] Entrando a ELIMINAR plan: ${idPlan}`);
+
         const planBorrado = await planModelo.findByIdAndDelete(idPlan);
         
         if (!planBorrado) {
+            console.log("❌ Plan no encontrado.");
             return res.status(404).json({ message: "Plan no encontrado" });
         }
 
-        // Ya no necesitamos buscar al usuario ni hacer $pull
+        // Aseguramos que el ID sea un texto puro para evitar errores de búsqueda de Mongoose
+        const userId = planBorrado.usuario.toString();
+        console.log(`✅ [PASO 2] Plan borrado. Usuario ID: ${userId}`);
 
-        res.status(200).json({ success: true, message: "Plan eliminado correctamente." });
+        // Buscamos las que NO están finalizadas, ordenadas por ID (esto garantiza orden cronológico)
+        const semanasRestantes = await planModelo.find({ 
+            usuario: userId,
+            estado: { $ne: 'finalizado' } 
+        }).sort({ _id: 1 });
+
+        console.log(`🔄 [PASO 3] Semanas restantes a reordenar: ${semanasRestantes.length}`);
+
+        for (let i = 0; i < semanasRestantes.length; i++) {
+            const idSemana = semanasRestantes[i]._id;
+            const nuevoNumero = i + 1;
+            const nuevoEstado = i === 0 ? 'activo' : 'pendiente';
+
+            console.log(`⚙️ [PASO 4] Actualizando semana ${idSemana} -> Pasa a ser Semana ${nuevoNumero} (${nuevoEstado})`);
+
+            // Usamos findByIdAndUpdate que es la forma más directa y segura en Mongoose
+            await planModelo.findByIdAndUpdate(
+                idSemana,
+                { numeroSemana: nuevoNumero, estado: nuevoEstado },
+                { new: true }
+            );
+        }
+
+        console.log("🎉 [PASO 5] TODO TERMINADO OK.");
+        console.log("====================================");
+
+        res.status(200).json({ success: true, message: "Plan eliminado y reordenado." });
+        
     } catch (error) {
-        console.error(error);
+        console.error("❌ ERROR FATAL EN DELETE:", error);
         res.status(500).json({ error: error.message });
     }
 };
