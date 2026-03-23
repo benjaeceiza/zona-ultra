@@ -253,28 +253,29 @@ export const deletePlan = async (req, res) => {
 
         const userId = planBorrado.usuario.toString();
 
-        // 1. Traemos TODAS las semanas del usuario para no perder el hilo de la numeración
+        // 1. Traemos TODAS las semanas del usuario ordenadas por ID (cronológico)
         const todasLasSemanas = await planModelo.find({ usuario: userId }).sort({ _id: 1 });
 
         let encontradaPrimeraActiva = false;
 
-        // 2. Iteramos sobre todas las que quedaron
+        // 2. Iteramos sobre absolutamente todas las semanas para recalcular
         for (let i = 0; i < todasLasSemanas.length; i++) {
             const semana = todasLasSemanas[i];
             
-            // La numeración es estricta según su posición (1, 2, 3...)
-            const nuevoNumero = i + 1; 
+            // 🔥 LA MAGIA MATEMÁTICA: Obliga a que los números siempre sean 1, 2, 3 o 4
+            const nuevoNumero = (i % 4) + 1; 
+            
             let nuevoEstado = semana.estado;
 
             // 3. Lógica de estados: 
-            // Si ya estaba finalizada, ni la tocamos.
+            // Ignoramos las ya finalizadas para no alterar el historial
             if (semana.estado !== 'finalizado') {
-                // Si es la primera que vemos que NO está finalizada, la activamos
+                // La primera que no esté finalizada, pasa a ser la activa
                 if (!encontradaPrimeraActiva) {
                     nuevoEstado = 'activo';
                     encontradaPrimeraActiva = true;
                 } else {
-                    // Si ya encontramos la activa, las demás que sigan son pendientes
+                    // El resto quedan en espera
                     nuevoEstado = 'pendiente';
                 }
             }
@@ -287,7 +288,7 @@ export const deletePlan = async (req, res) => {
             );
         }
 
-        res.status(200).json({ success: true, message: "Plan eliminado, reordenado y numerado perfecto." });
+        res.status(200).json({ success: true, message: "Plan eliminado. Ciclo de 4 semanas ajustado perfecto." });
         
     } catch (error) {
         console.error("❌ ERROR EN DELETE:", error);
