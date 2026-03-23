@@ -245,50 +245,52 @@ export const deletePlan = async (req, res) => {
     const { idPlan } = req.params;
 
     try {
-        console.log("====================================");
-        console.log(`🚀 [PASO 1] Entrando a ELIMINAR plan: ${idPlan}`);
-
         const planBorrado = await planModelo.findByIdAndDelete(idPlan);
         
         if (!planBorrado) {
-            console.log("❌ Plan no encontrado.");
             return res.status(404).json({ message: "Plan no encontrado" });
         }
 
-        // Aseguramos que el ID sea un texto puro para evitar errores de búsqueda de Mongoose
         const userId = planBorrado.usuario.toString();
-        console.log(`✅ [PASO 2] Plan borrado. Usuario ID: ${userId}`);
 
-        // Buscamos las que NO están finalizadas, ordenadas por ID (esto garantiza orden cronológico)
-        const semanasRestantes = await planModelo.find({ 
-            usuario: userId,
-            estado: { $ne: 'finalizado' } 
-        }).sort({ _id: 1 });
+        // 1. Traemos TODAS las semanas del usuario para no perder el hilo de la numeración
+        const todasLasSemanas = await planModelo.find({ usuario: userId }).sort({ _id: 1 });
 
-        console.log(`🔄 [PASO 3] Semanas restantes a reordenar: ${semanasRestantes.length}`);
+        let encontradaPrimeraActiva = false;
 
-        for (let i = 0; i < semanasRestantes.length; i++) {
-            const idSemana = semanasRestantes[i]._id;
-            const nuevoNumero = i + 1;
-            const nuevoEstado = i === 0 ? 'activo' : 'pendiente';
+        // 2. Iteramos sobre todas las que quedaron
+        for (let i = 0; i < todasLasSemanas.length; i++) {
+            const semana = todasLasSemanas[i];
+            
+            // La numeración es estricta según su posición (1, 2, 3...)
+            const nuevoNumero = i + 1; 
+            let nuevoEstado = semana.estado;
 
-            console.log(`⚙️ [PASO 4] Actualizando semana ${idSemana} -> Pasa a ser Semana ${nuevoNumero} (${nuevoEstado})`);
+            // 3. Lógica de estados: 
+            // Si ya estaba finalizada, ni la tocamos.
+            if (semana.estado !== 'finalizado') {
+                // Si es la primera que vemos que NO está finalizada, la activamos
+                if (!encontradaPrimeraActiva) {
+                    nuevoEstado = 'activo';
+                    encontradaPrimeraActiva = true;
+                } else {
+                    // Si ya encontramos la activa, las demás que sigan son pendientes
+                    nuevoEstado = 'pendiente';
+                }
+            }
 
-            // Usamos findByIdAndUpdate que es la forma más directa y segura en Mongoose
+            // Guardamos los cambios
             await planModelo.findByIdAndUpdate(
-                idSemana,
+                semana._id,
                 { numeroSemana: nuevoNumero, estado: nuevoEstado },
                 { new: true }
             );
         }
 
-        console.log("🎉 [PASO 5] TODO TERMINADO OK.");
-        console.log("====================================");
-
-        res.status(200).json({ success: true, message: "Plan eliminado y reordenado." });
+        res.status(200).json({ success: true, message: "Plan eliminado, reordenado y numerado perfecto." });
         
     } catch (error) {
-        console.error("❌ ERROR FATAL EN DELETE:", error);
+        console.error("❌ ERROR EN DELETE:", error);
         res.status(500).json({ error: error.message });
     }
 };
