@@ -59,7 +59,7 @@ const UserList = () => {
             setIsEditOpen(false);
             toast.success("Usuario actualizado correctamente"); // Toast de éxito
         } else {
-            toast.error("Error al actualizar el usuario"); // Toast de error
+            toast.error(res.message); 
         }
     };
 
