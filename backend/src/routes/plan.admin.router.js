@@ -2,19 +2,19 @@ import { Router } from "express";
 import { isAdminMiddleware } from "../middleware/isAdminMiddleware.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { createPlan, deletePlan, toggleTrainingStatus, updatePlan } from "../controllers/planController.js";
+import { checkDemoUser } from "../middleware/checkDemoUser.js";
 
 export const router = Router();
 
-
-
 // Crea un plan y lo asigna a un usuario
-// Primero verifica quién eres (auth), luego verifica si tienes permiso (admin)
-router.post("/:idUsuario", authMiddleware,isAdminMiddleware,createPlan);
+// Orden: 1° Quién sos, 2° Sos admin?, 3° Sos de prueba?, 4° Crealo
+router.post("/:idUsuario", authMiddleware, isAdminMiddleware, checkDemoUser, createPlan);
 
-// router.patch porque solo actualizamos una partecita
-router.patch('/actualizar-progreso', authMiddleware, toggleTrainingStatus);
+// Actualiza el progreso de un entrenamiento
+router.patch('/actualizar-progreso', authMiddleware, checkDemoUser, toggleTrainingStatus);
 
-router.put('/update/:idPlan', authMiddleware,isAdminMiddleware, updatePlan);
+// Edita el plan completo
+router.put('/update/:idPlan', authMiddleware, isAdminMiddleware, checkDemoUser, updatePlan);
 
-router.delete('/:idPlan', authMiddleware, isAdminMiddleware, deletePlan);
-
+// Elimina el plan
+router.delete('/:idPlan', authMiddleware, isAdminMiddleware, checkDemoUser, deletePlan);
