@@ -7,17 +7,17 @@ import logo from "../../../assets/logo-zona-ultra.png";
 import Loader from "../../loader/Loader";
 
 // 🔥 Agregamos toastify para las notificaciones
-import { toast } from "react-toastify"; 
+import { toast } from "react-toastify";
 
 const Dashboard = () => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [selectedTraining, setSelectedTraining] = useState(null);
     const [shoesList, setShoesList] = useState([]);
-    
+
     // --- ESTADO DEL MODAL CERRAR SEMANA ---
     const [isModalCerrarSemanaOpen, setIsModalCerrarSemanaOpen] = useState(false);
-    
+
     const url = import.meta.env.VITE_API_URL;
 
     // --- 1. FUNCIONES DE CARGA DE DATOS ---
@@ -89,19 +89,55 @@ const Dashboard = () => {
         loadDashboardData();
     }, []);
 
-    // --- 3. LÓGICA DE PROGRESO Y VALIDACIÓN ---
     const activePlan = user?.planes?.find(plan => plan.estado === 'activo');
     const entrenamientosDisplay = activePlan ? activePlan.entrenamientos : [];
 
     const totalEntrenamientos = entrenamientosDisplay.length || 0;
-    const completados = entrenamientosDisplay.filter(t => t.completado).length || 0;
-    
-    const porcentaje = totalEntrenamientos === 0 ? 0 : Math.round((completados / totalEntrenamientos) * 100);
-    const semanaCompleta = totalEntrenamientos > 0 && completados === totalEntrenamientos;
 
-    // --- 4. FUNCIÓN QUE EJECUTA EL CIERRE (Llamada desde el Modal) ---
+    // 1. Entrenamientos que el usuario ya "gestionó" (logrados y NO logrados)
+    const resueltos = entrenamientosDisplay.filter(t => t.completado).length || 0;
+
+    // 2. Entrenamientos que efectivamente LOGRÓ (excluimos los no logrados)
+    const logrados = entrenamientosDisplay.filter(t => {
+        if (!t.completado) return false;
+
+        // Verificamos si tiene la marca de NO LOGRADO en el feedback
+        const fueNoLogrado = t.feedback?.noLogrado || (t.feedback?.comentario && t.feedback.comentario.includes('[NO LOGRADO]'));
+
+        return !fueNoLogrado; // Solo lo contamos si NO fue no logrado
+    }).length || 0;
+
+    // 🔥 El porcentaje de la barra ahora se basa estrictamente en los LOGRADOS
+    const porcentaje = totalEntrenamientos === 0 ? 0 : Math.round((logrados / totalEntrenamientos) * 100);
+
+    // 🔥 Pero la semana se puede cerrar cuando resolvió TODOS (resueltos === total)
+    const semanaCompleta = totalEntrenamientos > 0 && resueltos === totalEntrenamientos;
+
+    // --- CÁLCULOS DE KILÓMETROS Y TIEMPO ---
+    const kmPlanificados = entrenamientosDisplay.reduce((acc, t) => acc + (Number(t.km) || 0), 0);
+    const kmReales = entrenamientosDisplay.reduce((acc, t) => acc + (Number(t.feedback?.kmReal) || 0), 0);
+
+    const minutosPlanificados = entrenamientosDisplay.reduce((acc, t) => {
+        const dur = Number(t.duracion) || 0;
+        return acc + (t.unidad === 'horas' ? dur * 60 : dur);
+    }, 0);
+
+    const minutosReales = entrenamientosDisplay.reduce((acc, t) => {
+        return acc + (Number(t.feedback?.duracionReal) || 0);
+    }, 0);
+
+    const formatTime = (totalMinutos) => {
+        if (!totalMinutos) return "0m";
+        const h = Math.floor(totalMinutos / 60);
+        const m = Math.round(totalMinutos % 60);
+        if (h > 0 && m > 0) return `${h}h ${m}m`;
+        if (h > 0) return `${h}h`;
+        return `${m}m`;
+    };
+
+    // --- 4. FUNCIÓN QUE EJECUTA EL CIERRE ---
     const executeFinishWeek = async () => {
-        setIsModalCerrarSemanaOpen(false); // Cerramos el modal primero
+        setIsModalCerrarSemanaOpen(false); 
 
         try {
             const token = localStorage.getItem('token');
@@ -115,8 +151,8 @@ const Dashboard = () => {
             if (res.ok) {
                 toast.success(data.message || "¡Semana completada con éxito!");
                 setTimeout(() => {
-                    window.location.reload(); 
-                }, 1500); // Pequeño delay para que se vea el toast antes de recargar
+                    window.location.reload();
+                }, 1500);
             } else {
                 toast.error("Error: " + data.message);
             }
@@ -163,7 +199,7 @@ const Dashboard = () => {
             </header>
 
             <section className="content-section">
-                
+
                 {/* BARRA DE PROGRESO */}
                 <div className="progress-section">
                     <div className="progress-info">
@@ -172,6 +208,61 @@ const Dashboard = () => {
                     </div>
                     <div className="progress-bar-bg">
                         <div className="progress-bar-fill" style={{ width: `${porcentaje}%` }}></div>
+                    </div>
+                </div>
+
+                {/* --- 🔥 NUEVA FILA DE ESTADÍSTICAS RÁPIDAS --- */}
+                <div style={{
+                    display: 'grid',
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                    gap: '15px',
+                    marginTop: '15px',
+                    marginBottom: '25px'
+                }}>
+                    {/* Stat 1: Sesiones */}
+                    <div style={{ backgroundColor: '#1e1e1e', padding: '15px 20px', borderRadius: '12px', border: '1px solid #333' }}>
+                        <span style={{ color: '#94a3b8', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px', display: 'block', marginBottom: '8px' }}>
+                            Sesiones
+                        </span>
+                        <div style={{ display: 'flex', alignItems: 'baseline', gap: '5px' }}>
+                            <span style={{ color: '#fff', fontSize: '1.8rem', fontWeight: 'bold', lineHeight: '1' }}>{logrados}</span>
+                            <span style={{ color: '#64748b', fontSize: '1rem', fontWeight: 'bold' }}>/ {totalEntrenamientos}</span>
+                        </div>
+                    </div>
+
+                    {/* Stat 2: Km Planificados */}
+                    <div style={{ backgroundColor: '#1e1e1e', padding: '15px 20px', borderRadius: '12px', border: '1px solid #333' }}>
+                        <span style={{ color: '#94a3b8', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px', display: 'block', marginBottom: '8px' }}>
+                            Objetivo Km
+                        </span>
+                        <div style={{ display: 'flex', alignItems: 'baseline', gap: '5px' }}>
+                            <span style={{ color: '#fff', fontSize: '1.8rem', fontWeight: 'bold', lineHeight: '1' }}>{kmPlanificados}</span>
+                            <span style={{ color: '#00D2BE', fontSize: '1rem', fontWeight: 'bold' }}>km</span>
+                        </div>
+                    </div>
+
+                    {/* Stat 3: Km Reales */}
+                    <div style={{ backgroundColor: '#1e1e1e', padding: '15px 20px', borderRadius: '12px', border: '1px solid #333' }}>
+                        <span style={{ color: '#94a3b8', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px', display: 'block', marginBottom: '8px' }}>
+                            Recorrido
+                        </span>
+                        <div style={{ display: 'flex', alignItems: 'baseline', gap: '5px' }}>
+                            <span style={{ color: '#fff', fontSize: '1.8rem', fontWeight: 'bold', lineHeight: '1' }}>
+                                {kmReales % 1 === 0 ? kmReales : kmReales.toFixed(1)}
+                            </span>
+                            <span style={{ color: '#00D2BE', fontSize: '1rem', fontWeight: 'bold' }}>km</span>
+                        </div>
+                    </div>
+
+                    {/* Stat 4: Tiempo en movimiento */}
+                    <div style={{ backgroundColor: '#1e1e1e', padding: '15px 20px', borderRadius: '12px', border: '1px solid #333' }}>
+                        <span style={{ color: '#94a3b8', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px', display: 'block', marginBottom: '8px' }}>
+                            Tiempo Acumulado
+                        </span>
+                        <div style={{ display: 'flex', alignItems: 'baseline', gap: '5px' }}>
+                            <span style={{ color: '#fff', fontSize: '1.4rem', fontWeight: 'bold', lineHeight: '1' }}>{formatTime(minutosReales)}</span>
+                            <span style={{ color: '#64748b', fontSize: '0.9rem', fontWeight: 'bold' }}>/ {formatTime(minutosPlanificados)}</span>
+                        </div>
                     </div>
                 </div>
 
@@ -202,7 +293,6 @@ const Dashboard = () => {
                                 <div className="card-header">
                                     <span className="day-badge">{item.dia}</span>
                                     <div className="checkbox-container">
-                                        {/* 🔥 ACÁ ESTÁ LA MAGIA DEL "NO LOGRADO" 🔥 */}
                                         {item.completado && (item.feedback?.noLogrado || item.feedback?.comentario?.includes('[NO LOGRADO]')) ? (
                                             <span style={{ color: '#ff4d4d', fontSize: '1.2rem', fontWeight: 'bold' }}>❌</span>
                                         ) : (
@@ -232,7 +322,7 @@ const Dashboard = () => {
                         <div className="empty-state">
                             <p>No tienes una semana activa en este momento.</p>
                             {user.planes?.some(p => p.estado === 'pendiente') && (
-                                <p style={{color: '#00D2BE', marginTop: '10px', fontSize: '0.9rem'}}>
+                                <p style={{ color: '#00D2BE', marginTop: '10px', fontSize: '0.9rem' }}>
                                     (Tienes semanas pendientes. Finaliza la anterior para activar esta.)
                                 </p>
                             )}
@@ -249,14 +339,14 @@ const Dashboard = () => {
                             </span>
                         )}
 
-                        <button 
+                        <button
                             className="btn-finish-week"
                             onClick={() => {
                                 if (!semanaCompleta) {
                                     toast.warn("⛔ Aún te faltan entrenamientos por completar.");
                                     return;
                                 }
-                                setIsModalCerrarSemanaOpen(true); 
+                                setIsModalCerrarSemanaOpen(true);
                             }}
                             disabled={!semanaCompleta}
                             style={{

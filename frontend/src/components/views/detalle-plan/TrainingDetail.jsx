@@ -17,18 +17,21 @@ const BORG_SCALE = {
     10: { label: "MUY MUY DURO", color: "#B71C1C" }
 };
 
-const TrainingDetail = ({ training, onClose }) => {
+// 🔥 MODIFICADO: Agregamos una prop opcional `isSemanaActiva` (por defecto true) 
+// para que desde el componente padre controles si se puede editar o no.
+const TrainingDetail = ({ training, onClose, isSemanaActiva = true }) => {
 
     const isCompleted = training.completado;
     const feedbackGuardado = training.feedback || {};
 
-    // 🔥 DETECCIÓN DE NO LOGRADO
     const fueNoLogrado = feedbackGuardado.noLogrado || (feedbackGuardado.comentario && feedbackGuardado.comentario.includes('[NO LOGRADO]'));
 
-    // --- DETECCIONES DE TIPO ---
     const tipoNormalizado = training.titulo ? training.titulo.toLowerCase() : "";
     const isRestDay = tipoNormalizado === 'descanso';
     const isStrength = tipoNormalizado.includes('fuerza');
+
+    // 🔥 NUEVO: Estado para controlar el modo edición
+    const [isEditing, setIsEditing] = useState(false);
 
     const [rpe, setRpe] = useState(feedbackGuardado.rpe || 5);
     const [comentario, setComentario] = useState((feedbackGuardado.comentario || "").replace('[NO LOGRADO] ', ''));
@@ -56,23 +59,47 @@ const TrainingDetail = ({ training, onClose }) => {
 
     if (!training) return null;
 
+    // 🔥 NUEVO: Función para cancelar la edición y resetear los valores originales
+    const handleCancelEdit = () => {
+        setIsEditing(false);
+        setRpe(feedbackGuardado.rpe || 5);
+        setComentario((feedbackGuardado.comentario || "").replace('[NO LOGRADO] ', ''));
+        setDuracionReal(feedbackGuardado.duracionReal || 0);
+        setSelectedShoe(feedbackGuardado.shoeId || "");
+        setRealKm(feedbackGuardado.kmReal || training.km || 0);
+    };
+
     const handleSubmitFeedback = async (e, isNotAchieved = false) => {
         if (e) e.preventDefault();
 
-        const comentarioFinal = isNotAchieved 
-            ? `[NO LOGRADO] ${comentario}` 
+        const comentarioFinal = isNotAchieved
+            ? `[NO LOGRADO] ${comentario}`
             : (isRestDay ? "Día de descanso completado" : comentario);
 
-        // 🔥 LÓGICA ACTUALIZADA: RPE, Duración y Km se van a 0 si no lo logró
+        // 🔥 NUEVO: Comparamos el ID original con el que está seleccionado ahora
+        const originalShoeId = feedbackGuardado.shoeId || "";
+        const calzadoModificado = selectedShoe !== originalShoeId;
+
+        // Armamos la data base sin la propiedad shoeId
         const feedbackData = {
             trainingId: training._id,
-            rpe: isNotAchieved ? 0 : (isRestDay ? 1 : rpe), // <-- ACÁ ESTÁ EL FIX
+            rpe: isNotAchieved ? 0 : (isRestDay ? 1 : rpe),
             comentario: comentarioFinal,
-            duracionReal: (isRestDay || isNotAchieved) ? 0 : duracionReal,
-            shoeId: isRestDay ? null : selectedShoe,
-            kmReal: (isRestDay || isStrength || isNotAchieved) ? 0 : Number(kmReal),
+            duracionReal: (isRestDay || isNotAchieved) ? 0 : Number(Number(duracionReal).toFixed(1)) || 0,
+            kmReal: (isRestDay || isStrength || isNotAchieved) ? 0 : Number(Number(kmReal).toFixed(1)) || 0,
             noLogrado: isNotAchieved
         };
+
+        // 🔥 LÓGICA DE CALZADO: 
+        if (isRestDay) {
+            feedbackData.shoeId = null;
+        } else if (!isCompleted || calzadoModificado) {
+            // Solo enviamos el calzado si es la primera vez que se guarda (!isCompleted)
+            // o si estábamos editando y el usuario eligió otra zapatilla.
+            feedbackData.shoeId = selectedShoe;
+        }
+        // Si ya estaba completado y NO modificó el calzado, la propiedad shoeId 
+        // simplemente no se envía en el objeto feedbackData.
 
         const resultado = await updateFeedback(feedbackData);
 
@@ -85,11 +112,30 @@ const TrainingDetail = ({ training, onClose }) => {
         }
     };
 
+    const handleDecimalInput = (setter) => (e) => {
+        let value = e.target.value;
+
+        // Si el texto tiene un punto y más de un dígito después del punto, lo cortamos
+        if (value && value.includes('.')) {
+            const partes = value.split('.');
+            if (partes[1].length > 1) {
+                value = `${partes[0]}.${partes[1].slice(0, 1)}`; // Deja solo el primer decimal
+            }
+        }
+
+        setter(value);
+    };
+
+    // 🔥 MODIFICADO: Variable auxiliar para saber si los campos deben estar bloqueados
+    const inputsDisabled = isCompleted && !isEditing;
+
+
+
+
     return (
         <div className="modal-overlay" onClick={onClose}>
             <div className="modal-content" onClick={(e) => e.stopPropagation()}>
 
-                {/* --- HEADER --- */}
                 <div className={`modal-header ${isCompleted ? (fueNoLogrado ? 'header-failed' : 'header-completed') : ''}`} style={fueNoLogrado ? { background: '#ff4d4d' } : {}}>
                     <button className="close-btn" onClick={onClose}>
                         <span style={{ lineHeight: 0, paddingBottom: '2px' }}>&times;</span>
@@ -100,8 +146,8 @@ const TrainingDetail = ({ training, onClose }) => {
                     </span>
 
                     <h2 style={{ textTransform: 'capitalize', textAlign: "center" }}>
-                        {isCompleted 
-                            ? (fueNoLogrado ? "Entrenamiento No Logrado ❌" : "¡Objetivo Completado! ✅") 
+                        {isCompleted
+                            ? (fueNoLogrado ? "Entrenamiento No Logrado" : "¡Objetivo Completado!")
                             : training.tipo}
                     </h2>
 
@@ -112,7 +158,6 @@ const TrainingDetail = ({ training, onClose }) => {
 
                 <div className="modal-body">
 
-                    {/* --- KPI GRID --- */}
                     <div className="stats-grid">
                         <div className="stat-box">
                             <span className="stat-label">Duración</span>
@@ -149,9 +194,25 @@ const TrainingDetail = ({ training, onClose }) => {
                     <hr className="modal-divider" />
 
                     <form className="feedback-section" onSubmit={(e) => handleSubmitFeedback(e, false)}>
-                        <h3>
-                            {isCompleted ? "📝 Tu Reporte (Solo lectura)" : "📝 Reporte de sesión"}
-                        </h3>
+
+                        {/* 🔥 MODIFICADO: Header del form con botón de edición */}
+                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
+                            <h3 style={{ margin: 0 }}>
+                                {isCompleted && !isEditing ? "📝 Tu Reporte (Solo lectura)" : "📝 Reporte de sesión"}
+                            </h3>
+
+                            {/* Mostrar botón de editar solo si está completado, no estamos editando ya, y la semana sigue activa */}
+                            {isCompleted && !isEditing && isSemanaActiva && (
+                                <button
+                                    type="button"
+                                    onClick={() => setIsEditing(true)}
+                                    style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '1.2rem' }}
+                                    title="Editar reporte"
+                                >
+                                    ✏️
+                                </button>
+                            )}
+                        </div>
 
                         {!isRestDay ? (
                             <>
@@ -161,12 +222,13 @@ const TrainingDetail = ({ training, onClose }) => {
                                             <label className="input-label input-number">Distancia Real (km)</label>
                                             <input
                                                 type="number"
-                                                step="0.01"
+                                                step="0.1"
                                                 onWheel={(e) => e.target.blur()}
                                                 placeholder='Km'
-                                                onChange={(e) => setRealKm(e.target.value)}
-                                                disabled={isCompleted}
-                                                className={isCompleted ? "input-disabled" : "inputFormTraining"}
+                                                value={kmReal}
+                                                onChange={handleDecimalInput(setRealKm)}
+                                                disabled={inputsDisabled}
+                                                className={inputsDisabled ? "input-disabled" : "inputFormTraining"}
                                                 required
                                             />
                                         </>
@@ -175,11 +237,12 @@ const TrainingDetail = ({ training, onClose }) => {
                                     <input
                                         type="number"
                                         placeholder='Minutos'
+                                        step="0.1"
                                         onWheel={(e) => e.target.blur()}
-                                        step="0.01"
-                                        onChange={(e) => setDuracionReal(e.target.value)}
-                                        disabled={isCompleted}
-                                        className={isCompleted ? "input-disabled" : "inputFormTraining"}
+                                        value={duracionReal}
+                                        onChange={handleDecimalInput(setDuracionReal)}
+                                        disabled={inputsDisabled}
+                                        className={inputsDisabled ? "input-disabled" : "inputFormTraining"}
                                         required
                                     />
 
@@ -187,8 +250,8 @@ const TrainingDetail = ({ training, onClose }) => {
                                     <select
                                         value={selectedShoe}
                                         onChange={(e) => setSelectedShoe(e.target.value)}
-                                        disabled={isCompleted}
-                                        className={isCompleted ? "input-disabled" : "inputFormTraining"}
+                                        disabled={inputsDisabled}
+                                        className={inputsDisabled ? "input-disabled" : "inputFormTraining"}
                                     >
                                         <option value="">Seleccionar...</option>
                                         {userShoes.map(shoe => (
@@ -212,7 +275,7 @@ const TrainingDetail = ({ training, onClose }) => {
                                         step="1"
                                         value={rpe}
                                         onChange={(e) => setRpe(e.target.value)}
-                                        disabled={isCompleted}
+                                        disabled={inputsDisabled}
                                         className="borg-slider"
                                         style={{ background: `linear-gradient(to right, ${BORG_SCALE[rpe].color} 0%, ${BORG_SCALE[rpe].color} ${(rpe / 10) * 100}%, #333 ${(rpe / 10) * 100}%, #333 100%)` }}
                                     />
@@ -227,8 +290,8 @@ const TrainingDetail = ({ training, onClose }) => {
                                         placeholder="Notas: Me sentí pesado, me dolió la rodilla, no tuve tiempo..."
                                         value={comentario}
                                         onChange={(e) => setComentario(e.target.value)}
-                                        disabled={isCompleted}
-                                        className={isCompleted ? "input-disabled" : ""}
+                                        disabled={inputsDisabled}
+                                        className={inputsDisabled ? "input-disabled" : ""}
                                     ></textarea>
                                 </div>
                             </>
@@ -238,18 +301,18 @@ const TrainingDetail = ({ training, onClose }) => {
                             </div>
                         )}
 
-                        {/* --- BOTONES DE ACCIÓN --- */}
-                        {!isCompleted && (
-                            <div style={{ display: 'flex', gap: '10px', marginTop: '20px' }}>
-                                <button type="submit" className="action-btn" style={{ flex: 1 }}>
-                                    {isRestDay ? "CONFIRMAR DESCANSO" : "GUARDAR SESIÓN"}
+                        {/* 🔥 MODIFICADO: Botones de Acción (Se muestran si NO está completado, o si está en modo EDICIÓN) */}
+                        {(!isCompleted || isEditing) && (
+                            <div style={{ display: 'flex', gap: '10px', marginTop: '20px', flexWrap: 'wrap' }}>
+                                <button type="submit" className="action-btn" style={{ flex: 1, minWidth: '150px' }}>
+                                    {isEditing ? "ACTUALIZAR SESIÓN" : (isRestDay ? "CONFIRMAR DESCANSO" : "GUARDAR SESIÓN")}
                                 </button>
-                                
-                                {!isRestDay && (
-                                    <button 
-                                        type="button" 
-                                        className="action-btn" 
-                                        style={{ flex: 1, background: 'transparent', border: '1px solid #ff4d4d', color: '#ff4d4d' }}
+
+                                {!isRestDay && !isEditing && (
+                                    <button
+                                        type="button"
+                                        className="action-btn"
+                                        style={{ flex: 1, minWidth: '150px', background: 'transparent', border: '1px solid #ff4d4d', color: '#ff4d4d' }}
                                         onClick={(e) => {
                                             const confirmar = window.confirm("¿Estás seguro que querés marcar este entrenamiento como NO LOGRADO?");
                                             if (confirmar) handleSubmitFeedback(e, true);
@@ -258,10 +321,23 @@ const TrainingDetail = ({ training, onClose }) => {
                                         NO LOGRADO
                                     </button>
                                 )}
+
+                                {/* Botón para cancelar la edición */}
+                                {isEditing && (
+                                    <button
+                                        type="button"
+                                        className="action-btn"
+                                        style={{ flex: 1, minWidth: '150px', background: '#444', color: '#fff' }}
+                                        onClick={handleCancelEdit}
+                                    >
+                                        CANCELAR
+                                    </button>
+                                )}
                             </div>
                         )}
 
-                        {isCompleted && (
+                        {/* Botón cerrar genérico (solo visible si está completado y NO se está editando) */}
+                        {(isCompleted && !isEditing) && (
                             <button type="button" className="action-btn" style={{ background: '#444', color: '#fff', marginTop: '20px' }} onClick={onClose}>
                                 CERRAR
                             </button>

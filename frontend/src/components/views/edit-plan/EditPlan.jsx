@@ -18,6 +18,7 @@ const DESCRIPCIONES_AUTO = {
 };
 
 
+
 const EditPlan = () => {
     const { idPlan } = useParams(); // Agarramos el ID del plan de la URL
     const navigate = useNavigate();
@@ -144,7 +145,12 @@ const EditPlan = () => {
                                             <option value="pasadas aerobicas">Pasadas aeróbicas</option>
                                             <option value="rodaje suave">Rodaje Suave</option>
                                             <option value="rodaje largo">Rodaje Largo</option>
-                                            {/* ... el resto de tus opciones ... */}
+                                            <option value="pasadas anaerobicas">Pasadas anaeróbicas</option>
+                                            <option value="entrenamiento por desnivel">Entrenamiento por desnivel</option>
+                                            <option value="Entrenamiento pro desnivel-escaleras">Entrenamiento por desnivel - escaleras</option>
+                                            <option value="ritmo umbral aerobico">Ritmo umbral aeróbico</option>
+                                            <option value="fartlek aerobico en montana">Fartlek aeróbico en montaña</option>
+                                            <option value="power hiking">Power Hiking</option>
                                         </select>
 
                                         <input className="plan-creator-input" type="number" placeholder="Distancia (km)" value={diaInfo.km || ""} onChange={(e) => handleChange(index, "km", e.target.value)} />
