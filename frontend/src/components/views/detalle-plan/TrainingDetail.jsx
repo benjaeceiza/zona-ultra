@@ -35,12 +35,23 @@ const TrainingDetail = ({ training, onClose, isSemanaActiva = true }) => {
 
     const [rpe, setRpe] = useState(feedbackGuardado.rpe || 5);
     const [comentario, setComentario] = useState((feedbackGuardado.comentario || "").replace('[NO LOGRADO] ', ''));
-    const [duracionReal, setDuracionReal] = useState(feedbackGuardado.duracionReal || 0);
     const [userShoes, setUserShoes] = useState([]);
     const [selectedShoe, setSelectedShoe] = useState(feedbackGuardado.shoeId || "");
-    const [kmReal, setRealKm] = useState(feedbackGuardado.kmReal || training.km || 0);
+    const [duracionReal, setDuracionReal] = useState(feedbackGuardado.duracionReal || "");
+    const [kmReal, setRealKm] = useState(feedbackGuardado.kmReal || "");
 
     const { showLoader } = useLoader();
+
+    useEffect(() => {
+        if (training) {
+            const feedback = training.feedback || {};
+            setRpe(feedback.rpe || 5);
+            setComentario((feedback.comentario || "").replace('[NO LOGRADO] ', ''));
+            setDuracionReal(feedback.duracionReal || "");
+            setRealKm(feedback.kmReal || "");
+            setSelectedShoe(feedback.shoeId || "");
+        }
+    }, [training]);
 
     useEffect(() => {
         if (training && !isRestDay) {
@@ -59,14 +70,14 @@ const TrainingDetail = ({ training, onClose, isSemanaActiva = true }) => {
 
     if (!training) return null;
 
-    // 🔥 NUEVO: Función para cancelar la edición y resetear los valores originales
+    // Función para cancelar la edición y resetear los valores originales
     const handleCancelEdit = () => {
         setIsEditing(false);
         setRpe(feedbackGuardado.rpe || 5);
         setComentario((feedbackGuardado.comentario || "").replace('[NO LOGRADO] ', ''));
-        setDuracionReal(feedbackGuardado.duracionReal || 0);
+        setDuracionReal(feedbackGuardado.duracionReal || ""); // Cambiado a ""
         setSelectedShoe(feedbackGuardado.shoeId || "");
-        setRealKm(feedbackGuardado.kmReal || training.km || 0);
+        setRealKm(feedbackGuardado.kmReal || ""); // Cambiado a ""
     };
 
     const handleSubmitFeedback = async (e, isNotAchieved = false) => {
