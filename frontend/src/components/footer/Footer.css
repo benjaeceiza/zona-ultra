@@ -4,10 +4,9 @@
 .footer-container {
     width: 100%;
     padding: 20px 0;
-    margin-top: auto; 
+    margin-top: auto;
     border-top: 1px solid #1e1e1e;
-
-     background-color: #1a1a1a;
+    background-color: #1a1a1a;
 }
 
 .footer-content {
@@ -60,16 +59,33 @@
 }
 
 @keyframes pulseDot {
-    0% { transform: scale(0.8); opacity: 0.5; }
-    50% { transform: scale(1.2); opacity: 1; }
-    100% { transform: scale(0.8); opacity: 0.5; }
+    0% {
+        transform: scale(0.8);
+        opacity: 0.5;
+    }
+
+    50% {
+        transform: scale(1.2);
+        opacity: 1;
+    }
+
+    100% {
+        transform: scale(0.8);
+        opacity: 0.5;
+    }
 }
 
 /* Modo Mobile: apilamos el texto y la pastilla en el centro */
 @media (max-width: 768px) {
+
+    .footer-container {
+        padding-bottom: 70px;
+    }
+
     .footer-content {
         flex-direction: column;
         text-align: center;
         justify-content: center;
+
     }
 }

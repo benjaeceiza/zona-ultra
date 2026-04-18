@@ -4,7 +4,7 @@
   padding: 0;
 }
 
-main{
+main {
   background-color: #121212;
 }
 
@@ -272,6 +272,89 @@ main{
   /* Crece un poquito */
   filter: drop-shadow(0 0 3px rgba(0, 210, 190, 0.8));
   /* Brillo */
+}
+
+/* =========================================
+   TABBAR MOBILE - ZONA ULTRA
+   ========================================= */
+
+/* Contenedor principal del TabBar */
+.tabbar {
+  display: flex;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background-color: #1e1e1e;
+  /* Fondo oscuro tipo tarjeta de tu diseño */
+  justify-content: space-around;
+  align-items: center;
+  padding: 10px 5px;
+  box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.5);
+  /* Sombra para separarlo del fondo */
+  border-top: 1px solid #333333;
+  /* Borde sutil */
+  z-index: 1000;
+}
+
+/* Cada botón/link del TabBar */
+.tabbar-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-decoration: none;
+  color: #666666;
+  /* Gris para los iconos inactivos */
+  font-size: 0.75rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex: 1;
+  font-weight: 500;
+}
+
+/* Icono dentro del botón */
+.tabbar-icon {
+  font-size: 1.4rem;
+  margin-bottom: 4px;
+  transition: transform 0.2s ease;
+}
+
+/* Estado ACTIVO (Pestaña seleccionada) */
+.tabbar-item.active {
+  color: #00D2BE;
+  /* Tu color Teal de acento */
+}
+
+/* Pequeña animación para el icono activo */
+.tabbar-item.active .tabbar-icon {
+  transform: translateY(-2px);
+  filter: drop-shadow(0px 0px 4px rgba(0, 210, 190, 0.4));
+  /* Leve brillo */
+}
+
+/* Botón de cerrar sesión */
+.logout-btn {
+  color: #FF4500;
+  /* Tu color Naranja/Rojo para destacar la salida */
+}
+
+
+
+/* Ocultar el TabBar cuando se ve en la compu */
+@media (min-width: 769px) {
+  .tabbar {
+    display: none !important;
+  }
+
+}
+
+@media (max-width: 769px) {
+  .hamburger-btn {
+    display: none;
+
+  }
 }
 
 
@@ -577,48 +660,72 @@ main{
 /*Formulario de autenticacion*/
 /* --- FONDO GENERAL --- */
 
- 
-
+/* --- CONTENEDOR PRINCIPAL DEL LOGIN --- */
 .register-login-page {
   display: flex;
-  justify-content: center;
-  align-items: center;
+  justify-content: flex-end;
+  /* 🔥 ESTO EMPUJA EL FORMULARIO A LA DERECHA */
+  align-items: stretch;
+  /* 🔥 HACE QUE EL HIJO OCUPE EL 100% DEL ALTO */
   min-height: 100vh;
-  background-color: #121212;
-  /* Fondo muy oscuro */
-  background-image: radial-gradient(circle at -100% 20%, rgba(0, 212, 255, 0.1) 0%, transparent 20%);
-  padding: 0px 20px;
-  
+  width: 100%;
+  position: absolute;
+  /* Para que se ponga encima de la imagen */
+  top: 0;
+  left: 0;
+  z-index: 2;
+  background-color: transparent;
+  /* Muestra la imagen de fondo de la izquierda */
 }
 
-/* --- TARJETA DEL FORMULARIO --- */
+.login-logo {
+  width: 120px;
+  /* Ajustá este tamaño según veas cómo queda */
+  height: auto;
+  display: block;
+  margin: 0 auto 1rem auto;
+  /* Lo centra y le da espacio abajo */
+  animation: fadeIn 0.8s ease-in-out;
+  /* Opcional: para que entre suave */
+}
+
+/* --- TARJETA DEL FORMULARIO (AHORA ES UN PANEL LATERAL) --- */
 .formAuthContainer {
-  background: #1e1e1e;
-  /* Gris oscuro para la tarjeta */
-  padding: 2.5rem;
-  border-radius: 16px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
-  /* Sombra profunda */
+  /* Fondo oscuro un poco transparente para que se funda re bien con la imagen */
+  background: rgba(30, 30, 30, 0.95);
+  backdrop-filter: blur(12px);
+  /* Efecto cristalino moderno */
+
+  padding: 3rem 2.5rem;
+
+
+  box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+  border-left: 1px solid #333;
+
   width: 100%;
-  max-width: 400px;
-  border: 1px solid #333;
-  animation: fadeIn 0.5s ease-in-out;
-  z-index: 2;
+  max-width: 450px;
+  /* Ancho del panel en PC */
+
+  /* Flexbox para centrar el formulario VERTICALMENTE dentro del panel */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+
+  animation: slideInRight 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 /* --- TÍTULO --- */
 .titleAuth {
   color: #ffffff;
   text-align: center;
-  margin-bottom: 1.5rem;
-  font-size: 1.8rem;
+  margin-bottom: 2rem;
+  font-size: 2rem;
   font-weight: 700;
   letter-spacing: 1px;
 }
 
 .titleAuth span {
   color: #FF4500;
-  /* Acento celeste */
 }
 
 /* --- INPUTS --- */
@@ -632,7 +739,7 @@ main{
   background-color: #2a2a2a;
   border: 1px solid #3a3a3a;
   color: #fff;
-  padding: 12px 15px;
+  padding: 14px 15px;
   border-radius: 8px;
   font-size: 0.95rem;
   outline: none;
@@ -643,28 +750,21 @@ main{
   color: #888;
 }
 
-/* Efecto al hacer click en el input */
 .inputFormAuth:focus {
   border-color: #FF4500;
   background-color: #222;
-  box-shadow: 0 0 8px rgba(0, 212, 255, 0.3);
-  /* Resplandor celeste */
-}
-
-/* Quitar las flechas del input number */
-.inputFormAuth[type=number]::-webkit-inner-spin-button,
-.inputFormAuth[type=number]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+  box-shadow: 0 0 8px rgba(255, 69, 0, 0.3);
+  /* Resplandor naranja */
 }
 
 /* --- BOTÓN --- */
 .buttonFormAuth {
   margin-top: 10px;
-  background: linear-gradient(135deg, #FF4500 80%, #00D2BE 50%);
+  background: linear-gradient(135deg, #FF4500 0%, #00D2BE 100%);
+  /* Ajustado a tus colores */
   color: white;
   border: none;
-  padding: 12px;
+  padding: 14px;
   border-radius: 8px;
   font-size: 1rem;
   font-weight: bold;
@@ -674,14 +774,38 @@ main{
 
 .buttonFormAuth:hover {
   transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(0, 212, 255, 0.4);
+  box-shadow: 0 5px 15px rgba(0, 210, 190, 0.4);
 }
 
 .buttonFormAuth:active {
   transform: translateY(0);
 }
 
-/* --- MENSAJES DE ERROR --- */
+.buttonFormAuth:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* --- LINKS Y TEXTOS --- */
+.forgot-pass-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 15px;
+}
+
+.forgot-pass-link {
+  color: #888;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: bold;
+}
+
+.forgot-pass-link:hover {
+  color: #FF4500;
+  text-decoration: underline;
+}
+
 .errorMsgForm {
   display: none;
 }
@@ -698,33 +822,7 @@ main{
   animation: shake 0.3s ease-in-out;
 }
 
-/* --- ESTILOS NUEVOS: RECUPERACIÓN DE CONTRASEÑA --- */
-
-/* Wrapper para alinear el link */
-.forgot-pass-wrapper {
-  display: flex;
-  justify-content: center;
-  margin-top: 15px;
-
-}
-
-/* Link sutil */
-.forgot-pass-link {
-  color: #888;
-  font-size: 0.85rem;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  text-decoration: none;
-  font-weight: bold;
-}
-
-.forgot-pass-link:hover {
-  color: #FF4500;
-  /* Naranja acento */
-  text-decoration: underline;
-}
-
-/* --- MODAL DE RECUPERACIÓN --- */
+/* --- MODAL DE RECUPERACIÓN (Se mantiene Pop-up) --- */
 .recover-overlay {
   position: fixed;
   top: 0;
@@ -732,8 +830,7 @@ main{
   width: 100%;
   height: 100%;
   background-color: rgba(0, 0, 0, 0.85);
-  /* Fondo bien oscuro */
-
+  backdrop-filter: blur(5px);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -743,7 +840,7 @@ main{
 
 .recover-card {
   background: #1e1e1e;
-  padding: 2rem;
+  padding: 2.5rem 2rem;
   border-radius: 16px;
   width: 90%;
   max-width: 400px;
@@ -758,7 +855,7 @@ main{
 
 .recover-close {
   position: absolute;
-  top: 10px;
+  top: 15px;
   right: 15px;
   background: none;
   border: none;
@@ -778,7 +875,6 @@ main{
   font-weight: 700;
   text-align: center;
   margin: 0;
-  /* Detalle decorativo Teal */
   border-left: 4px solid #00D2BE;
   padding-left: 10px;
 }
@@ -798,54 +894,39 @@ main{
 }
 
 .recover-status-msg {
-  color: #00D2BE;
-  /* Mensaje de éxito en Teal */
   font-size: 0.9rem;
   text-align: center;
   margin-top: 10px;
   font-weight: 600;
 }
 
+/* --- ANIMACIONES --- */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
 
-/* Estilo del Spinner */
-.login-spinner {
-  width: 18px;
-  height: 18px;
-  border: 3px solid rgba(255, 255, 255, 0.3);
-  border-radius: 50%;
-  border-top-color: #fff;
-  animation: spin-login 0.8s linear infinite;
-}
-
-@keyframes spin-login {
   to {
-    transform: rotate(360deg);
+    opacity: 1;
+    transform: translateX(0);
   }
 }
 
-/* Opcional: que el botón se vea un poco más oscuro cuando está deshabilitado */
-.buttonFormAuth:disabled {
-  opacity: 0.7;
-  cursor: not-allowed;
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUpLogin {
   from {
     opacity: 0;
     transform: translateY(30px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* --- ANIMACIONES --- */
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
   }
 
   to {
@@ -870,6 +951,34 @@ main{
   }
 }
 
+.login-spinner {
+  width: 18px;
+  height: 18px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin-login 0.8s linear infinite;
+}
+
+@keyframes spin-login {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* 🔥 MEDIA QUERY: RESPONSIVE PARA MÓVILES */
+@media (max-width: 768px) {
+  .formAuthContainer {
+    max-width: 100%;
+    border-radius: 0;
+    /* En celular ocupa toda la pantalla, sin bordes redondeados */
+    border-left: none;
+    background: rgba(20, 20, 20, 0.85);
+    /* Un poco más oscuro en móvil para que se lea bien el texto */
+    padding: 2rem 1.5rem;
+  }
+}
+
 /* REGISTER PAGE */
 
 /* --- CONTENEDOR PRINCIPAL --- */
@@ -883,7 +992,7 @@ main{
   background-image: radial-gradient(circle at top right, rgba(0, 210, 190, 0.08), transparent 40%),
     radial-gradient(circle at bottom left, rgba(138, 43, 226, 0.08), transparent 40%);
   padding: 20px;
-  
+
   /* Espacio para que no se pegue al Navbar */
 }
 
@@ -1085,15 +1194,11 @@ main{
 
 /* --- CONTENEDOR PRINCIPAL --- */
 .dashboard-container {
-
   padding: 100px 2rem 2rem 2rem;
-
   background-color: #121212;
   min-height: 100vh;
   color: #ffffff;
   font-family: 'Inter', sans-serif;
-
-  /* Esto asegura que el padding no agrande el ancho total */
   box-sizing: border-box;
 }
 
@@ -1141,7 +1246,7 @@ main{
 }
 
 .header-center .app-logo {
-  width: 300px;
+  width: 180px;
   /* Ajustá según tu logo */
   opacity: 0.9;
 }
@@ -1298,6 +1403,94 @@ main{
   border-color: #444;
 }
 
+/* 🔥 NUEVO: DÍA DE HOY */
+.card-today {
+  border-color: #00D2BE;
+  box-shadow: 0 0 15px rgba(0, 210, 190, 0.15);
+}
+
+.card-today .day-badge {
+  background: #00D2BE;
+  color: #121212;
+}
+
+/* 🔥 NUEVO: ESTADOS COMPLETADOS */
+.card-completed-success {
+  border-color: rgba(0, 210, 190, 0.5);
+  /* Teal sutil */
+  opacity: 0.7;
+}
+
+.card-completed-success .training-title {
+  color: #00D2BE;
+  /* Resalta que se logró */
+}
+
+.card-completed-failed {
+  border-color: rgba(255, 77, 77, 0.5);
+  /* Rojo sutil */
+  opacity: 0.6;
+}
+
+.card-completed-failed .training-title {
+  text-decoration: line-through;
+  color: #777;
+}
+
+/* (Mantenemos textos interiores de la card) */
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.day-badge {
+  background: #333;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  color: #00D2BE;
+  transition: all 0.3s ease;
+}
+
+.training-title {
+  font-size: 1.2rem;
+  margin: 0 0 5px 0;
+  color: white;
+  text-transform: capitalize;
+  font-weight: bolder;
+  transition: color 0.3s ease;
+}
+
+.training-type {
+  color: #FF4500;
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin: 0;
+  text-transform: capitalize;
+}
+
+.divider {
+  height: 1px;
+  background: #333;
+  margin: 10px 0;
+}
+
+.training-desc {
+  font-size: 0.9rem;
+  color: #ccc;
+  line-height: 1.4;
+}
+
+.duration-text {
+  margin-top: 10px;
+  font-weight: bold;
+  color: #aaa;
+  font-size: 0.9rem;
+}
+
 /* Card Completada */
 .card-completed {
   border-color: #00D2BE;
@@ -1361,16 +1554,17 @@ main{
   font-size: 0.9rem;
 }
 
-input[type=number]::-webkit-inner-spin-button, 
-input[type=number]::-webkit-outer-spin-button { 
-  -webkit-appearance: none; 
-  margin: 0; 
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 /* Ocultar flechas en Firefox */
 input[type=number] {
   -moz-appearance: textfield;
 }
+
 
 
 
@@ -1423,6 +1617,64 @@ input[type=number] {
   display: block;
 }
 
+/* --- 🔥 NUEVO: BOTÓN CERRAR SEMANA MEJORADO --- */
+.finish-week-container {
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-finish-week {
+  padding: 12px 30px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  transition: all 0.3s ease;
+  /* Estado por defecto (Incompleto) */
+  background: transparent;
+  border: 1px solid #00D2BE;
+  color: #00D2BE;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+/* Hover interactivo solo cuando está habilitado */
+.btn-finish-week:not(:disabled) {
+  cursor: pointer;
+  opacity: 1;
+  background: #1e1e1e;
+  box-shadow: 0 4px 12px rgba(0, 210, 190, 0.1);
+}
+
+.btn-finish-week:not(:disabled):hover {
+  background: #00D2BE;
+  color: #121212;
+}
+
+/* Mensaje de ayuda (tool-tip visual) */
+.finish-week-hint {
+  color: #f1c40f;
+  /* Amarillo advertencia */
+  font-size: 0.85rem;
+  font-style: italic;
+  opacity: 0.9;
+}
+
+
+/* --- WIDGETS --- */
+/* (Mantenemos tus estilos base) */
+.widgets-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin: 40px 0px;
+  /* Separación con la grilla de arriba */
+}
+
+
+
 /* --- RESPONSIVE --- */
 @media (max-width: 768px) {
   .dash-header {
@@ -1454,95 +1706,107 @@ input[type=number] {
    ========================================= */
 
 .modal-cerrar-semana-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100vh;
-    background-color: rgba(0, 0, 0, 0.7);
-    backdrop-filter: blur(4px);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    animation: fadeIn 0.2s ease-in-out;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.7);
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease-in-out;
 }
 
 .modal-cerrar-semana-card {
-    background-color: #1a1a1a;
-    border: 1px solid #00D2BE;
-    border-radius: 12px;
-    padding: 30px;
-    width: 90%;
-    max-width: 400px;
-    box-shadow: 0 8px 25px rgba(0, 210, 190, 0.15);
-    text-align: center;
-    animation: slideUp 0.3s ease-out;
+  background-color: #1a1a1a;
+  border: 1px solid #00D2BE;
+  border-radius: 12px;
+  padding: 30px;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 8px 25px rgba(0, 210, 190, 0.15);
+  text-align: center;
+  animation: slideUp 0.3s ease-out;
 }
 
 .modal-cerrar-semana-title {
-    color: #ffffff;
-    font-size: 1.4rem;
-    margin-bottom: 15px;
-    font-weight: 700;
+  color: #ffffff;
+  font-size: 1.4rem;
+  margin-bottom: 15px;
+  font-weight: 700;
 }
 
 .modal-cerrar-semana-text {
-    color: #aaaaaa;
-    font-size: 0.95rem;
-    line-height: 1.5;
-    margin-bottom: 25px;
+  color: #aaaaaa;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 25px;
 }
 
 .modal-cerrar-semana-actions {
-    display: flex;
-    justify-content: space-between;
-    gap: 15px;
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
 }
 
 .modal-cerrar-semana-btn-cancelar {
-    flex: 1;
-    background-color: transparent;
-    border: 1px solid #444;
-    color: #fff;
-    padding: 12px;
-    border-radius: 8px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all 0.2s ease;
+  flex: 1;
+  background-color: transparent;
+  border: 1px solid #444;
+  color: #fff;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .modal-cerrar-semana-btn-cancelar:hover {
-    background-color: #333;
-    border-color: #666;
+  background-color: #333;
+  border-color: #666;
 }
 
 .modal-cerrar-semana-btn-aceptar {
-    flex: 1;
-    background-color: #00D2BE;
-    border: 1px solid #00D2BE;
-    color: #121212;
-    padding: 12px;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-    transition: all 0.2s ease;
+  flex: 1;
+  background-color: #00D2BE;
+  border: 1px solid #00D2BE;
+  color: #121212;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .modal-cerrar-semana-btn-aceptar:hover {
-    background-color: #00b09f;
-    border-color: #00b09f;
-    box-shadow: 0 0 10px rgba(0, 210, 190, 0.4);
+  background-color: #00b09f;
+  border-color: #00b09f;
+  box-shadow: 0 0 10px rgba(0, 210, 190, 0.4);
 }
 
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes slideUp {
-    from { opacity: 0; transform: translateY(20px); }
-    to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /*Widget dashboard*/
@@ -1587,16 +1851,17 @@ input[type=number] {
 }
 
 .countdown-box {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-width: 70px;
-    height: 70px;
-    border-radius: 10px;
-    color: #000; /* Texto oscuro sobre el color vibrante */
-    font-weight: 800;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-width: 70px;
+  height: 70px;
+  border-radius: 10px;
+  color: #000;
+  /* Texto oscuro sobre el color vibrante */
+  font-weight: 800;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
 }
 
 .widget-content {
@@ -1629,25 +1894,27 @@ input[type=number] {
 }
 
 .count-number {
-    font-size: 1.8rem;
-    line-height: 1;
+  font-size: 1.8rem;
+  line-height: 1;
 }
 
 .count-label {
-    font-size: 0.6rem;
+  font-size: 0.6rem;
 }
 
 .edit-race-btn {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: transparent;
-    border: none;
-    cursor: pointer;
-    opacity: 0.5;
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  opacity: 0.5;
 }
 
-.edit-race-btn:hover { opacity: 1; }
+.edit-race-btn:hover {
+  opacity: 1;
+}
 
 /* --- 2. SHOE TRACKER (ZAPATILLAS) --- */
 .shoe-card-widget {
@@ -1881,9 +2148,111 @@ input[type=number] {
 }
 
 
-/*Vista detalle del plan de entrenamiento*/
+/* STATS DASHBOARD  */
 
-/* El fondo oscuro transparente */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+  margin-bottom: 35px;
+  /* Más espacio antes de la grilla de días */
+}
+
+.stat-card {
+  background-color: #1e1e1e;
+  padding: 15px 20px;
+  border-radius: 12px;
+  border: 1px solid #333;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.stat-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.stat-icon {
+  font-size: 1rem;
+}
+
+.stat-title {
+  color: #94a3b8;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.stat-values {
+  display: flex;
+  align-items: baseline;
+  gap: 5px;
+}
+
+.stat-main {
+  color: #fff;
+  font-size: 1.8rem;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.stat-sub {
+  color: #64748b;
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+.stat-unit {
+  font-size: 1rem;
+  font-weight: bold;
+}
+
+/* Colores de Acento para cada Stat */
+.stat-teal {
+  border-top: 3px solid #00D2BE;
+}
+
+.stat-teal .stat-icon,
+.stat-teal .stat-unit {
+  color: #00D2BE;
+}
+
+.stat-orange {
+  border-top: 3px solid #FF4500;
+}
+
+.stat-orange .stat-icon,
+.stat-orange .stat-unit {
+  color: #FF4500;
+}
+
+.stat-green {
+  border-top: 3px solid #4ade80;
+}
+
+.stat-green .stat-icon,
+.stat-green .stat-unit {
+  color: #4ade80;
+}
+
+.stat-yellow {
+  border-top: 3px solid #facc15;
+}
+
+.stat-yellow .stat-icon,
+.stat-yellow .stat-unit {
+  color: #facc15;
+}
+
+
+/*Vista detalle del plan de entrenamiento*/
 /* --- OVERLAY (Fondo oscuro) --- */
 .modal-overlay {
   position: fixed;
@@ -1897,7 +2266,6 @@ input[type=number] {
   justify-content: center;
   align-items: center;
   animation: fadeIn 0.3s ease;
-  /* Margen para que no pegue a los bordes en celular */
 }
 
 /* --- TARJETA PRINCIPAL --- */
@@ -1906,20 +2274,19 @@ input[type=number] {
   width: 100%;
   max-width: 500px;
   max-height: 90vh;
-  /* IMPORTANTE: Evita que se salga de la pantalla */
   overflow-y: auto;
-  /* IMPORTANTE: Scroll si el contenido es largo */
   border-radius: 20px;
   border: 1px solid #333;
   position: relative;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.8);
+  /* Sombra un poco más oscura */
   animation: slideUp 0.3s ease;
   display: flex;
   flex-direction: column;
   margin: 0px 20px;
 }
 
-/* Scrollbar personalizado para que quede facherito */
+/* Scrollbar personalizado */
 .modal-content::-webkit-scrollbar {
   width: 8px;
 }
@@ -1937,48 +2304,55 @@ input[type=number] {
   background: #555;
 }
 
-/* --- HEADER --- */
+/* --- HEADER REDISEÑADO --- */
 .modal-header {
-  background: linear-gradient(135deg, #FF4500 0%, #a01a1a 100%);
-  padding: 1.25rem 1.5rem;
-  /* Un poco más compacto arriba/abajo */
-  padding-right: 60px;
-  /* IMPORTANTE: Deja espacio a la derecha para el botón X */
+  padding: 1.5rem;
   color: white;
   position: relative;
   flex-shrink: 0;
   display: flex;
-  flex-direction: column;
-  /* Apila los elementos verticalmente */
-  align-items: center;
-  /* Alinea todo a la izquierda */
   justify-content: center;
-  min-height: 100px;
-  /* Altura mínima para que respire */
+  align-items: center;
+  text-align: center;
+  min-height: 120px;
+}
+
+/* Estilos de fondo según estado */
+.header-default {
+  background: linear-gradient(135deg, #FF4500 0%, #a01a1a 100%);
 }
 
 .header-completed {
-  background: linear-gradient(135deg, #1d976c 0%, #93f9b9 100%);
-  color: #000;
+  background: linear-gradient(135deg, #00D2BE 0%, #008f82 100%);
+  /* Ajustado a tu Teal */
+  color: #121212;
+  /* Texto oscuro para contrastar con el Teal claro */
 }
 
-.header-completed .modal-tag {
-  background: rgba(0, 0, 0, 0.2);
-  color: #000;
+.header-failed {
+  background: linear-gradient(135deg, #ff4d4d 0%, #8a0c0c 100%);
 }
 
+.header-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 0 20px;
+  /* Para que el texto no toque los bordes ni la X */
+}
+
+/* Botón cerrar fijo arriba a la derecha */
 .close-btn {
   position: absolute;
   top: 15px;
   right: 15px;
-  /* Se queda fijo en la esquina */
   background: rgba(0, 0, 0, 0.2);
   border: none;
   color: inherit;
-  /* Toma el color del texto (blanco o negro) */
   font-size: 1.2rem;
   width: 32px;
-  /* Un pelín más chico */
   height: 32px;
   border-radius: 50%;
   cursor: pointer;
@@ -1991,100 +2365,92 @@ input[type=number] {
 
 .close-btn:hover {
   background: rgba(0, 0, 0, 0.4);
-  transform: rotate(90deg);
-  /* Efecto giratorio facherito */
+  transform: scale(1.1);
 }
 
-/* La etiqueta (tipo de entrenamiento) */
 .modal-tag {
   background: rgba(255, 255, 255, 0.25);
-  padding: 4px 10px;
+  padding: 4px 12px;
   border-radius: 6px;
   font-size: 0.7rem;
   text-transform: uppercase;
-  font-weight: 700;
+  font-weight: 800;
   letter-spacing: 0.5px;
-  margin-bottom: 5px;
-  /* Separación con el título */
   display: inline-block;
 }
 
 .header-completed .modal-tag {
   background: rgba(0, 0, 0, 0.15);
-  color: #000;
+  color: #121212;
 }
 
-.modal-header h2 {
+.modal-main-title {
   margin: 0;
-  font-size: 1.4rem;
-  /* Tamaño ideal: grande pero no gigante */
+  font-size: 1.6rem;
   line-height: 1.2;
   font-weight: 800;
-  width: 100%;
   word-wrap: break-word;
-  /* Si es larguísimo, baja de línea prolijamente */
+  text-transform: capitalize;
 }
 
 .header-meta {
   font-size: 0.9rem;
+  font-weight: 600;
   opacity: 0.9;
+  text-transform: capitalize;
 }
 
 /* --- BODY --- */
 .modal-body {
   padding: 1.5rem;
   color: #e0e0e0;
-  /* IMPORTANTE: Saqué el align-items: center para que ocupe el ancho */
 }
 
-/* --- STATS GRID --- */
-.stats-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-  margin-bottom: 1.5rem;
-}
-
-.stat-box {
+/* STATS RÁPIDOS DEL DETALLE (Reemplaza a .stats-grid para no pisarse) */
+.detail-stats-container {
+  display: flex;
+  justify-content: space-around;
   background: #252525;
-  padding: 10px;
-  border-radius: 12px;
-  text-align: center;
-  border: 1px solid #333;
-}
-
-.stat-label {
-  display: block;
-  font-size: 0.7rem;
-  color: #888;
-  text-transform: uppercase;
-  margin-bottom: 4px;
-}
-
-.stat-value {
-  display: block;
-  font-size: 0.85rem;
-  /* Ajustado para celulares */
-  font-weight: 700;
-  color: #00D2BE;
-  white-space: nowrap;
-  /* Para que no se rompa el texto */
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* --- TIMELINE --- */
-.workout-structure {
-  background: #202020;
   padding: 15px;
   border-radius: 12px;
   margin-bottom: 20px;
+  border: 1px solid #333;
+}
+
+.detail-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+}
+
+.detail-stat-label {
+  font-size: 0.75rem;
+  color: #888;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
+.detail-stat-value {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #00D2BE;
+  /* Acento Teal */
+}
+
+/* --- TIMELINE DE LA MISIÓN --- */
+.workout-structure {
+  background: #1e1e1e;
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 20px;
+  border: 1px solid #333;
 }
 
 .workout-structure h3 {
   font-size: 0.95rem;
   color: #fff;
-  margin-bottom: 0.8rem;
+  margin: 0 0 12px 0;
   border-left: 3px solid #00D2BE;
   padding-left: 10px;
 }
@@ -2092,6 +2458,7 @@ input[type=number] {
 .structure-item {
   display: flex;
   gap: 15px;
+  align-items: stretch;
 }
 
 .timeline-dot {
@@ -2111,12 +2478,21 @@ input[type=number] {
   height: 10px;
   background: #00D2BE;
   border-radius: 50%;
-  box-shadow: 0 0 10px rgba(0, 210, 190, 0.5);
+  box-shadow: 0 0 10px rgba(0, 210, 190, 0.4);
 }
 
 .timeline-dot.rest::after {
   background: #888;
   box-shadow: none;
+}
+
+.mission-text {
+  white-space: pre-line;
+  color: #ccc;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin: 0;
+  padding-top: 2px;
 }
 
 .modal-divider {
@@ -2126,25 +2502,57 @@ input[type=number] {
   margin: 20px 0;
 }
 
-/* --- FEEDBACK FORM & INPUTS --- */
-.feedback-section h3 {
+/* --- FORMULARIO Y FEEDBACK --- */
+.feedback-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   margin-bottom: 15px;
+}
+
+.feedback-header h3 {
+  margin: 0;
   font-size: 1.1rem;
+  color: #fff;
+}
+
+.edit-report-btn {
+  background: transparent;
+  border: 1px solid #00D2BE;
+  color: #00D2BE;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.edit-report-btn:hover {
+  background: #00D2BE;
+  color: #121212;
+}
+
+.inputs-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+.input-group {
+  display: flex;
+  flex-direction: column;
 }
 
 .input-label {
   font-size: 0.8rem;
   color: #999;
   margin-bottom: 6px;
-  margin-top: 10px;
-  display: block;
   font-weight: 600;
 }
 
-/* Estilos comunes para todos los inputs (texto, select, number) */
-.inputFormTraining,
-select,
-textarea {
+.inputFormTraining {
   width: 100%;
   background: #252525;
   border: 1px solid #444;
@@ -2152,52 +2560,41 @@ textarea {
   color: white;
   font-family: inherit;
   font-size: 0.95rem;
-  transition: border-color 0.2s;
   padding: 10px;
+  transition: border-color 0.2s;
+  box-sizing: border-box;
 }
 
-input[type="number"]:focus,
-select:focus,
-textarea:focus {
+.inputFormTraining:focus {
   outline: none;
   border-color: #00D2BE;
 }
 
-textarea {
+textarea.inputFormTraining {
   height: 80px;
   resize: none;
 }
 
-
-/* Inputs deshabilitados (Modo Lectura) */
-input:disabled,
-select:disabled,
-textarea:disabled,
 .input-disabled {
   background: #1a1a1a !important;
   border-color: #333 !important;
   color: #666 !important;
   cursor: not-allowed;
-  opacity: 0.7;
+  opacity: 0.8;
 }
 
-
-
-/* --- SLIDER RPE --- */
-/* Contenedor del bloque Borg */
+/* --- SLIDER BORG (Mantenido intacto, solo ajustado márgenes) --- */
 .borg-wrapper {
   background: rgba(255, 255, 255, 0.03);
   padding: 15px;
   border-radius: 12px;
   border: 1px solid #333;
-  margin-bottom: 15px;
+  margin-bottom: 20px;
   text-align: center;
 }
 
-/* Feedback (Número y Texto) */
 .borg-feedback {
   height: 50px;
-  /* Altura fija para que no salte */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -2207,7 +2604,7 @@ textarea:disabled,
 }
 
 .borg-number {
-  font-size: 2rem;
+  font-size: 2.2rem;
   font-weight: 900;
   line-height: 1;
 }
@@ -2218,7 +2615,6 @@ textarea:disabled,
   text-transform: uppercase;
 }
 
-/* --- ESTILOS DE LA BARRA (INPUT RANGE) --- */
 .borg-slider {
   -webkit-appearance: none;
   width: 100%;
@@ -2229,7 +2625,6 @@ textarea:disabled,
   margin: 10px 0;
 }
 
-/* El círculo que arrastras (Chrome/Safari/Edge) */
 .borg-slider::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
@@ -2238,29 +2633,16 @@ textarea:disabled,
   border-radius: 50%;
   background: #fff;
   border: 3px solid #181818;
-  /* Borde oscuro para contraste */
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5);
   cursor: pointer;
   transition: transform 0.1s;
   margin-top: -2px;
-  /* Ajuste visual */
 }
 
 .borg-slider::-webkit-slider-thumb:hover {
   transform: scale(1.2);
 }
 
-/* El círculo que arrastras (Firefox) */
-.borg-slider::-moz-range-thumb {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  background: #fff;
-  border: 3px solid #181818;
-  cursor: pointer;
-}
-
-/* Los numeritos de abajo (0 - 5 - 10) */
 .borg-ticks {
   display: flex;
   justify-content: space-between;
@@ -2270,25 +2652,68 @@ textarea:disabled,
   padding: 0 2px;
 }
 
-/* --- BOTONES --- */
-.action-btn {
-  width: 100%;
-  margin-top: 20px;
-  padding: 14px;
-  background: #00D2BE;
-  color: #000;
-  border: none;
-  border-radius: 10px;
-  font-weight: 800;
-  cursor: pointer;
-  font-size: 1rem;
-  letter-spacing: 0.5px;
-  transition: transform 0.2s, box-shadow 0.2s;
+/* DÍA DE DESCANSO */
+.rest-day-message {
+  text-align: center;
+  padding: 25px;
+  background: rgba(0, 210, 190, 0.05);
+  border: 1px dashed rgba(0, 210, 190, 0.3);
+  border-radius: 12px;
+  color: #aaa;
+  font-style: italic;
+  margin-bottom: 20px;
 }
 
-.action-btn:hover {
+/* --- BOTONERA --- */
+.modal-actions-container {
+  display: flex;
+  gap: 10px;
+  margin-top: 25px;
+  flex-wrap: wrap;
+  /* Para que en celulares chicos bajen si no entran */
+}
+
+.action-btn {
+  flex: 1;
+  min-width: 140px;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 800;
+  cursor: pointer;
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
+  transition: all 0.2s ease;
+  text-align: center;
+  border: none;
+}
+
+.btn-primary {
+  background: #00D2BE;
+  color: #121212;
+}
+
+.btn-primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 5px 15px rgba(0, 210, 190, 0.3);
+}
+
+.btn-danger-outline {
+  background: transparent;
+  border: 1px solid #ff4d4d;
+  color: #ff4d4d;
+}
+
+.btn-danger-outline:hover {
+  background: rgba(255, 77, 77, 0.1);
+}
+
+.btn-secondary {
+  background: #333;
+  color: #fff;
+}
+
+.btn-secondary:hover {
+  background: #444;
 }
 
 /* Animaciones */
@@ -2311,6 +2736,14 @@ textarea:disabled,
   to {
     transform: translateY(0);
     opacity: 1;
+  }
+}
+
+/* Responsive adjustments */
+@media (max-width: 480px) {
+  .inputs-grid {
+    grid-template-columns: 1fr;
+    /* Apila los inputs en celulares */
   }
 }
 

@@ -9,30 +9,30 @@ const Login = () => {
     const [password, setPassword] = useState("");
     const [mensaje, setMensaje] = useState("");
     const [loading, setLoading] = useState(false);
-    const [showPassword, setShowPassword] = useState(false); 
+    const [showPassword, setShowPassword] = useState(false);
     const navigate = useNavigate();
     const apiUrl = import.meta.env.VITE_API_URL;
 
     // --- ESTADOS DE RECUPERACIÓN ---
     const [isRecoverOpen, setIsRecoverOpen] = useState(false);
-    const [recoverStep, setRecoverStep] = useState(1); 
+    const [recoverStep, setRecoverStep] = useState(1);
     const [recoverEmail, setRecoverEmail] = useState("");
     const [recoveryCode, setRecoveryCode] = useState("");
     const [newPassword, setNewPassword] = useState("");
-    const [confirmPassword, setConfirmPassword] = useState(""); 
+    const [confirmPassword, setConfirmPassword] = useState("");
     const [recoverStatus, setRecoverStatus] = useState("");
-    
+
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    
+
     const [isRecoverLoading, setIsRecoverLoading] = useState(false);
 
     // --- ESTADOS DE FONDO ---
     const [bgLoaded, setBgLoaded] = useState(false);
     const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
-    const fondoDesktop = "https://res.cloudinary.com/dmnksm3th/image/upload/v1772080976/fondo-login_11zon_vp6r1p.webp";
-    const fondoMobile = "https://res.cloudinary.com/dmnksm3th/image/upload/v1772080976/Gemini_Generated_Image_plvz32plvz32plvz_11zon_ikdlu8.webp";
+    const fondoDesktop = "https://res.cloudinary.com/dmnksm3th/image/upload/q_auto/f_auto/v1776466823/fondo-login_vicuzf.png";
+    const fondoMobile = "https://res.cloudinary.com/dmnksm3th/image/upload/q_auto/f_auto/v1776466974/fondo-login-mob_dz1ici.jpg";
 
     useEffect(() => {
         const handleResize = () => setIsMobile(window.innerWidth < 768);
@@ -56,6 +56,7 @@ const Login = () => {
         }
     };
 
+    // ... (Mantengo exacto tu lógica de request, verify y reset password) ...
     const handleRequestCode = async (e) => {
         e.preventDefault();
         setIsRecoverLoading(true);
@@ -67,7 +68,7 @@ const Login = () => {
                 body: JSON.stringify({ email: recoverEmail })
             });
             const data = await res.json();
-            if (res.ok) setRecoverStep(2); 
+            if (res.ok) setRecoverStep(2);
             else setRecoverStatus("❌ " + data.message);
         } catch (error) {
             setRecoverStatus("❌ Error de conexión.");
@@ -87,7 +88,7 @@ const Login = () => {
                 body: JSON.stringify({ email: recoverEmail, code: recoveryCode })
             });
             const data = await res.json();
-            if (res.ok) setRecoverStep(3); 
+            if (res.ok) setRecoverStep(3);
             else setRecoverStatus("❌ " + data.message);
         } catch (error) {
             setRecoverStatus("❌ Error de conexión.");
@@ -100,7 +101,7 @@ const Login = () => {
         e.preventDefault();
         if (newPassword !== confirmPassword) return setRecoverStatus("⚠️ Las contraseñas no coinciden.");
         if (newPassword.length < 8) return setRecoverStatus("⚠️ La clave debe tener mínimo 8 caracteres.");
-        
+
         setIsRecoverLoading(true);
         setRecoverStatus("");
         try {
@@ -135,7 +136,7 @@ const Login = () => {
 
     const currentBgImage = isMobile ? fondoMobile : fondoDesktop;
 
-    // 🔥 SVGs DE LOS OJITOS PARA REUTILIZAR
+    // 🔥 SVGs DE LOS OJITOS
     const EyeOpen = () => (
         <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
             <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
@@ -170,31 +171,35 @@ const Login = () => {
             )}
 
             {bgLoaded && (
-                <main id="loginContainer" className="register-login-page" style={{ background: 'transparent' }}>
+                <main id="loginContainer" className="register-login-page">
                     <div className="formAuthContainer">
-                        <h1 className="titleAuth">Iniciar <span>Sesion</span></h1>
+                        <img
+                            src="https://res.cloudinary.com/dmnksm3th/image/upload/q_auto/f_auto/v1776467586/logo-zona-ultra_en09ys.png"
+                            alt="Zona Ultra Logo"
+                            className="login-logo"
+                        />
+                        <h1 className="titleAuth">Iniciar <span>Sesión</span></h1>
 
                         <form onSubmit={submitUser} className="formAuth" >
-                            <input className="inputFormAuth" type="email" id="email" placeholder="Correo electronico" required onChange={(e) => setEmail(e.target.value)} />
+                            <input className="inputFormAuth" type="email" id="email" placeholder="Correo electrónico" required onChange={(e) => setEmail(e.target.value)} />
 
                             <div style={{ display: 'flex', flexDirection: 'column' }}>
-                                {/* 🔥 INPUT DE CONTRASEÑA CON OJITO (FIX DE ANCHO) */}
                                 <div style={{ position: 'relative', width: '100%' }}>
-                                    <input 
-                                        className="inputFormAuth" 
-                                        type={showPassword ? "text" : "password"} 
-                                        id="password" 
-                                        placeholder="Contraseña" 
-                                        required 
-                                        onChange={(e) => setPassword(e.target.value)} 
-                                        style={{ width: '100%', paddingRight: '45px', boxSizing: 'border-box', margin: 0 }} 
+                                    <input
+                                        className="inputFormAuth"
+                                        type={showPassword ? "text" : "password"}
+                                        id="password"
+                                        placeholder="Contraseña"
+                                        required
+                                        onChange={(e) => setPassword(e.target.value)}
+                                        style={{ width: '100%', paddingRight: '45px', boxSizing: 'border-box', margin: 0 }}
                                     />
-                                    <button 
-                                        type="button" 
+                                    <button
+                                        type="button"
                                         onClick={() => setShowPassword(!showPassword)}
-                                        style={{ 
-                                            position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', 
-                                            background: 'transparent', border: 'none', color: '#888', cursor: 'pointer', display: 'flex', padding: 0 
+                                        style={{
+                                            position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)',
+                                            background: 'transparent', border: 'none', color: '#888', cursor: 'pointer', display: 'flex', padding: 0
                                         }}
                                     >
                                         {showPassword ? <EyeOpen /> : <EyeClosed />}
@@ -218,16 +223,16 @@ const Login = () => {
                 </main>
             )}
 
-            {/* --- MODAL DE RECUPERACIÓN --- */}
+            {/* --- MODAL DE RECUPERACIÓN (Se mantiene centrado tipo Pop-up) --- */}
             {isRecoverOpen && (
                 <div className="recover-overlay" onClick={closeRecoverModal}>
                     <div className="recover-card" onClick={(e) => e.stopPropagation()}>
                         <button className="recover-close" onClick={closeRecoverModal}>&times;</button>
-                        
+
                         {recoverStep === 1 && (
                             <>
                                 <h2 className="recover-title">Recuperar Acceso</h2>
-                                <p className="recover-desc" style={{ marginBottom: '15px' }}>Ingresa tu email y te enviaremos un código de 6 dígitos.</p>
+                                <p className="recover-desc" style={{ marginBottom: '15px' }}>Ingresá tu email y te enviaremos un código de 6 dígitos.</p>
                                 <form onSubmit={handleRequestCode} className="recover-form">
                                     <input type="email" className="inputFormAuth" placeholder="Tu email registrado" value={recoverEmail} onChange={(e) => setRecoverEmail(e.target.value)} required />
                                     <button type="submit" className="buttonFormAuth" disabled={isRecoverLoading} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px' }}>
@@ -246,7 +251,7 @@ const Login = () => {
                                     <button type="submit" className="buttonFormAuth" disabled={isRecoverLoading} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px' }}>
                                         {isRecoverLoading ? <span className="login-spinner"></span> : "Verificar Código"}
                                     </button>
-                                    <button type="button" className="buttonFormAuth" disabled={isRecoverLoading} style={{background: 'transparent', border: '1px solid #444', marginTop: '10px', opacity: isRecoverLoading ? 0.5 : 1}} onClick={() => setRecoverStep(1)}>
+                                    <button type="button" className="buttonFormAuth" disabled={isRecoverLoading} style={{ background: 'transparent', border: '1px solid #444', marginTop: '10px', opacity: isRecoverLoading ? 0.5 : 1 }} onClick={() => setRecoverStep(1)}>
                                         Volver atrás
                                     </button>
                                 </form>
@@ -258,47 +263,20 @@ const Login = () => {
                                 <h2 className="recover-title">Crear Nueva Clave</h2>
                                 <p className="recover-desc" style={{ marginBottom: '15px' }}>Tu código es válido. Ahora elegí tu nueva contraseña.</p>
                                 <form onSubmit={handleResetPassword} className="recover-form">
-                                    
-                                    {/* 🔥 INPUT NUEVA CONTRASEÑA (FIX DE ANCHO) */}
                                     <div style={{ position: 'relative', width: '100%', marginBottom: '10px' }}>
-                                        <input 
-                                            type={showNewPassword ? "text" : "password"} 
-                                            className="inputFormAuth" 
-                                            placeholder="Nueva contraseña" 
-                                            value={newPassword} 
-                                            onChange={(e) => setNewPassword(e.target.value)} 
-                                            required 
-                                            minLength={8} 
-                                            style={{ width: '100%', paddingRight: '45px', margin: 0, boxSizing: 'border-box' }}
-                                        />
-                                        <button 
-                                            type="button" onClick={() => setShowNewPassword(!showNewPassword)}
-                                            style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', color: '#888', cursor: 'pointer', display: 'flex', padding: 0 }}
-                                        >
+                                        <input type={showNewPassword ? "text" : "password"} className="inputFormAuth" placeholder="Nueva contraseña" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} required minLength={8} style={{ width: '100%', paddingRight: '45px', margin: 0, boxSizing: 'border-box' }} />
+                                        <button type="button" onClick={() => setShowNewPassword(!showNewPassword)} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', color: '#888', cursor: 'pointer', display: 'flex', padding: 0 }}>
                                             {showNewPassword ? <EyeOpen /> : <EyeClosed />}
                                         </button>
                                     </div>
 
-                                    {/* 🔥 INPUT CONFIRMAR CONTRASEÑA (FIX DE ANCHO) */}
                                     <div style={{ position: 'relative', width: '100%' }}>
-                                        <input 
-                                            type={showConfirmPassword ? "text" : "password"} 
-                                            className="inputFormAuth" 
-                                            placeholder="Confirmar contraseña" 
-                                            value={confirmPassword} 
-                                            onChange={(e) => setConfirmPassword(e.target.value)} 
-                                            required 
-                                            minLength={8} 
-                                            style={{ width: '100%', paddingRight: '45px', margin: 0, boxSizing: 'border-box' }}
-                                        />
-                                        <button 
-                                            type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                                            style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', color: '#888', cursor: 'pointer', display: 'flex', padding: 0 }}
-                                        >
+                                        <input type={showConfirmPassword ? "text" : "password"} className="inputFormAuth" placeholder="Confirmar contraseña" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required minLength={8} style={{ width: '100%', paddingRight: '45px', margin: 0, boxSizing: 'border-box' }} />
+                                        <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', background: 'transparent', border: 'none', color: '#888', cursor: 'pointer', display: 'flex', padding: 0 }}>
                                             {showConfirmPassword ? <EyeOpen /> : <EyeClosed />}
                                         </button>
                                     </div>
-                                    
+
                                     <button type="submit" className="buttonFormAuth" disabled={isRecoverLoading} style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '10px', marginTop: '15px' }}>
                                         {isRecoverLoading ? <span className="login-spinner"></span> : "Guardar y Entrar"}
                                     </button>
@@ -307,9 +285,9 @@ const Login = () => {
                         )}
 
                         {recoverStatus && (
-                            <p className="recover-status-msg" style={{ 
-                                marginTop: '15px', 
-                                color: recoverStatus.includes('✅') ? '#00D2BE' : (recoverStatus.includes('❌') || recoverStatus.includes('⚠️') ? '#ff4d4d' : '#fff') 
+                            <p className="recover-status-msg" style={{
+                                marginTop: '15px',
+                                color: recoverStatus.includes('✅') ? '#00D2BE' : (recoverStatus.includes('❌') || recoverStatus.includes('⚠️') ? '#ff4d4d' : '#fff')
                             }}>
                                 {recoverStatus}
                             </p>
