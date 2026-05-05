@@ -179,18 +179,18 @@ const TrainingDetail = ({ isSemanaActiva = true }) => {
                         <h3 className="section-title">📊 Detalles del Plan</h3>
                         <div className="minimal-stats">
                             <div className="min-stat">
-                                <FaClock className="stat-icon" />
+                                <FaClock className="stat-icon-detail" />
                                 <div>
-                                    <p className="stat-label">Duración Planificada</p>
-                                    <p className="stat-value">{training.duracion} {training.unidad === 'horas' ? 'hs' : 'min'}</p>
+                                    <p className="stat-label-detail">Duración Planificada</p>
+                                    <p className="stat-value-detail">{training.duracion} {training.unidad === 'horas' ? 'hs' : 'min'}</p>
                                 </div>
                             </div>
                             {!isStrength && (
                                 <div className="min-stat">
-                                    <FaRoute className="stat-icon" />
+                                    <FaRoute className="stat-icon-detail" />
                                     <div>
-                                        <p className="stat-label">Distancia Objetivo</p>
-                                        <p className="stat-value">{training.km || 0} km</p>
+                                        <p className="stat-label-detail">Distancia Objetivo</p>
+                                        <p className="stat-value-detail">{training.km || 0} km</p>
                                     </div>
                                 </div>
                             )}

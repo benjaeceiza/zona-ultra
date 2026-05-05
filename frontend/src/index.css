@@ -1972,6 +1972,7 @@ main {
   align-items: center;
   gap: 8px;
   margin-bottom: 8px;
+  
 }
 
 .stat-icon {
@@ -1983,6 +1984,7 @@ main {
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 1px;
+  margin: 0;
 }
 
 .stat-values {
@@ -4103,14 +4105,7 @@ form {
   /* Borde naranja para destacar */
 }
 
-.stat-title {
-  display: block;
-  font-size: 0.8rem;
-  color: #888;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 10px;
-}
+
 
 .stat-content {
   display: flex;

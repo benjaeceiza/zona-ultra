@@ -161,19 +161,19 @@
     gap: 15px;
 }
 
-.stat-icon {
+.stat-icon-detail {
     font-size: 1.8rem;
     color: #00d2be;
     opacity: 0.8;
 }
 
-.stat-label {
+.stat-label-detail {
     font-size: 0.85rem;
     color: #888;
     margin: 0 0 4px 0;
 }
 
-.stat-value {
+.stat-value-detail {
     font-size: 1.4rem;
     font-weight: 600;
     margin: 0;
@@ -390,6 +390,7 @@
     border: 1px solid #00d2be;
     padding: 8px 16px;
     font-size: 0.85rem;
+    width: 100px;
 }
 
 .ultra-btn.outline-accent:hover {
