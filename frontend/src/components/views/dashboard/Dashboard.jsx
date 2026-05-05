@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
 import { getUserLogued } from "../../../services/getUserLogued";
-import TrainingDetail from "../detalle-plan/TrainingDetail";
 import { WeatherWidget, ShoeTracker } from "./Widgets";
 import RaceCountdown from "./RaceCountDown";
 import logo from "../../../assets/logo-zona-ultra.png";
 import Loader from "../../loader/Loader";
 import { toast } from "react-toastify";
-
-// 🔥 NUEVO: Importamos iconos para las estadísticas
 import { FaRunning, FaMapMarkerAlt, FaRoute, FaClock } from "react-icons/fa";
+import TrainingCardInit from "./entrenamientos/TrainingCardInit";
+import { useNavigate } from 'react-router-dom';
 
 const Dashboard = () => {
     const [user, setUser] = useState(null);
@@ -16,16 +15,14 @@ const Dashboard = () => {
     const [selectedTraining, setSelectedTraining] = useState(null);
     const [shoesList, setShoesList] = useState([]);
     const [isModalCerrarSemanaOpen, setIsModalCerrarSemanaOpen] = useState(false);
+    const navigate = useNavigate();
 
-    // 🔥 NUEVO: Obtenemos el día actual (0 = Domingo, 1 = Lunes, etc.)
     const todayIndex = new Date().getDay();
-    // Mapeamos a los días de la semana (Lunes a Domingo)
     const daysOfWeek = ["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"];
-    const currentDayName = daysOfWeek[todayIndex === 0 ? 6 : todayIndex - 1]; // Ajuste para que Lunes sea 0
+    const currentDayName = daysOfWeek[todayIndex === 0 ? 6 : todayIndex - 1];
 
     const url = import.meta.env.VITE_API_URL;
 
-    // --- 1. FUNCIONES DE CARGA DE DATOS --- (Sin cambios) [cite: 59, 60, 61, 62, 63, 64, 65, 66, 67]
     const fetchUser = async (token) => {
         try {
             const res = await getUserLogued(token);
@@ -65,7 +62,6 @@ const Dashboard = () => {
         }
     };
 
-    // --- 2. EFECTO DE CARGA INICIAL --- (Sin cambios) [cite: 67, 68, 69, 70]
     useEffect(() => {
         const loadDashboardData = async () => {
             const token = localStorage.getItem("token");
@@ -83,7 +79,6 @@ const Dashboard = () => {
 
                 if (userData) setUser(userData);
                 setShoesList(shoesData);
-
             } catch (error) {
                 console.error("Error cargando dashboard:", error);
             } finally {
@@ -94,7 +89,6 @@ const Dashboard = () => {
         loadDashboardData();
     }, []);
 
-    // --- 3. CÁLCULOS --- (Sin cambios lógicos) [cite: 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82]
     const activePlan = user?.planes?.find(plan => plan.estado === 'activo');
     const entrenamientosDisplay = activePlan ? activePlan.entrenamientos : [];
     const totalEntrenamientos = entrenamientosDisplay.length || 0;
@@ -130,7 +124,6 @@ const Dashboard = () => {
         return `${m}m`;
     };
 
-    // --- 4. FUNCIÓN QUE EJECUTA EL CIERRE --- (Sin cambios) [cite: 83, 84, 85, 86, 87, 88, 89, 90]
     const executeFinishWeek = async () => {
         setIsModalCerrarSemanaOpen(false);
         try {
@@ -156,7 +149,6 @@ const Dashboard = () => {
         }
     };
 
-    // --- 5. RENDERIZADO --- [cite: 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119, 120, 121, 122, 123, 124, 125, 126, 127, 128, 129, 130, 131, 132, 133, 134, 135, 136, 137, 138, 139, 140, 141, 142, 143, 144, 145, 146, 147, 148, 149, 150, 151, 152, 153, 154, 155, 156, 157, 158]
     if (loading) {
         return (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#121212' }}>
@@ -193,7 +185,6 @@ const Dashboard = () => {
             </header>
 
             <section className="content-section">
-
                 {/* BARRA DE PROGRESO */}
                 <div className="progress-section">
                     <div className="progress-info">
@@ -205,9 +196,8 @@ const Dashboard = () => {
                     </div>
                 </div>
 
-                {/* --- 🔥 NUEVA FILA DE ESTADÍSTICAS RÁPIDAS (CON ICONOS Y COLORES) --- */}
+                {/* STATS GRID */}
                 <div className="stats-grid">
-                    {/* Stat 1: Sesiones (Teal) */}
                     <div className="stat-card stat-teal">
                         <div className="stat-header">
                             <FaRunning className="stat-icon" />
@@ -219,7 +209,6 @@ const Dashboard = () => {
                         </div>
                     </div>
 
-                    {/* Stat 2: Km Planificados (Naranja) */}
                     <div className="stat-card stat-orange">
                         <div className="stat-header">
                             <FaMapMarkerAlt className="stat-icon" />
@@ -231,7 +220,6 @@ const Dashboard = () => {
                         </div>
                     </div>
 
-                    {/* Stat 3: Km Reales (Verde) */}
                     <div className="stat-card stat-green">
                         <div className="stat-header">
                             <FaRoute className="stat-icon" />
@@ -245,7 +233,6 @@ const Dashboard = () => {
                         </div>
                     </div>
 
-                    {/* Stat 4: Tiempo en movimiento (Amarillo/Dorado) */}
                     <div className="stat-card stat-yellow">
                         <div className="stat-header">
                             <FaClock className="stat-icon" />
@@ -258,58 +245,28 @@ const Dashboard = () => {
                     </div>
                 </div>
 
-                {/* --- 🔥 REORDENAMIENTO: GRILLA DE ENTRENAMIENTOS PRIMERO --- */}
                 <h2 className="section-title">
                     {activePlan ? "Tu Semana de Ultra" : "Sin Plan Activo"}
                 </h2>
 
+                {/* --- 🔥 ACÁ INVOCAMOS TU NUEVO COMPONENTE --- */}
                 <div className="cards-grid">
                     {entrenamientosDisplay.length > 0 ? (
                         entrenamientosDisplay.map((item, index) => {
-                            // Validaciones visuales
+                            // Calculamos las validaciones acá y se las pasamos limpias al componente
                             const isToday = item.dia.toLowerCase() === currentDayName;
                             const isFailed = item.completado && (item.feedback?.noLogrado || item.feedback?.comentario?.includes('[NO LOGRADO]'));
                             const isSuccess = item.completado && !isFailed;
 
                             return (
-                                <div
-                                    className={`training-card 
-                                        ${isToday ? 'card-today' : ''} 
-                                        ${isSuccess ? 'card-completed-success' : ''} 
-                                        ${isFailed ? 'card-completed-failed' : ''}
-                                    `}
+                                <TrainingCardInit
                                     key={index}
-                                    onClick={() => setSelectedTraining(item)}
-                                >
-                                    <div className="card-header">
-                                        <span className="day-badge">
-                                            {item.dia} {isToday && "(Hoy)"}
-                                        </span>
-                                        <div className="checkbox-container">
-                                            {isFailed ? (
-                                                <span style={{ color: '#ff4d4d', fontSize: '1.2rem', fontWeight: 'bold' }}>❌</span>
-                                            ) : (
-                                                <>
-                                                    <input
-                                                        type="checkbox"
-                                                        checked={item.completado}
-                                                        readOnly
-                                                        style={{ pointerEvents: "none" }}
-                                                    />
-                                                    <span className="checkmark"></span>
-                                                </>
-                                            )}
-                                        </div>
-                                    </div>
-                                    <div className="card-body">
-                                        <h3 className="training-title">{item.tipo}</h3>
-                                        <p className="training-type">{item.titulo}</p>
-                                        <div className="divider"></div>
-                                        <p className="training-desc">{item.descripcion}</p>
-                                        <p className="duration-text">⏱ {item.duracion} {item.unidad === 'horas' ? 'hs' : 'min'}</p>
-                                    </div>
-                                    <div className="card-glow"></div>
-                                </div>
+                                    item={item}
+                                    isToday={isToday}
+                                    isSuccess={isSuccess}
+                                    isFailed={isFailed}
+                                    onClick={() => navigate(`/entrenamiento/${activePlan._id}/${item._id}`)}
+                                />
                             );
                         })
                     ) : (
@@ -324,7 +281,7 @@ const Dashboard = () => {
                     )}
                 </div>
 
-                {/* BOTÓN CERRAR SEMANA MEJORADO */}
+                {/* BOTÓN CERRAR SEMANA */}
                 {activePlan && (
                     <div className="finish-week-container">
                         <button
@@ -345,7 +302,6 @@ const Dashboard = () => {
                     </div>
                 )}
 
-                {/* --- 🔥 REORDENAMIENTO: WIDGETS DEBAJO --- */}
                 <div className="widgets-row">
                     <RaceCountdown
                         initialFecha={user.nextRace?.date}
@@ -354,13 +310,11 @@ const Dashboard = () => {
                     />
                     <ShoeTracker userShoes={shoesList} />
                 </div>
-
             </section>
 
             {/* --- MODALES --- */}
             {isModalCerrarSemanaOpen && (
                 <div className="modal-cerrar-semana-overlay" onClick={() => setIsModalCerrarSemanaOpen(false)}>
-                    {/* Contenido del modal sin cambios */}
                     <div className="modal-cerrar-semana-card" onClick={(e) => e.stopPropagation()}>
                         <h2 className="modal-cerrar-semana-title">¿Terminaste tu semana? 🏁</h2>
                         <p className="modal-cerrar-semana-text">

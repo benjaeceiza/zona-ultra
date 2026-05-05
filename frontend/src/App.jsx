@@ -16,8 +16,9 @@ import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import EditPlan from "./components/views/edit-plan/EditPlan";
 
-// 🔥 1. IMPORTAMOS EL FOOTER (Ajustá la ruta según tu estructura)
+
 import Footer from "./components/footer/Footer"; 
+import TrainingDetail from "./components/views/detalle-plan/TrainingDetail";
 
 // --- COMPONENTE PARA EL SCROLL ---
 const ScrollToTop = () => {
@@ -89,25 +90,21 @@ function App() {
 
           <RouteHandler />
 
-          {/* 🔥 3. ENVOLVEMOS LA ESTRUCTURA EN UN CONTENEDOR FLEX */}
-          {/* Esto garantiza que el footer se quede pegado abajo aunque haya poco contenido */}
-          <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
-            
-            <ConditionalNavbar />
 
-            {/* 🔥 4. El <main> con flex: 1 empuja todo el contenido hacia abajo */}
+          <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>            
+            <ConditionalNavbar />
             <main style={{ flex: 1 }}>
               <Routes>
                 <Route path="/login" element={<PublicRoute><Login /></PublicRoute>} />
-                
                 <Route path="/register" element={<AdminRoute><Register /></AdminRoute>} />
                 <Route path="/" element={<LoginRoute><Dashboard /></LoginRoute>} />
+                <Route path="/entrenamiento/:idPlan/:idEntrenamiento" element={<LoginRoute><TrainingDetail /></LoginRoute>} />
                 <Route path="/mis-zapatillas" element={<LoginRoute><ShoesPage /></LoginRoute>} />
                 <Route path="/crear-plan" element={<AdminRoute><AddPlan /></AdminRoute>} />
                 <Route path="/crear-plan/:id" element={<AdminRoute><AddPlan /></AdminRoute>} />
                 <Route path="/editar-plan/:idPlan" element={<AdminRoute><EditPlan /></AdminRoute>} />
                 <Route path="/usuarios" element={<AdminRoute><UserList /></AdminRoute>} />
-                <Route path="/detalle-plan/:id" element={<AdminRoute><DetallePlan /></AdminRoute>} />
+                <Route path="/detalle-plan-admin/:id" element={<AdminRoute><DetallePlan /></AdminRoute>} />
               </Routes>
             </main>
 

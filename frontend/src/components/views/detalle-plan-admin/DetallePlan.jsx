@@ -7,7 +7,7 @@ import { IoIosArrowBack } from 'react-icons/io';
 const DetallePlan = () => {
     const { id } = useParams();
     const navigate = useNavigate();
-    const apiUrl = import.meta.env.VITE_API_URL; // Asegurate de tener esto para pegarle al backend
+    const apiUrl = import.meta.env.VITE_API_URL;
 
     const [usuario, setUsuario] = useState(null);
     const [planes, setPlanes] = useState([]);
@@ -137,7 +137,7 @@ const DetallePlan = () => {
                 </div>
             )}
 
-            {/* --- CONTENIDO DEL PLAN SELECCIONADO --- */}
+      
             {planDisplay && (
                 <>
                     {/* 🔥 BOTONES DE ACCIÓN (Editar / Eliminar) */}

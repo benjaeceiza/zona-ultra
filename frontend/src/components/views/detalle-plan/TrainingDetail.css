@@ -1,0 +1,479 @@
+.ultra-page,
+.ultra-page * {
+    box-sizing: border-box;
+    /* 🚀 CLAVE: Evita que los paddings sumen ancho extra */
+}
+
+.ultra-page {
+    background-color: #121212;
+    min-height: 100vh;
+    color: #ededed;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    padding-bottom: 5rem;
+    width: 100%;
+    max-width: 100vw;
+    /* Evita que crezca más que la pantalla */
+    overflow-x: hidden;
+    /* ✂️ Corta de raíz cualquier desborde horizontal */
+}
+
+.ultra-page.loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #00d2be;
+    font-size: 1.2rem;
+}
+
+/* Contenedor central (Máx 1200px) */
+.ultra-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 0 2rem;
+}
+
+/* --- HERO BANNER --- */
+.ultra-banner {
+    width: 100%;
+    padding: 3rem 0 4rem 0;
+    margin-bottom: 3rem;
+    position: relative;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.banner-default {
+    background: linear-gradient(135deg, #112d24 0%, #17382d 100%);
+}
+
+.banner-success {
+    background: linear-gradient(135deg, #0a4d31 0%, #126343 100%);
+}
+
+.banner-failed {
+    background: linear-gradient(135deg, #4d1519 0%, #691d22 100%);
+}
+
+.banner-pending {
+    background: linear-gradient(135deg, #8a4300 0%, #d97700 100%);
+}
+
+.ultra-back-btn {
+    margin-bottom: 1.5rem;
+    background: rgba(0, 0, 0, 0.25);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    backdrop-filter: blur(4px);
+    border: 0;
+    color: white;
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+    font-size: small;
+    gap: 5px;
+    cursor: pointer;
+    transition: all.3s;
+}
+
+.ultra-back-btn:hover {
+    background-color: #36cfc0d8;
+    transition: all.3s;
+}
+
+.banner-content {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+}
+
+.banner-tag {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.banner-title {
+    font-size: 3rem;
+    margin: 0;
+    font-weight: 800;
+    color: #fff;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    letter-spacing: -0.5px;
+    text-transform: capitalize;
+}
+
+.banner-date {
+    font-size: 1.1rem;
+    color: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+}
+
+
+
+
+/* --- MAIN LAYOUT GRID --- */
+.ultra-layout {
+    display: grid;
+    /* Divide 40% izquierda (info) y 60% derecha (formulario) */
+    grid-template-columns: 350px 1fr;
+    gap: 4rem;
+    align-items: start;
+}
+
+/* --- COLUMNA IZQUIERDA (INFO) --- */
+.info-section {
+    margin-bottom: 3rem;
+}
+
+.section-title-entrenamiento {
+    font-size: 0.85rem;
+    text-transform: capitalize;
+    letter-spacing: 1.5px;
+    color: #777;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid #222;
+    padding-bottom: 10px;
+}
+
+/* Stats minimalistas (sin borde de caja, solo borde izquierdo) */
+.minimal-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.min-stat {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.stat-icon {
+    font-size: 1.8rem;
+    color: #00d2be;
+    opacity: 0.8;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: #888;
+    margin: 0 0 4px 0;
+}
+
+.stat-value {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 0;
+    color: #fff;
+}
+
+.mission-text {
+    font-size: 1.05rem;
+    line-height: 1.7;
+    color: #ccc;
+    white-space: pre-wrap;
+    border-left: 2px solid #333;
+    padding-left: 1rem;
+    margin: 0;
+}
+
+/* --- COLUMNA DERECHA (FORMULARIO) --- */
+.form-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.form-header h2 {
+    font-size: 1.8rem;
+    margin: 0;
+    font-weight: 700;
+    color: #fff;
+}
+
+.form-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.input-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+}
+
+/* Inputs Modernos Estilo Linear/Notion */
+.ultra-input-group label {
+    display: block;
+    font-size: 0.9rem;
+    color: #888;
+    margin-bottom: 8px;
+    font-weight: 500;
+}
+
+.ultra-input-group input[type="number"],
+.ultra-input-group select,
+.ultra-input-group textarea {
+    width: 100%;
+    background: #141414;
+    border: 1px solid #00ffe5a2;
+    color: #fff;
+    padding: 14px 16px;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: all 0.2s;
+}
+
+.ultra-input-group input:focus,
+.ultra-input-group select:focus,
+.ultra-input-group textarea:focus {
+    outline: none;
+    border-color: #00d2be;
+    background: #1a1a1a;
+}
+
+.ultra-input-group input:disabled,
+.ultra-input-group select:disabled,
+.ultra-input-group textarea:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    background: #0f0f0f;
+    border-color: #1a1a1a;
+    border: 1px solid #00ffe5a2;
+}
+
+/* Escala de Borg Minimalista */
+.borg-group {
+    background: #141414;
+    border: 1px solid #2a2a2a;
+    padding: 1.5rem;
+    border-radius: 6px;
+}
+
+.borg-header {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    margin-bottom: 1rem;
+}
+
+.borg-number {
+    font-size: 2.5rem;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.borg-label {
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.borg-slider {
+    width: 100%;
+    -webkit-appearance: none;
+    height: 4px;
+    border-radius: 2px;
+    outline: none;
+    margin-bottom: 10px;
+}
+
+.borg-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: #fff;
+    cursor: pointer;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.borg-ticks {
+    display: flex;
+    justify-content: space-between;
+    color: #555;
+    font-size: 0.8rem;
+}
+
+/* Mensaje Descanso */
+.rest-day-hero {
+    background: rgba(0, 210, 190, 0.05);
+    border: 1px solid rgba(0, 210, 190, 0.2);
+    padding: 2.5rem;
+    border-radius: 8px;
+    text-align: center;
+    color: #00d2be;
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+}
+
+/* --- BOTONES --- */
+.form-actions {
+    margin-top: 3rem;
+    border-top: 1px solid #222;
+    padding-top: 2rem;
+}
+
+.action-row-split {
+    display: flex;
+    gap: 15px;
+    margin-top: 15px;
+}
+
+.ultra-btn {
+    padding: 14px 24px;
+    border-radius: 6px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
+.ultra-btn.full-width {
+    width: 100%;
+}
+
+.ultra-btn.primary {
+    background: #00d2be;
+    color: #000;
+}
+
+.ultra-btn.primary:hover {
+    background: #00e6d2;
+}
+
+.ultra-btn.secondary {
+    background: #222;
+    color: #fff;
+    flex: 1;
+}
+
+.ultra-btn.secondary:hover {
+    background: #333;
+}
+
+.ultra-btn.danger-outline {
+    background: transparent;
+    color: #ff4d4d;
+    border: 1px solid #ff4d4d;
+    flex: 1;
+}
+
+.ultra-btn.danger-outline:hover {
+    background: #ff4d4d;
+    color: #fff;
+}
+
+.ultra-btn.outline-accent {
+    background: transparent;
+    color: #00d2be;
+    border: 1px solid #00d2be;
+    padding: 8px 16px;
+    font-size: 0.85rem;
+}
+
+.ultra-btn.outline-accent:hover {
+    background: rgba(0, 210, 190, 0.1);
+}
+
+.completed-message {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    color: #aaa;
+    font-size: 1rem;
+    justify-content: center;
+    padding: 15px;
+}
+
+/* --- RESPONSIVE --- */
+@media (max-width: 900px) {
+    .ultra-layout {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+    }
+
+    .banner-title {
+        font-size: 2.2rem;
+    }
+
+    .minimal-stats {
+        flex-direction: row;
+        gap: 2rem;
+    }
+}
+
+@media (max-width: 600px) {
+    .input-row {
+        grid-template-columns: 1fr;
+    }
+
+    .ultra-container {
+        padding: 0 1.5rem;
+    }
+}
+
+@media (max-width: 600px) {
+
+    /* 1. Ajustamos el banner para que no sea tan gigante en celulares */
+    .ultra-banner {
+        padding: 1.5rem 0 2.5rem 0;
+    }
+
+    /* 2. Botón de volver estilo "App Nativa" (pastilla transparente) a la izquierda */
+
+
+    /* 3. Centramos mágicamente todo el texto e iconos del header */
+    .banner-content {
+        align-items: center;
+        text-align: center;
+    }
+
+    .banner-title {
+        font-size: 1.8rem;
+        justify-content: center;
+        /* Centra los iconos que acompañan al título */
+        text-align: center;
+        flex-wrap: wrap;
+        /* Por si el título es muy largo, que baje prolijo */
+    }
+
+    /* 4. Ajustes del formulario que ya habíamos sumado para evitar el desborde */
+    .input-row {
+        grid-template-columns: 1fr;
+    }
+
+    .ultra-container {
+        padding: 0 1.2rem;
+        /* Márgenes laterales un poco más finos */
+    }
+
+    .action-row-split {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .ultra-btn {
+        width: 100%;
+    }
+}

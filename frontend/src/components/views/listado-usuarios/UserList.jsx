@@ -126,7 +126,7 @@ const UserList = () => {
                         <Link
                             key={item._id}
                             className="user-card-link"
-                            to={"/detalle-plan/" + item._id}
+                            to={"/detalle-plan-admin/" + item._id}
                         >
                             <div className="user-card">
                                 <div className="user-info">
