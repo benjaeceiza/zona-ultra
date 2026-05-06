@@ -249,7 +249,7 @@ const Dashboard = () => {
                     {activePlan ? "Tu Semana de Ultra" : "Sin Plan Activo"}
                 </h2>
 
-                {/* --- 🔥 ACÁ INVOCAMOS TU NUEVO COMPONENTE --- */}
+            
                 <div className="cards-grid">
                     {entrenamientosDisplay.length > 0 ? (
                         entrenamientosDisplay.map((item, index) => {

@@ -268,7 +268,7 @@ const TrainingDetail = ({ isSemanaActiva = true }) => {
                                 </div>
 
                                 <div className="ultra-input-group">
-                                    <label>💭 Comentarios y Sensaciones</label>
+                                    <label>💭 Comentarios y Sensaciones (Opcional)</label>
                                     <textarea
                                         placeholder="¿Cómo te sentiste hoy? Ritmo controlado, piernas pesadas, la pasaste genial..."
                                         value={comentario} onChange={(e) => setComentario(e.target.value)}
