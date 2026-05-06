@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import TrainingCard from './TrainingCard';
 import { IoIosArrowBack } from 'react-icons/io';
 
+
 const DetallePlan = () => {
     const { id } = useParams();
     const navigate = useNavigate();
@@ -58,7 +59,7 @@ const DetallePlan = () => {
         };
         if (id) fetchData();
     }, [id]);
-    
+
     const planDisplay = planes.length > 0 ? planes[selectedPlanIndex] : null;
 
     const handleDeletePlan = async () => {
@@ -76,7 +77,7 @@ const DetallePlan = () => {
 
             if (res.ok) {
                 alert("Semana eliminada correctamente.");
-                window.location.reload(); // Recargamos para que el frontend limpie la semana borrada
+                window.location.reload();
             } else {
                 const errorData = await res.json();
                 alert("Error al eliminar: " + errorData.message);
@@ -137,7 +138,6 @@ const DetallePlan = () => {
                 </div>
             )}
 
-      
             {planDisplay && (
                 <>
                     {/* 🔥 BOTONES DE ACCIÓN (Editar / Eliminar) */}
@@ -150,8 +150,7 @@ const DetallePlan = () => {
                             >
                                 ✏️ Editar esta Semana
                             </Link>
-                            
-                            {/* NUEVO BOTÓN ELIMINAR */}
+
                             <button
                                 onClick={handleDeletePlan}
                                 className="plan-creator-btn-submit"
@@ -187,6 +186,55 @@ const DetallePlan = () => {
                                 {kmReales > 0 && (
                                     <span className={`stat-delta ${kmReales >= kmPlanificados ? 'positive' : 'negative'}`}>
                                         {kmReales >= kmPlanificados ? '🔥' : '▼'}
+                                    </span>
+                                )}
+                            </div>
+                        </div>
+
+                        <div className="stat-widget" style={{
+                            borderLeft: '4px solid #f1c40f',
+                            background: 'rgba(241, 196, 15, 0.05)',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            justifyContent: 'center',
+                         
+                        }}>
+                            <span className="stat-title" style={{ color: '#f1c40f' }}>Próximo Objetivo 🎯</span>
+                            <div className="stat-content" style={{ marginTop: '5px', display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                {usuario?.nextRace?.name ? (
+                                    <>
+                                        <span className="stat-number" style={{
+                                            fontSize: '1.1rem', /* Un pelín más chico para que entre mejor */
+                                            color: '#fff',
+                                            lineHeight: '1.3',
+                                            /* Magia para que use máximo 2 líneas y no rompa el ancho */
+                                            display: '-webkit-box',
+                                            WebkitLineClamp: 2,
+                                            WebkitBoxOrient: 'vertical',
+                                            overflow: 'hidden',
+                                            wordBreak: 'break-word'
+                                        }}>
+                                            {usuario.nextRace.name}
+                                        </span>
+                                        <span className="stat-sub" style={{
+                                            fontSize: '0.85rem',
+                                            color: '#aaa',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '5px'
+                                        }}>
+                                            📅 {
+                                                usuario.nextRace.date
+                                                    ? new Date(usuario.nextRace.date.split('T')[0] + "T12:00:00").toLocaleDateString('es-AR', {
+                                                        day: '2-digit', month: '2-digit', year: 'numeric'
+                                                    })
+                                                    : "Fecha sin definir"
+                                            }
+                                        </span>
+                                    </>
+                                ) : (
+                                    <span className="stat-sub" style={{ fontStyle: 'italic', marginTop: '10px' }}>
+                                        Sin objetivo definido aún.
                                     </span>
                                 )}
                             </div>
