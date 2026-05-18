@@ -20,15 +20,15 @@ router.get("/", authMiddleware, isAdminMiddleware, async (req, res) => {
     const todosLosPlanes = await planModelo.find();
 
     const usersConPlanes = users.map(user => {
-        const userObj = user.toObject(); 
-        userObj.planes = todosLosPlanes.filter(
-            plan => plan.usuario.toString() === userObj._id.toString()
-        );
-        return userObj;
+      const userObj = user.toObject();
+      userObj.planes = todosLosPlanes.filter(
+        plan => plan.usuario.toString() === userObj._id.toString()
+      );
+      return userObj;
     });
 
     return res.status(200).json({ message: "Usuarios obtenidos", users: usersConPlanes });
-    
+
   } catch (error) {
     console.error("❌ Error obteniendo usuarios:", error);
     return res.status(500).json({ error: error.message });
@@ -46,7 +46,11 @@ router.get("/admin/:id", async (req, res) => {
       return res.status(404).json({ message: "Usuario no encontrado" });
     }
 
-    const todosLosPlanes = await planModelo.find({ usuario: userId }).sort({ createdAt: 1 });
+    // 🔥 ACÁ ESTÁ LA MAGIA: Le sumamos .populate('mesociclo')
+   const todosLosPlanes = await planModelo.find({ usuario: userId })
+      .populate('mesociclo')
+      .populate('macrociclo') // <--- 🔥 ¡AGREGÁ ESTA LÍNEA!
+      .sort({ createdAt: 1 });
 
     const userConPlanes = {
       ...user.toObject(),
@@ -79,19 +83,20 @@ router.get("/user", authMiddleware, async (req, res) => {
       return res.status(404).json({ message: "Usuario no encontrado" });
     }
 
-    const planesDelUsuario = await planModelo.find({ 
-        usuario: userId,
-        estado: { $in: ['activo', 'pendiente'] } 
-    });
+    // 🔥 ACÁ ESTÁ LA MAGIA: Agregamos el populate para que traiga el título
+    const planesDelUsuario = await planModelo.find({
+      usuario: userId,
+      estado: { $in: ['activo', 'pendiente'] }
+    }).populate('mesociclo'); // <--- Esta es la línea salvadora
 
     const userConPlanes = {
-        ...user.toObject(),
-        planes: planesDelUsuario
+      ...user.toObject(),
+      planes: planesDelUsuario
     };
 
     return res.status(200).json({
       message: "Usuario obtenido",
-      user: userConPlanes 
+      user: userConPlanes
     });
 
   } catch (error) {

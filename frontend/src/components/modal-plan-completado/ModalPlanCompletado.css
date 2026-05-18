@@ -1,0 +1,76 @@
+/* 🔥 ESTILOS PARA EL MODAL DE FINALIZACIÓN */
+.modal-overlay-facherito {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(8px); /* El difuminado clave */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+    animation: fadeIn 0.3s ease;
+}
+
+.modal-card-facherito {
+    background: linear-gradient(145deg, #111, #1a1a1a);
+    border: 1px solid #00D2BE;
+    box-shadow: 0 10px 40px rgba(0, 210, 190, 0.3);
+    padding: 40px;
+    border-radius: 20px;
+    text-align: center;
+    max-width: 400px;
+    width: 90%;
+    animation: popUp 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) both;
+}
+
+.modal-trophy {
+    font-size: 5rem;
+    margin: 0;
+    filter: drop-shadow(0 0 15px rgba(241, 196, 15, 0.5));
+}
+
+.modal-title-facherito {
+    color: #00D2BE;
+    text-transform: uppercase;
+    font-size: 1.8rem;
+    margin: 15px 0 10px 0;
+    letter-spacing: 1px;
+}
+
+.modal-text-facherito {
+    color: #aaa;
+    font-size: 1.1rem;
+    line-height: 1.5;
+    margin-bottom: 30px;
+}
+
+.modal-btn-facherito {
+    background: #00D2BE;
+    color: #000;
+    border: none;
+    padding: 15px 30px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    border-radius: 10px;
+    cursor: pointer;
+    text-transform: uppercase;
+    transition: all 0.2s;
+    box-shadow: 0 5px 15px rgba(0, 210, 190, 0.4);
+}
+
+.modal-btn-facherito:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 210, 190, 0.6);
+}
+
+@keyframes popUp {
+    0% { transform: scale(0.8); opacity: 0; }
+    100% { transform: scale(1); opacity: 1; }
+}
+@keyframes fadeIn {
+    0% { opacity: 0; }
+    100% { opacity: 1; }
+}

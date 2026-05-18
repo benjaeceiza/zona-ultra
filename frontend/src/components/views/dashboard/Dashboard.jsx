@@ -8,13 +8,29 @@ import { toast } from "react-toastify";
 import { FaRunning, FaMapMarkerAlt, FaRoute, FaClock } from "react-icons/fa";
 import TrainingCardInit from "./entrenamientos/TrainingCardInit";
 import { useNavigate } from 'react-router-dom';
+import ModalPlanCompletado from "../../modal-plan-completado/ModalPlanCompletado";
+
+
+// Diccionario visual para los tipos de microciclo
+const TIPO_MICRO_LABELS = {
+    "aerobico": "🔵 Aeróbico",
+    "fuerza": "🟠 Fuerza",
+    "choque": "🔴 Choque",
+    "descarga": "🟢 Descarga",
+    "competencia": "🏆 Competencia",
+    "hibrido": "🟣 Híbrido"
+};
 
 const Dashboard = () => {
     const [user, setUser] = useState(null);
     const [loading, setLoading] = useState(true);
     const [selectedTraining, setSelectedTraining] = useState(null);
     const [shoesList, setShoesList] = useState([]);
+    
+    // Estados para los modales
     const [isModalCerrarSemanaOpen, setIsModalCerrarSemanaOpen] = useState(false);
+    const [showModalFinalizacion, setShowModalFinalizacion] = useState(false); 
+
     const navigate = useNavigate();
 
     const todayIndex = new Date().getDay();
@@ -136,10 +152,14 @@ const Dashboard = () => {
             const data = await res.json();
 
             if (res.ok) {
-                toast.success(data.message || "¡Semana completada con éxito!");
-                setTimeout(() => {
-                    window.location.reload();
-                }, 1500);
+                if (data.macroPlanCompletado) {
+                    setShowModalFinalizacion(true);
+                } else {
+                    toast.success(data.message || "¡Semana completada con éxito!");
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                }
             } else {
                 toast.error("Error: " + data.message);
             }
@@ -147,6 +167,11 @@ const Dashboard = () => {
             console.error(error);
             toast.error("Error de conexión al cerrar la semana.");
         }
+    };
+
+    const handleCerrarModalTrofeo = () => {
+        setShowModalFinalizacion(false);
+        window.location.reload(); 
     };
 
     if (loading) {
@@ -165,6 +190,8 @@ const Dashboard = () => {
             </div>
         );
     }
+
+    const tipoLabel = activePlan?.tipoMicrociclo ? TIPO_MICRO_LABELS[activePlan.tipoMicrociclo] : null;
 
     return (
         <main className="dashboard-container">
@@ -185,19 +212,51 @@ const Dashboard = () => {
             </header>
 
             <section className="content-section">
-                {/* BARRA DE PROGRESO */}
-                <div className="progress-section">
+                
+                {/* BARRA DE PROGRESO CON ETIQUETAS CONDICIONALES */}
+                <div className="progress-section" style={{ background: '#1a1a1a', padding: '20px', borderRadius: '15px', border: '1px solid #333' }}>
+                    
+                    {/* 🔥 ETIQUETAS DE LA FASE ACTUAL (CONDICIONAL) */}
+                    {activePlan && (
+                        <div style={{ display: 'flex', gap: '10px', marginBottom: '15px', flexWrap: 'wrap' }}>
+                            
+                            {/* Si tiene mesociclo, mostramos la carpeta y el microciclo. Si no, solo Entrenamiento Semanal */}
+                            {activePlan.mesociclo ? (
+                                <>
+                                    <span style={{ background: 'rgba(0, 210, 190, 0.1)', color: '#00D2BE', padding: '6px 12px', borderRadius: '20px', fontSize: '0.85rem', fontWeight: 'bold', border: '1px solid rgba(0, 210, 190, 0.3)', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                        📁 {activePlan.mesociclo.titulo}
+                                    </span>
+                                    <span style={{ background: 'rgba(255, 255, 255, 0.05)', color: '#ddd', padding: '6px 12px', borderRadius: '20px', fontSize: '0.85rem', border: '1px solid #444', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                        📅 Microciclo {activePlan.numeroSemana || 1}
+                                    </span>
+                                </>
+                            ) : (
+                                <span style={{ background: 'rgba(0, 210, 190, 0.1)', color: '#00D2BE', padding: '6px 12px', borderRadius: '20px', fontSize: '0.85rem', fontWeight: 'bold', border: '1px solid rgba(0, 210, 190, 0.3)', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                    📅 Entrenamiento Semanal
+                                </span>
+                            )}
+
+                            {/* El Enfoque (Tipo de Microciclo) se muestra en ambos casos si está definido */}
+                            {tipoLabel && (
+                                <span style={{ background: 'rgba(255, 255, 255, 0.05)', color: '#ddd', padding: '6px 12px', borderRadius: '20px', fontSize: '0.85rem', border: '1px solid #444', display: 'flex', alignItems: 'center', gap: '5px' }}>
+                                    {tipoLabel}
+                                </span>
+                            )}
+                        </div>
+                    )}
+
                     <div className="progress-info">
-                        <span>Progreso Semanal {activePlan ? `(Semana ${activePlan.numeroSemana || 1})` : ''}</span>
-                        <span>{porcentaje}%</span>
+                        {/* Como las etiquetas de arriba ya dan el contexto, acá dejamos el texto más limpio */}
+                        <span style={{ fontWeight: 'bold', color: '#fff' }}>Progreso de la Semana</span>
+                        <span style={{ color: '#00D2BE', fontWeight: 'bold', fontSize: '1.2rem' }}>{porcentaje}%</span>
                     </div>
-                    <div className="progress-bar-bg">
-                        <div className="progress-bar-fill" style={{ width: `${porcentaje}%` }}></div>
+                    <div className="progress-bar-bg" style={{ height: '10px', background: '#333', borderRadius: '5px', overflow: 'hidden' }}>
+                        <div className="progress-bar-fill" style={{ width: `${porcentaje}%`, height: '100%', background: 'linear-gradient(90deg, #00D2BE, #00a896)', borderRadius: '5px', transition: 'width 0.5s ease-in-out' }}></div>
                     </div>
                 </div>
 
                 {/* STATS GRID */}
-                <div className="stats-grid">
+                <div className="stats-grid" style={{ marginTop: '20px' }}>
                     <div className="stat-card stat-teal">
                         <div className="stat-header">
                             <FaRunning className="stat-icon" />
@@ -253,7 +312,6 @@ const Dashboard = () => {
                 <div className="cards-grid">
                     {entrenamientosDisplay.length > 0 ? (
                         entrenamientosDisplay.map((item, index) => {
-                            // Calculamos las validaciones acá y se las pasamos limpias al componente
                             const isToday = item.dia.toLowerCase() === currentDayName;
                             const isFailed = item.completado && (item.feedback?.noLogrado || item.feedback?.comentario?.includes('[NO LOGRADO]'));
                             const isSuccess = item.completado && !isFailed;
@@ -312,7 +370,7 @@ const Dashboard = () => {
                 </div>
             </section>
 
-            {/* --- MODALES --- */}
+            {/* --- MODAL CONFIRMACIÓN SEMANA --- */}
             {isModalCerrarSemanaOpen && (
                 <div className="modal-cerrar-semana-overlay" onClick={() => setIsModalCerrarSemanaOpen(false)}>
                     <div className="modal-cerrar-semana-card" onClick={(e) => e.stopPropagation()}>
@@ -332,12 +390,12 @@ const Dashboard = () => {
                 </div>
             )}
 
-            {selectedTraining && (
-                <TrainingDetail
-                    training={selectedTraining}
-                    onClose={() => setSelectedTraining(null)}
-                />
-            )}
+            {/* 🔥 EL MODAL FACHERITO DEL TROFEO */}
+            <ModalPlanCompletado 
+                isOpen={showModalFinalizacion} 
+                onClose={handleCerrarModalTrofeo} 
+            />
+
         </main>
     );
 };

@@ -1,25 +1,20 @@
 const url = import.meta.env.VITE_API_URL;
 
-export const updatePlanService = async (idPlan, semana) => {
-    const token = localStorage.getItem("token");
-
+export const updatePlanService = async (idPlan, payload, token) => {
+    const apiUrl = import.meta.env.VITE_API_URL;
     try {
-        // OJO: Revisá que esta ruta coincida con la de tu backend
-        const res = await fetch(`${url}/api/plans/admin/update/${idPlan}`, {
-            method: "PUT",
+        const response = await fetch(`${apiUrl}/api/plans/admin/update/${idPlan}`, {
+            method: 'PUT',
             headers: {
-                "Authorization": `Bearer ${token}`,
-                "Content-Type": "application/json"
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
             },
-            // Mandamos la semana entera dentro de la propiedad "entrenamientos"
-            body: JSON.stringify({ entrenamientos: semana }) 
+            
+            body: JSON.stringify(payload) 
         });
-
-        const result = await res.json();
-        return result;
-
+        const data = await response.json();
+        return { success: response.ok, message: data.message };
     } catch (error) {
-        console.log("Error actualizando el plan:", error);
-        return { success: false, message: "Error de conexión al servidor" };
+        return { success: false, message: error.message };
     }
-}
+};

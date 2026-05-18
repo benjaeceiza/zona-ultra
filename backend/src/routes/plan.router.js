@@ -1,16 +1,24 @@
 import { Router } from "express";
-import { completeCurrentWeek, getPlan, submitFeedback } from "../controllers/planController.js";
+import { 
+  completeCurrentWeek, 
+  getPlan, 
+  submitFeedback, 
+  toggleTrainingStatus // <-- Lo mudamos acá
+} from "../controllers/planController.js";
 import { authMiddleware } from "../middleware/auth.js";
-
+import { checkDemoUser } from "../middleware/checkDemoUser.js";
 
 export const router = Router();
 
-// El usuario demo NO puede guardar feedback real en la BD
-router.put('/feedback', authMiddleware, submitFeedback);
+// Actualiza el progreso de un entrenamiento (El check del día a día)
+router.patch('/actualizar-progreso', authMiddleware, checkDemoUser, toggleTrainingStatus);
 
-// El usuario demo NO puede avanzar la semana real en la BD
-// (Le agregué el authMiddleware que faltaba para mayor seguridad)
-router.put('/complete-week/:idUsuario', authMiddleware, completeCurrentWeek);
+// El usuario guarda feedback real de cómo se sintió (RPE, km, zapas)
+router.put('/feedback', authMiddleware, checkDemoUser, submitFeedback);
 
-// El usuario demo SÍ puede ver su plan de entrenamiento
+// Avanzar la semana real en la BD
+router.put('/complete-week/:idUsuario', authMiddleware, checkDemoUser, completeCurrentWeek);
+
+// El usuario puede ver su plan de entrenamiento activo
 router.get('/:idPlan', authMiddleware, getPlan);
+
