@@ -13,7 +13,7 @@ const Footer = () => {
                 
                 <div className="footer-version-badge">
                     <span className="version-dot"></span>
-                    VERSIÓN BETA 1.0
+                    VERSIÓN 2.0
                 </div>
             </div>
         </footer>
