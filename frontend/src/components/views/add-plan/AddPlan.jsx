@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { addPlanUSer } from "../../../services/addPlanUser";
 import { getUsers } from "../../../services/getUsers";
+import { getUserWithPlan } from "../../../services/getUserPlan";
 import "./AddPlan.css"
 
 const DESCRIPCIONES_AUTO = {
@@ -66,10 +67,10 @@ const AddPlan = () => {
         const result = await getUsers();
         if (result?.users) {
           setUsers(result.users);
-          if (id) {
+      if (id) {
             setAssignMode("single");
             setSelectedUsers([id]);
-            checkUsersStatus([id], result.users);
+            checkUsersStatus([id]); 
           }
         }
       } catch (error) {
@@ -80,7 +81,7 @@ const AddPlan = () => {
   }, [id]);
 
   // --- Lógica de Validación de Usuarios ---
-  const checkUsersStatus = (selectedIds, userList = users) => {
+  const checkUsersStatus = async (selectedIds) => {
     if (!selectedIds || selectedIds.length === 0) {
       setCanAdd(false);
       setStatusMsg(assignMode === "single" ? "" : "Selecciona al menos un usuario.");
@@ -88,36 +89,79 @@ const AddPlan = () => {
       return;
     }
 
-    let tienePlanCompletoActivo = false;
+    // Loader visual sutil mientras consulta a la DB
+    setStatusMsg("⏳ Verificando estado del atleta...");
+    setStatusColor("#888");
+    setCanAdd(false);
+
+    let tieneMacroNoFinalizado = false;
+    let tieneAlgoActivo = false;
     let alumnosConMacro = [];
+    let alumnosOcupados = [];
 
-    selectedIds.forEach(userId => {
-      const usuario = userList.find(u => u._id === userId);
-      if (usuario?.planes) {
-        // 🔥 CORRECCIÓN: Buscamos p.macrociclo (no p.esPlanCompleto, porque eso no se guarda en la DB)
-        const macroActivo = usuario.planes.find(p => p.macrociclo && p.estado !== 'finalizado');
+    // Consultamos el historial real del alumno en la DB
+    for (const userId of selectedIds) {
+      try {
+        const data = await getUserWithPlan(userId);
+        if (data && data.user && data.user.planes) {
+          const planes = data.user.planes;
+          
+          // Buscamos si tiene alguna semana de Macrociclo que NO esté finalizada
+          const macroVivo = planes.find(p => p.macrociclo && p.estado !== 'finalizado');
+          if (macroVivo) {
+            tieneMacroNoFinalizado = true;
+            alumnosConMacro.push(`${data.user.nombre} ${data.user.apellido}`);
+          }
 
-        if (macroActivo) {
-          tienePlanCompletoActivo = true;
-          alumnosConMacro.push(`${usuario.nombre} ${usuario.apellido}`);
+          // Buscamos si tiene cualquier semana activa o pendiente en general
+          const ocupado = planes.some(p => p.estado === 'activo' || p.estado === 'pendiente');
+          if (ocupado) {
+            tieneAlgoActivo = true;
+            alumnosOcupados.push(`${data.user.nombre} ${data.user.apellido}`);
+          }
         }
+      } catch (error) {
+        console.error("Error al validar el estado del usuario:", error);
       }
-    });
+    }
 
-    // 🔥 Creamos la variable que nos faltaba leyendo tu estado creationMode
+    // 🔥 LA MAGIA: Leemos directo del estado de React 'creationMode' para evitar errores de parámetros
     const estaCreandoPlanCompleto = creationMode === 'setup_macro' || creationMode === 'fill_macro';
 
-    // Si intenta crear un plan completo y el usuario ya tiene uno, lo bloqueamos
-    if (estaCreandoPlanCompleto && tienePlanCompletoActivo) {
+    // ⛔ REGLA STRICTA: Intenta crear un Plan Completo pero ya tiene uno activo/pendiente.
+    if (estaCreandoPlanCompleto && tieneMacroNoFinalizado) {
       setCanAdd(false);
-      setStatusMsg(`⛔ ${alumnosConMacro.join(', ')} ya tiene(n) un Plan activo. Finalizalo o eliminalo primero.`);
-      setStatusColor("#ff4d4d");
-    } else {
+      setStatusMsg(`⛔ ACCIÓN DENEGADA: ${alumnosConMacro.join(', ')} ya tiene un Plan Completo en curso. No se pueden superponer dos planificaciones generales.`);
+      setStatusColor("#ff4d4d"); // Rojo Bloqueo
+    } 
+    // ℹ️ AVISO DE COLA: Es válido, pero se va a la fila de espera.
+    else if (tieneAlgoActivo) {
       setCanAdd(true);
-      setStatusMsg(`✅ Listo para asignar el entrenamiento.`);
-      setStatusColor("#00D2BE");
+      if (estaCreandoPlanCompleto) {
+        setStatusMsg(`ℹ️ ${alumnosOcupados.join(', ')} tiene entrenamiento en curso. Este nuevo Plan Completo se guardará en COLA.`);
+      } else {
+        setStatusMsg(`ℹ️ ${alumnosOcupados.join(', ')} tiene entrenamiento activo. Esta nueva semana suelta pasará como PENDIENTE en la fila.`);
+      }
+      setStatusColor("#f1c40f"); // Amarillo/Naranja Info
+    } 
+    // ✅ VÍA LIBRE MÁXIMA
+    else {
+      setCanAdd(true);
+      setStatusMsg(`✅ Atleta libre. El entrenamiento iniciará inmediatamente de forma ACTIVA.`);
+      setStatusColor("#00D2BE"); // Cyan Éxito
     }
   };
+
+  // 🔥 ESCUCHA ATENTA DE CAMBIOS
+  useEffect(() => {
+    if (selectedUsers.length > 0) {
+      checkUsersStatus(selectedUsers); // Ya no hace falta pasarle el creationMode acá
+    } else {
+      setCanAdd(false);
+      setStatusMsg(assignMode === "single" ? "" : "Selecciona al menos un usuario.");
+      setStatusColor("#666");
+    }
+  }, [creationMode, selectedUsers, assignMode]);
 
   useEffect(() => {
     if (selectedUsers.length > 0) {
@@ -167,7 +211,14 @@ const AddPlan = () => {
 
   const handleMesoSetupChange = (index, campo, valor) => {
     const nuevosMesos = [...macroSetup.mesociclos];
-    nuevosMesos[index][campo] = campo === 'cantidadSemanas' ? Number(valor) : valor;
+
+    // 🔥 CORRECCIÓN: Si está vacío lo dejamos "", sino lo pasamos a Number. Esto mata al "0" fantasma.
+    if (campo === 'cantidadSemanas') {
+      nuevosMesos[index][campo] = valor === "" ? "" : Number(valor);
+    } else {
+      nuevosMesos[index][campo] = valor;
+    }
+
     setMacroSetup(prev => ({ ...prev, mesociclos: nuevosMesos }));
   };
 
@@ -288,10 +339,12 @@ const AddPlan = () => {
       const token = localStorage.getItem("token");
       const promesasEnvio = selectedUsers.map(userId => addPlanUSer(userId, payload, token));
       const resultados = await Promise.all(promesasEnvio);
-      const hayErrores = resultados.some(res => !res.success);
+      
+      // 🔥 Buscamos si alguna de las peticiones falló
+      const errores = resultados.filter(res => !res.success);
 
-      if (!hayErrores) {
-        toast.success(`✅ ¡Plan asignado con éxito a ${selectedUsers.length} alumno(s)!`);
+      if (errores.length === 0) {
+        toast.success(`✅ ¡Entrenamiento asignado con éxito a ${selectedUsers.length} alumno(s)!`);
 
         setCreationMode('idle');
         setSemanaIndividual(getSemanaLimpia());
@@ -299,10 +352,14 @@ const AddPlan = () => {
         setMacroData([]);
         if (!id) { setSelectedUsers([]); setStatusMsg(""); }
       } else {
-        toast.error("⚠️ Hubo errores al asignar el plan a algunos usuarios.");
+        // 🔥 Si hay errores, mostramos EXACTAMENTE el mensaje que mandó el backend
+        errores.forEach(err => {
+            toast.error(`❌ ${err.message || err.error || "Error al asignar el plan."}`);
+        });
       }
     } catch (error) {
-      console.error(error); toast.error("❌ Error de conexión al procesar el envío.");
+      console.error(error); 
+      toast.error("❌ Error de conexión al procesar el envío.");
     } finally {
       setLoading(false);
     }
@@ -396,33 +453,33 @@ const AddPlan = () => {
           </div>
         )}
 
-       {creationMode === 'single' && (
+        {creationMode === 'single' && (
           <div className="single-week-wrapper">
-            
+
             {/* 🔥 NUEVO SELECTOR: TIPO DE MICROCICLO SUELTO */}
             <div style={{ marginBottom: '20px', padding: '15px', background: 'rgba(0, 210, 190, 0.05)', borderRadius: '8px', borderLeft: '4px solid #00D2BE', display: 'flex', alignItems: 'center', gap: '15px' }}>
-                <label style={{ color: '#fff', fontWeight: 'bold' }}>Enfoque de la Semana:</label>
-                <select 
-                    className="plan-creator-select" 
-                    style={{ margin: 0, width: 'auto', minWidth: '200px' }}
-                    value={tipoSemanaSingle}
-                    onChange={(e) => setTipoSemanaSingle(e.target.value)}
-                >
-                    <option value="">⚪ Sin especificar</option>
-                    <option value="aerobico">🔵 Aeróbico / Acumulación</option>
-                    <option value="fuerza">🟠 Fuerza / Musculación</option>
-                    <option value="choque">🔴 Choque / Alta Intensidad</option>
-                    <option value="descarga">🟢 Descarga / Recuperación</option>
-                    <option value="competencia">🏆 Competencia (Tapering)</option>
-                    <option value="hibrido">🟣 Mixto / Híbrido</option>
-                </select>
+              <label style={{ color: '#fff', fontWeight: 'bold' }}>Enfoque de la Semana:</label>
+              <select
+                className="plan-creator-select"
+                style={{ margin: 0, width: 'auto', minWidth: '200px' }}
+                value={tipoSemanaSingle}
+                onChange={(e) => setTipoSemanaSingle(e.target.value)}
+              >
+                <option value="">⚪ Sin especificar</option>
+                <option value="carga">🟠 Carga</option>
+                <option value="descarga">🟢 Descarga</option>
+                <option value="ajuste">🔵 Ajuste</option>
+                <option value="tapering">🟣 Tapering</option>
+                <option value="competicion">🏆 Competición</option>
+                <option value="mantenimiento">🟡 Mantenimiento</option>
+              </select>
             </div>
 
             {/* Acá sigue tu grilla de días normal */}
             <div className="plan-creator-days-grid">
               {semanaIndividual.map((diaInfo, index) => renderDayCard(diaInfo, 0, index, null))}
             </div>
-            
+
           </div>
         )}
         {/* ================= PANTALLA 2 (MACRO): CONFIGURAR ESTRUCTURA ================= */}
@@ -444,7 +501,15 @@ const AddPlan = () => {
                 <input type="text" className="plan-creator-input" style={{ flex: 2 }} placeholder={`Título (Ej: Base ${index + 1})`} value={meso.titulo} onChange={(e) => handleMesoSetupChange(index, 'titulo', e.target.value)} />
                 <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <span style={{ color: '#888', whiteSpace: 'nowrap' }}>Duración:</span>
-                  <input type="number" className="plan-creator-input" min="1" max="20" placeholder="Microciclos" value={meso.cantidadSemanas} onChange={(e) => handleMesoSetupChange(index, 'cantidadSemanas', e.target.value)} />
+                 <input 
+                    type="number" 
+                    className="plan-creator-input" 
+                    min="1" 
+                    max="20" 
+                    placeholder="Microciclos" 
+                    value={meso.cantidadSemanas} 
+                    onChange={(e) => handleMesoSetupChange(index, 'cantidadSemanas', e.target.value)} 
+                  />
                   <span style={{ color: '#888' }}>Microciclos</span>
                 </div>
               </div>

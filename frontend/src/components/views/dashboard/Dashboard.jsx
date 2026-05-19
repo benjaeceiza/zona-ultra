@@ -13,12 +13,12 @@ import ModalPlanCompletado from "../../modal-plan-completado/ModalPlanCompletado
 
 // Diccionario visual para los tipos de microciclo
 const TIPO_MICRO_LABELS = {
-    "aerobico": "🔵 Aeróbico",
-    "fuerza": "🟠 Fuerza",
-    "choque": "🔴 Choque",
+    "carga": "🟠 Carga",
     "descarga": "🟢 Descarga",
-    "competencia": "🏆 Competencia",
-    "hibrido": "🟣 Híbrido"
+    "ajuste": "🔵 Ajuste",
+    "tapering": "🟣 Tapering",
+    "competicion": "🏆 Competición",
+    "mantenimiento": "🟡 Mantenimiento"
 };
 
 const Dashboard = () => {

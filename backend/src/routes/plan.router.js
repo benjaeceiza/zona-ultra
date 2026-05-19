@@ -1,6 +1,7 @@
 import { Router } from "express";
 import { 
   completeCurrentWeek, 
+  getHistorialUsuario, 
   getPlan, 
   submitFeedback, 
   toggleTrainingStatus // <-- Lo mudamos acá
@@ -15,6 +16,8 @@ router.patch('/actualizar-progreso', authMiddleware, checkDemoUser, toggleTraini
 
 // El usuario guarda feedback real de cómo se sintió (RPE, km, zapas)
 router.put('/feedback', authMiddleware, checkDemoUser, submitFeedback);
+
+router.get("/historial/:idUsuario", authMiddleware, getHistorialUsuario);
 
 // Avanzar la semana real en la BD
 router.put('/complete-week/:idUsuario', authMiddleware, checkDemoUser, completeCurrentWeek);

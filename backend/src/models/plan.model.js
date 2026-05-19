@@ -48,8 +48,8 @@ const planSchema = new mongoose.Schema(
     fechaFinSemana: { type: Date },
     tipoMicrociclo: {
       type: String,
-      default: "aerobico",
-      enum: ["aerobico", "fuerza", "descarga", "choque", "competencia", "hibrido", ""]
+      default: "", 
+      enum: ["carga", "descarga", "ajuste", "tapering", "competicion", "mantenimiento", ""]
     },
 
     estado: {

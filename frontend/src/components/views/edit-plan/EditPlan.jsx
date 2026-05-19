@@ -19,12 +19,12 @@ const DESCRIPCIONES_AUTO = {
 };
 
 const TIPO_MICRO_LABELS = {
-    "aerobico": "🔵 Aeróbico",
-    "fuerza": "🟠 Fuerza",
-    "choque": "🔴 Choque",
+    "carga": "🟠 Carga",
     "descarga": "🟢 Descarga",
-    "competencia": "🏆 Competencia",
-    "hibrido": "🟣 Híbrido"
+    "ajuste": "🔵 Ajuste",
+    "tapering": "🟣 Tapering",
+    "competicion": "🏆 Competición",
+    "mantenimiento": "🟡 Mantenimiento"
 };
 
 const EditPlan = () => {
@@ -39,7 +39,7 @@ const EditPlan = () => {
     const [macrocicloId, setMacrocicloId] = useState(null);
     const [esPlanCompleto, setEsPlanCompleto] = useState(false);
 
-    const [expandedMicroId, setExpandedMicroId] = useState(idPlan);
+    const [expandedMicroId, setExpandedMicroId] = useState(null);
 
     useEffect(() => {
         const fetchTodoElArbol = async () => {
@@ -73,7 +73,17 @@ const EditPlan = () => {
                         setEsPlanCompleto(false);
                     }
 
-                    planesA_Mostrar.sort((a, b) => a._id.toString().localeCompare(b._id.toString()));
+                    // 🔥 ORDENAMIENTO LOGÍSTICO POR MESOCICLO Y LUEGO POR NÚMERO DE SEMANA INDEPENDIENTE
+                    planesA_Mostrar.sort((a, b) => {
+                        const timeMesoA = (a.mesociclo && a.mesociclo.createdAt) ? new Date(a.mesociclo.createdAt).getTime() : 0;
+                        const timeMesoB = (b.mesociclo && b.mesociclo.createdAt) ? new Date(b.mesociclo.createdAt).getTime() : 0;
+
+                        if (timeMesoA === timeMesoB) {
+                            return a.numeroSemana - b.numeroSemana;
+                        }
+                        return timeMesoA - timeMesoB;
+                    });
+
                     setPlanes(planesA_Mostrar);
                 }
             } catch (error) {
@@ -121,26 +131,45 @@ const EditPlan = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        for (const plan of planes) {
+            const diasConfigurados = plan.entrenamientos.filter(dia => dia.titulo && dia.titulo.trim() !== "");
+            const cantidadDias = plan.entrenamientos.length;
+
+            if (diasConfigurados.length > 0 && diasConfigurados.length < cantidadDias) {
+                toast.error(`❌ La semana ${plan.numeroSemana} está incompleta. Debe estar vacía o tener los 7 días configurados.`);
+                return;
+            }
+
+            for (const dia of diasConfigurados) {
+                if (dia.titulo === "entrenamiento aerobico" && (!dia.tipo || !dia.km)) {
+                    toast.error(`❌ En la semana ${plan.numeroSemana}, a un entrenamiento aeróbico le falta el tipo o los Km.`);
+                    return;
+                }
+                if (dia.titulo === "entrenamiento de fuerza" && !dia.tipo) {
+                    toast.error(`❌ En la semana ${plan.numeroSemana}, a un entrenamiento de fuerza le falta la rutina.`);
+                    return;
+                }
+            }
+        }
+
         setSaving(true);
         try {
             const token = localStorage.getItem("token");
             const peticionesDeGuardado = planes.map(plan =>
-                updatePlanService(plan._id, {
-                    entrenamientos: plan.entrenamientos,
-                    tipoMicrociclo: plan.tipoMicrociclo
-                }, token)
+                updatePlanService(plan._id, { entrenamientos: plan.entrenamientos, tipoMicrociclo: plan.tipoMicrociclo }, token)
             );
             await Promise.all(peticionesDeGuardado);
             toast.success("✅ ¡Cambios guardados con éxito!");
             navigate(-1);
         } catch (error) {
-            console.error(error);
             toast.error("❌ Error al guardar los datos.");
         } finally {
             setSaving(false);
         }
     };
 
+    // 🔥 ELIMINAR MACROCICLO COMPLETO
     const handleDeleteFullPlan = async () => {
         const confirmDelete = window.confirm(`⚠️ Estás por eliminar TODO el plan "${tituloPlan}". Esto borrará todos los mesociclos y microciclos asociados. ¿Estás seguro?`);
         if (!confirmDelete) return;
@@ -156,15 +185,16 @@ const EditPlan = () => {
                 toast.success("🗑️ Plan completo erradicado.");
                 navigate(-1);
             } else {
-                toast.error("Error al intentar eliminar el plan. Revisa la ruta en tu backend.");
+                toast.error("Error al intentar eliminar el plan completo.");
             }
         } catch (error) {
-            console.error(error); toast.error("❌ Error de conexión con el servidor.");
+            console.error(error); toast.error("❌ Error de conexión.");
         } finally {
             setSaving(false);
         }
     };
 
+    // 🔥 ELIMINAR SEMANA SUELTA DESDE EL HEADER
     const handleDeleteSingleWeek = async (idSemana) => {
         const confirmDelete = window.confirm("⚠️ ¿Eliminar esta semana individual?");
         if (!confirmDelete) return;
@@ -172,7 +202,7 @@ const EditPlan = () => {
         try {
             const token = localStorage.getItem("token");
             const apiUrl = import.meta.env.VITE_API_URL;
-            const res = await fetch(`${apiUrl}/api/plans/admin/${idSemana}`, {
+            const res = await fetch(`${apiUrl}/api/plans/${idSemana}`, {
                 method: 'DELETE',
                 headers: { "Authorization": `Bearer ${token}` }
             });
@@ -189,38 +219,28 @@ const EditPlan = () => {
         }
     };
 
-    // 🔥 LA MAGIA DE LOS COLORES ESTÁ ACÁ
     const getMicroColorInfo = (plan) => {
-        // Obtenemos todos los días que tengan título asignado (sacando los vacíos y los días de solo descanso para el cálculo de completado)
         const entrenamientosActivos = plan.entrenamientos.filter(dia => dia.titulo && dia.titulo.trim() !== "" && dia.titulo !== "descanso");
-        
-        // Pero para saber si está 100% vacía, miramos todos los días (incluso los descansos)
         const estaTotalmenteVacio = plan.entrenamientos.filter(dia => dia.titulo && dia.titulo.trim() !== "").length === 0;
 
-        if (estaTotalmenteVacio) {
-            return { bg: "#1a1a1a", border: "#333", text: "#888", tag: "VACÍO" };
-        }
-
-        if (plan.estado === 'activo') {
-            return { bg: "rgba(0, 210, 190, 0.1)", border: "#00D2BE", text: "#00D2BE", tag: "SEMANA ACTIVA" }; // Celeste de la App
-        }
-
-        if (plan.estado === 'pendiente') {
-            return { bg: "rgba(241, 196, 15, 0.08)", border: "#f1c40f", text: "#f1c40f", tag: "PENDIENTE" }; // Amarillo
-        }
+        if (estaTotalmenteVacio) return { bg: "#1a1a1a", border: "#333", text: "#888", tag: "VACÍO" };
+        if (plan.estado === 'activo') return { bg: "rgba(0, 210, 190, 0.1)", border: "#00D2BE", text: "#00D2BE", tag: "SEMANA ACTIVA" };
+        if (plan.estado === 'pendiente') return { bg: "rgba(241, 196, 15, 0.08)", border: "#f1c40f", text: "#f1c40f", tag: "PENDIENTE" };
 
         if (plan.estado === 'finalizado') {
             const totalSesiones = entrenamientosActivos.length;
-            const sesionesCompletadas = entrenamientosActivos.filter(e => e.completado).length;
+            const sesionesLogradas = entrenamientosActivos.filter(e => {
+                if (!e.completado) return false;
+                const fueNoLogrado = e.feedback?.noLogrado || (e.feedback?.comentario && e.feedback.comentario.includes('[NO LOGRADO]'));
+                return !fueNoLogrado;
+            }).length;
 
-            // Si el alumno marcó como "completado" todas sus sesiones fuertes (sin contar descansos)
-            if (totalSesiones === 0 || sesionesCompletadas >= totalSesiones) {
-                return { bg: "rgba(46, 204, 113, 0.1)", border: "#2ecc71", text: "#2ecc71", tag: "COMPLETADA" }; // Verde Lindo
+            if (totalSesiones === 0 || sesionesLogradas >= totalSesiones) {
+                return { bg: "rgba(46, 204, 113, 0.1)", border: "#2ecc71", text: "#2ecc71", tag: "COMPLETADA" };
             } else {
-                return { bg: "rgba(255, 77, 77, 0.08)", border: "#ff4d4d", text: "#ff4d4d", tag: "FINALIZADA INCOMPLETA" }; // Rojo
+                return { bg: "rgba(255, 77, 77, 0.08)", border: "#ff4d4d", text: "#ff4d4d", tag: "FINALIZADA INCOMPLETA" };
             }
         }
-
         return { bg: "#1a1a1a", border: "#333", text: "#888", tag: "SIN ESTADO" };
     };
 
@@ -230,17 +250,70 @@ const EditPlan = () => {
         const nombreGrupo = esSuelto ? "Semanales Sueltos" : `📁 ${plan.mesociclo?.titulo || 'Mesociclo'}`;
         let grupo = gruposDePlanes.find(g => g.nombre === nombreGrupo);
         if (!grupo) {
-            grupo = { nombre: nombreGrupo, esSuelto: esSuelto, planes: [] };
+            grupo = { nombre: nombreGrupo, esSuelto: esSuelto, idMeso: plan.mesociclo?._id, planes: [] };
             gruposDePlanes.push(grupo);
         }
         grupo.planes.push(plan);
     });
 
+    const canAddMicroToGroup = (groupIndex) => {
+        if (!esPlanCompleto) return false;
+        for (let i = groupIndex + 1; i < gruposDePlanes.length; i++) {
+            const yaEmpezo = gruposDePlanes[i].planes.some(p => p.estado === 'activo' || p.estado === 'finalizado');
+            if (yaEmpezo) return false;
+        }
+        return true;
+    };
+
+    const handleAddMicrocycle = async (mesocicloId) => {
+        if (!window.confirm("¿Añadir una nueva semana a este bloque? (La página se recargará, guardá tus cambios primero)")) return;
+        setSaving(true);
+        try {
+            const token = localStorage.getItem("token");
+            const apiUrl = import.meta.env.VITE_API_URL;
+            const idSeguro = typeof planes[0].usuario === 'object' ? planes[0].usuario._id : planes[0].usuario;
+
+            const res = await fetch(`${apiUrl}/api/plans/admin/add-microcycle`, {
+                method: 'POST',
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                body: JSON.stringify({ usuarioId: idSeguro, macrocicloId, mesocicloId })
+            });
+
+            if (res.ok) {
+                toast.success("✅ Semana agregada y bloque recalculado");
+                window.location.reload();
+            } else {
+                toast.error("Error al añadir la semana");
+            }
+        } catch (error) { toast.error("Error de conexión"); } finally { setSaving(false); }
+    };
+
+    const handleDeleteMicrocycleInterno = async (planId) => {
+        if (!window.confirm("¿Seguro que querés eliminar esta semana? El bloque se renumerará. (Guardá tus cambios primero)")) return;
+        setSaving(true);
+        try {
+            const token = localStorage.getItem("token");
+            const apiUrl = import.meta.env.VITE_API_URL;
+            const res = await fetch(`${apiUrl}/api/plans/admin/delete-microcycle/${planId}`, {
+                method: 'DELETE',
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+
+            if (res.ok) {
+                toast.success("🗑️ Semana eliminada y bloque recalculado");
+                window.location.reload();
+            } else {
+                toast.error("Error al eliminar la semana");
+            }
+        } catch (error) { toast.error("Error de conexión"); } finally { setSaving(false); }
+    };
+
+
     if (loading) return <div className="plan-creator-container"><h2 style={{ color: '#00D2BE', marginTop: '2rem' }}>Cargando datos...</h2></div>;
 
     return (
         <main className="plan-creator-container">
-            <div className="plan-creator-header" style={{ display: 'flex', flexDirection: 'column', gap: '15px', alignItems: 'flex-start', borderBottom: '1px solid #333', paddingBottom: '20px' }}>
+            <div className="plan-creator-header" style={{ borderBottom: '1px solid #333', paddingBottom: '20px' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
                     <div>
                         <h4 style={{ color: '#888', margin: '0 0 5px 0', fontSize: '0.85rem', textTransform: 'uppercase' }}>
@@ -249,6 +322,7 @@ const EditPlan = () => {
                         <h1 className="plan-creator-title" style={{ margin: 0, color: '#00D2BE' }}>{tituloPlan}</h1>
                     </div>
 
+                    {/* 🔥 RECUPERADOS: BOTONES CRUCIALES DE BORRADO DE PLAN EN EL HEADER */}
                     <div style={{ display: 'flex', gap: '10px' }}>
                         <button type="button" className="plan-creator-btn-auto-fill" onClick={() => navigate(-1)}>← Volver</button>
 
@@ -268,8 +342,8 @@ const EditPlan = () => {
             </div>
 
             <form onSubmit={handleSubmit} className="plan-creator-form">
-                {gruposDePlanes.map(grupo => (
-                    <div key={grupo.nombre} style={{ marginBottom: '30px', marginTop: '20px' }}>
+                {gruposDePlanes.map((grupo, gIndex) => (
+                    <div key={grupo.nombre} style={{ marginBottom: '40px', marginTop: '20px', background: 'rgba(255,255,255,0.02)', padding: '20px', borderRadius: '15px', border: '1px solid #222' }}>
                         {esPlanCompleto && (
                             <h2 style={{ color: '#00D2BE', fontSize: '1.2rem', textTransform: 'uppercase', marginBottom: '15px', borderBottom: '1px solid #333', paddingBottom: '10px' }}>
                                 {grupo.nombre}
@@ -279,67 +353,60 @@ const EditPlan = () => {
                         {grupo.planes.map(plan => {
                             const colors = getMicroColorInfo(plan);
                             const tipoLabel = plan.tipoMicrociclo ? TIPO_MICRO_LABELS[plan.tipoMicrociclo] : null;
+                            const isPendiente = plan.estado === 'pendiente';
 
                             return (
                                 <div key={plan._id} style={{ marginBottom: '10px' }}>
                                     <div
                                         onClick={() => setExpandedMicroId(expandedMicroId === plan._id ? null : plan._id)}
-                                        style={{
-                                            background: colors.bg,
-                                            padding: '15px 20px',
-                                            borderRadius: '8px',
-                                            cursor: 'pointer',
-                                            display: 'flex',
-                                            justifyContent: 'space-between',
-                                            alignItems: 'center',
-                                            border: `1px solid ${expandedMicroId === plan._id ? '#fff' : colors.border}`,
-                                            transition: 'all 0.2s ease'
-                                        }}
+                                        style={{ background: colors.bg, padding: '15px 20px', borderRadius: '8px', cursor: 'pointer', display: 'flex', justifyContent: 'space-between', alignItems: 'center', border: `1px solid ${expandedMicroId === plan._id ? '#fff' : colors.border}`, transition: 'all 0.2s ease' }}
                                     >
                                         <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
                                             <span style={{ color: '#fff', fontWeight: 'bold', fontSize: '1.1rem' }}>
                                                 {grupo.esSuelto ? 'Semanal' : 'Microciclo'} {plan.numeroSemana}
-
-                                                {tipoLabel && (
-                                                    <span style={{ color: '#aaa', fontSize: '0.9rem', marginLeft: '12px', fontWeight: 'normal' }}>
-                                                        {tipoLabel}
-                                                    </span>
-                                                )}
+                                                {tipoLabel && <span style={{ color: '#aaa', fontSize: '0.9rem', marginLeft: '12px', fontWeight: 'normal' }}>{tipoLabel}</span>}
                                             </span>
                                             <span style={{ color: colors.text, fontSize: '0.85rem', fontWeight: 'bold', border: `1px solid ${colors.text}`, padding: '4px 10px', borderRadius: '12px' }}>
                                                 {colors.tag}
                                             </span>
                                         </div>
-                                        <span style={{ color: colors.text, fontWeight: 'bold' }}>
-                                            {expandedMicroId === plan._id ? '▼ Ocultar Formulario' : '▶ Editar Días'}
-                                        </span>
+
+                                        <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
+                                            <span style={{ color: colors.text, fontWeight: 'bold' }}>
+                                                {expandedMicroId === plan._id ? '▼ Ocultar' : '▶ Editar'}
+                                            </span>
+
+                                            {esPlanCompleto && isPendiente && (
+                                                <button
+                                                    type="button"
+                                                    onClick={(e) => { e.stopPropagation(); handleDeleteMicrocycleInterno(plan._id); }}
+                                                    style={{ background: 'transparent', border: 'none', color: '#ff4d4d', cursor: 'pointer', fontSize: '1.2rem', padding: '0 5px' }}
+                                                    title="Eliminar esta semana"
+                                                >
+                                                    🗑️
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
 
                                     {expandedMicroId === plan._id && (
                                         <div className="plan-creator-days-grid" style={{ padding: '20px 0' }}>
-
                                             <div style={{ gridColumn: '1 / -1', marginBottom: '15px', padding: '15px', background: 'rgba(0, 210, 190, 0.05)', borderRadius: '8px', borderLeft: '4px solid #00D2BE', display: 'flex', alignItems: 'center', gap: '15px' }}>
                                                 <label style={{ color: '#fff', fontWeight: 'bold' }}>Enfoque de la Semana:</label>
-                                                <select
-                                                    className="plan-creator-select"
-                                                    style={{ margin: 0, width: 'auto', minWidth: '200px' }}
-                                                    value={plan.tipoMicrociclo || ""}
-                                                    onChange={(e) => handleChangeTipoMicrociclo(plan._id, e.target.value)}
-                                                >
+                                                <select className="plan-creator-select" style={{ margin: 0, width: 'auto', minWidth: '200px' }} value={plan.tipoMicrociclo || ""} onChange={(e) => handleChangeTipoMicrociclo(plan._id, e.target.value)}>
                                                     <option value="">⚪ Sin especificar</option>
-                                                    <option value="aerobico">🔵 Aeróbico / Acumulación</option>
-                                                    <option value="fuerza">🟠 Fuerza / Musculación</option>
-                                                    <option value="choque">🔴 Choque / Alta Intensidad</option>
-                                                    <option value="descarga">🟢 Descarga / Recuperación</option>
-                                                    <option value="competencia">🏆 Competencia (Tapering)</option>
-                                                    <option value="hibrido">🟣 Mixto / Híbrido</option>
+                                                    <option value="carga">🟠 Carga</option>
+                                                    <option value="descarga">🟢 Descarga</option>
+                                                    <option value="ajuste">🔵 Ajuste</option>
+                                                    <option value="tapering">🟣 Tapering</option>
+                                                    <option value="competicion">🏆 Competición</option>
+                                                    <option value="mantenimiento">🟡 Mantenimiento</option>
                                                 </select>
                                             </div>
 
                                             {plan.entrenamientos.map((diaInfo, index) => (
                                                 <div key={diaInfo.dia || index} className={`plan-creator-day-card ${diaInfo.tipo === 'descanso' ? 'plan-creator-is-rest' : ''}`}>
                                                     <h3 className="plan-creator-day-title">{diaInfo.dia}</h3>
-
                                                     <div className="plan-creator-inputs-wrapper">
                                                         <select className="plan-creator-select" value={diaInfo.titulo || ""} onChange={(e) => handleChange(plan._id, index, "titulo", e.target.value)}>
                                                             <option value="">-- Objetivo del Día --</option>
@@ -385,7 +452,6 @@ const EditPlan = () => {
                                                                 </div>
                                                             </div>
                                                         )}
-
                                                         <textarea className="plan-creator-textarea" placeholder="Instrucciones..." value={diaInfo.descripcion || ""} onChange={(e) => handleChange(plan._id, index, "descripcion", e.target.value)} />
                                                     </div>
                                                 </div>
@@ -395,6 +461,22 @@ const EditPlan = () => {
                                 </div>
                             );
                         })}
+
+                        {esPlanCompleto && canAddMicroToGroup(gIndex) && (
+                            <button
+                                type="button"
+                                onClick={() => handleAddMicrocycle(grupo.idMeso)}
+                                style={{ background: 'transparent', color: '#00D2BE', border: '1px dashed #00D2BE', padding: '10px 20px', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold', width: '100%', marginTop: '10px' }}
+                            >
+                                ➕ Añadir una semana a {grupo.nombre}
+                            </button>
+                        )}
+
+                        {esPlanCompleto && !canAddMicroToGroup(gIndex) && (
+                            <p style={{ textAlign: 'center', color: '#666', fontSize: '0.85rem', margin: '15px 0 0 0', fontStyle: 'italic' }}>
+                                🔒 No se pueden añadir semanas a este bloque porque el siguiente ya ha comenzado.
+                            </p>
+                        )}
                     </div>
                 ))}
 

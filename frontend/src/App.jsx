@@ -19,6 +19,8 @@ import EditPlan from "./components/views/edit-plan/EditPlan";
 
 import Footer from "./components/footer/Footer"; 
 import TrainingDetail from "./components/views/detalle-plan/TrainingDetail";
+import HistorialEntrenamiento from "./components/views/historial-entrenamiento/HistorialEntrenamiento";
+import DetalleHistorial from "./components/views/detalle-historial/DetalleHistorial";
 
 // --- COMPONENTE PARA EL SCROLL ---
 const ScrollToTop = () => {
@@ -99,6 +101,8 @@ function App() {
                 <Route path="/register" element={<AdminRoute><Register /></AdminRoute>} />
                 <Route path="/" element={<LoginRoute><Dashboard /></LoginRoute>} />
                 <Route path="/entrenamiento/:idPlan/:idEntrenamiento" element={<LoginRoute><TrainingDetail /></LoginRoute>} />
+                <Route path="/historial/:idUsuario" element={<LoginRoute><HistorialEntrenamiento /></LoginRoute>} />
+                <Route path="/detalle-historial/:idPlan" element={<LoginRoute><DetalleHistorial /></LoginRoute>} />
                 <Route path="/mis-zapatillas" element={<LoginRoute><ShoesPage /></LoginRoute>} />
                 <Route path="/crear-plan" element={<AdminRoute><AddPlan /></AdminRoute>} />
                 <Route path="/crear-plan/:id" element={<AdminRoute><AddPlan /></AdminRoute>} />

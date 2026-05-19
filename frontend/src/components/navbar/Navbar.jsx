@@ -6,7 +6,7 @@ import { jwtDecode } from "jwt-decode";
 import { FaUserCircle } from "react-icons/fa";
 import { IoMdCreate } from "react-icons/io";
 
-// Iconos para el TabBar Mobile
+// Iconos para el TabBar Mobile (Agregamos FaHistory)
 import { 
     FaHome, 
     FaRunning, 
@@ -14,7 +14,8 @@ import {
     FaUserPlus, 
     FaClipboardList, 
     FaUsers,
-    FaSignInAlt
+    FaSignInAlt,
+    FaHistory // 🔥 Icono nuevo para el historial
 } from "react-icons/fa";
 
 import ModalEditNormal from "./ModalEditNormal";
@@ -60,10 +61,9 @@ const Navbar = () => {
     const handleLogout = () => {
         localStorage.clear();
         navigate("/login");
-        setIsOpen(false); // Cerramos el menú por las dudas
+        setIsOpen(false); 
     };
 
-    // Funciones para el menú lateral
     const toggleMenu = () => setIsOpen(!isOpen);
     const closeMenu = () => setIsOpen(false);
 
@@ -136,9 +136,11 @@ const Navbar = () => {
                     )}
 
                     <ul className="navbarList">
-                        {token && (
+                        {/* 🔥 AGREGAMOS CURRENTUSER PARA PODER SACAR SU ID */}
+                        {token && currentUser && (
                             <li className="navbarItem">
                                 <NavLink className="navbarLink" to="/" onClick={closeMenu}>Panel de control</NavLink>
+                                <NavLink className="navbarLink" to={`/historial/${currentUser._id}`} onClick={closeMenu}>Historial</NavLink>
                                 <NavLink className="navbarLink" to="/mis-zapatillas" onClick={closeMenu}>Mis Zapatillas</NavLink>
                             </li>
                         )}
@@ -168,11 +170,16 @@ const Navbar = () => {
                 VISTA MOBILE: TABBAR INFERIOR
                 ========================================= */}
             <nav className="tabbar">
-                {token && (
+                {token && currentUser && (
                     <>
                         <NavLink className="tabbar-item" to="/">
                             <FaHome className="tabbar-icon" />
                             <span>Panel</span>
+                        </NavLink>
+                        {/* 🔥 LINK DEL HISTORIAL EN MOBILE */}
+                        <NavLink className="tabbar-item" to={`/historial/${currentUser._id}`}>
+                            <FaHistory className="tabbar-icon" />
+                            <span>Historial</span>
                         </NavLink>
                         <NavLink className="tabbar-item" to="/mis-zapatillas">
                             <FaRunning className="tabbar-icon" />

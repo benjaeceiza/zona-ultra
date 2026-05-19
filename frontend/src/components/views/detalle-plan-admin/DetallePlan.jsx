@@ -6,12 +6,12 @@ import { IoIosArrowBack } from 'react-icons/io';
 
 // 🔥 Diccionario para mostrar el Enfoque (si querés usarlo visualmente)
 const TIPO_MICRO_LABELS = {
-    "aerobico": "🔵 Aero",
-    "fuerza": "🟠 Fuerza",
-    "choque": "🔴 Choque",
+    "carga": "🟠 Carga",
     "descarga": "🟢 Descarga",
-    "competencia": "🏆 Comp.",
-    "hibrido": "🟣 Mixto"
+    "ajuste": "🔵 Ajuste",
+    "tapering": "🟣 Tapering",
+    "competicion": "🏆 Competición",
+    "mantenimiento": "🟡 Mantenimiento"
 };
 
 const DetallePlan = () => {
@@ -156,6 +156,35 @@ const DetallePlan = () => {
     const kmPlanificados = planDisplay?.entrenamientos?.reduce((acc, curr) => acc + (curr.km || 0), 0) || 0;
     const kmReales = planDisplay?.entrenamientos?.reduce((acc, curr) => acc + (curr.feedback?.kmReal || 0), 0) || 0;
 
+    const formatTime = (totalMinutos) => {
+        if (!totalMinutos) return "0m";
+        const h = Math.floor(totalMinutos / 60);
+        const m = Math.round(totalMinutos % 60);
+        if (h > 0 && m > 0) return `${h}h ${m}m`;
+        if (h > 0) return `${h}h`;
+        return `${m}m`;
+    };
+
+    // 🔥 NUEVO: Calcular el ACUMULADO DEL MESOCICLO (Mensual)
+    const currentGroup = gruposDePlanes[selectedGroupIndex];
+    let mensualKmPlanificados = 0;
+    let mensualKmReales = 0;
+    let mensualMinutosPlanificados = 0;
+    let mensualMinutosReales = 0;
+
+    if (currentGroup) {
+        currentGroup.planes.forEach(p => {
+            p.entrenamientos?.forEach(e => {
+                mensualKmPlanificados += (e.km || 0);
+                mensualKmReales += (e.feedback?.kmReal || 0);
+
+                const dur = Number(e.duracion) || 0;
+                mensualMinutosPlanificados += (e.unidad === 'horas' ? dur * 60 : dur);
+                mensualMinutosReales += (Number(e.feedback?.duracionReal) || 0);
+            });
+        });
+    }
+
     if (loading) return <div className="detail-loading">Cargando atleta...</div>;
 
     return (
@@ -173,13 +202,14 @@ const DetallePlan = () => {
                     </div>
                 </div>
             </header>
+            
             {/* 🔥 NUEVO: BLOQUE DEL MACROCICLO (TÍTULO Y OBJETIVO) */}
             {planDisplay?.macrociclo && (
-                <div style={{ 
-                    background: 'linear-gradient(90deg, #1a1a1a 0%, #111 100%)', 
-                    padding: '15px 20px', 
-                    borderRadius: '10px', 
-                    border: '1px solid #333', 
+                <div style={{
+                    background: 'linear-gradient(90deg, #1a1a1a 0%, #111 100%)',
+                    padding: '15px 20px',
+                    borderRadius: '10px',
+                    border: '1px solid #333',
                     borderLeft: '4px solid #f1c40f',
                     marginBottom: '20px',
                     boxShadow: '0 4px 15px rgba(0,0,0,0.3)'
@@ -224,10 +254,15 @@ const DetallePlan = () => {
                     {/* 🔥 LOS TABS (SOLO MUESTRA LOS DE LA CARPETA SELECCIONADA) */}
                     {gruposDePlanes[selectedGroupIndex] && (
                         <div className="week-tabs" style={{ marginTop: '10px' }}>
-                            {gruposDePlanes[selectedGroupIndex].planes.map((plan) => {
+                            {gruposDePlanes[selectedGroupIndex].planes.map((plan, index) => {
                                 // Buscamos su índice en el array global
                                 const globalIndex = planes.findIndex(p => p._id === plan._id);
-                                const nombreTab = gruposDePlanes[selectedGroupIndex].esSuelto ? `Semanal ${plan.numeroSemana}` : `Micro ${plan.numeroSemana}`;
+
+                                // 🔥 LA CORRECCIÓN: Si es suelta, usamos el 'index + 1' del map para que se auto-numeren (Semanal 1, Semanal 2...)
+                                // Si es de macrociclo, respetamos su número original (Micro 1, Micro 2...)
+                                const nombreTab = gruposDePlanes[selectedGroupIndex].esSuelto
+                                    ? `Semanal ${index + 1}`
+                                    : `Micro ${plan.numeroSemana}`;
 
                                 return (
                                     <button
@@ -252,6 +287,51 @@ const DetallePlan = () => {
                 </div>
             )}
 
+           {/* 🔥 NUEVO BANNER: ACUMULADO MENSUAL / MESOCICLO */}
+            {/* Le agregamos el !currentGroup.esSuelto para que se oculte en semanas individuales */}
+            {currentGroup && !currentGroup.esSuelto && (
+                <div style={{
+                    background: 'linear-gradient(135deg, rgba(0, 210, 190, 0.08) 0%, rgba(0, 0, 0, 0.2) 100%)',
+                    border: '1px solid rgba(0, 210, 190, 0.2)',
+                    borderRadius: '10px',
+                    padding: '15px 20px',
+                    marginTop: '20px',
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                    flexWrap: 'wrap',
+                    gap: '15px'
+                }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <span style={{ fontSize: '2rem' }}>📊</span>
+                        <div>
+                            <h4 style={{ color: '#00D2BE', margin: '0 0 5px 0', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                                Acumulado del Bloque
+                            </h4>
+                            <p style={{ margin: 0, color: '#aaa', fontSize: '0.8rem' }}>
+                                {currentGroup.nombre}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div style={{ display: 'flex', gap: '30px', alignItems: 'center' }}>
+                        <div style={{ textAlign: 'right' }}>
+                            <span style={{ display: 'block', color: '#888', fontSize: '0.8rem', textTransform: 'uppercase' }}>Volumen (KM)</span>
+                            <span style={{ color: '#fff', fontSize: '1.4rem', fontWeight: 'bold' }}>
+                                {mensualKmReales % 1 === 0 ? mensualKmReales : mensualKmReales.toFixed(1)} <small style={{ color: '#555', fontSize: '1rem' }}>/ {mensualKmPlanificados} km</small>
+                            </span>
+                        </div>
+                        <div style={{ width: '1px', height: '40px', background: 'rgba(255,255,255,0.1)' }}></div>
+                        <div style={{ textAlign: 'left' }}>
+                            <span style={{ display: 'block', color: '#888', fontSize: '0.8rem', textTransform: 'uppercase' }}>Tiempo Total</span>
+                            <span style={{ color: '#f1c40f', fontSize: '1.4rem', fontWeight: 'bold' }}>
+                                {formatTime(mensualMinutosReales)} <small style={{ color: '#555', fontSize: '1rem' }}>/ {formatTime(mensualMinutosPlanificados)}</small>
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            )}
+
             {planDisplay && (
                 <>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px', marginBottom: '15px' }}>
@@ -264,23 +344,26 @@ const DetallePlan = () => {
                             )}
                         </div>
 
-                        {/* Botones de acción (Editar / Eliminar) */}
                         <div style={{ display: 'flex', gap: '10px' }}>
                             <Link
                                 to={`/editar-plan/${planDisplay._id}`}
                                 className="plan-creator-btn-submit"
-                                style={{ width: 'auto', padding: '10px 20px', backgroundColor: '#f1c40f', color: '#000', textDecoration: 'none', borderRadius: '5px', fontWeight: 'bold' }}
+                                style={{ width: 'auto', padding: '10px 20px', backgroundColor: '#029183', color: 'white', textDecoration: 'none', borderRadius: '5px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px' }}
                             >
-                                ✏️ Editar {planDisplay.mesociclo ? 'Microciclo' : 'Semana'}
+                                👁️ {planDisplay.mesociclo ? 'Ver / Editar Plan' : 'Ver / Editar Semana'}
                             </Link>
 
-                            <button
-                                onClick={handleDeletePlan}
-                                className="plan-creator-btn-submit"
-                                style={{ width: 'auto', padding: '10px 20px', backgroundColor: '#ff4d4d', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}
-                            >
-                                🗑️
-                            </button>
+                            {/* 🔥 CORRECCIÓN: El botón de eliminar SOLO aparece si NO tiene mesociclo (es semana suelta) */}
+                            {!planDisplay.mesociclo && (
+                                <button
+                                    onClick={handleDeletePlan}
+                                    className="plan-creator-btn-submit"
+                                    style={{ width: 'auto', padding: '10px 20px', backgroundColor: '#ff4d4d', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}
+                                    title="Eliminar Semana Suelta"
+                                >
+                                    🗑️
+                                </button>
+                            )}
                         </div>
                     </div>
 
