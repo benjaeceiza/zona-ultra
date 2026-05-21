@@ -4,6 +4,35 @@ import { getHistorialPaginado } from "../../../services/historialService";
 import { toast } from "react-toastify";
 import "./HistorialEntrenamiento.css";
 
+// 🔥 1. CREAMOS EL COMPONENTE ESQUELETO (Falso layout de carga)
+const SkeletonRow = () => {
+    return (
+        <div className="historial-row" style={{ borderColor: '#222', borderLeftColor: '#333', cursor: 'default' }}>
+            <div className="row-meta" style={{ gap: '8px' }}>
+                <div className="skeleton" style={{ width: '60px', height: '16px', borderRadius: '4px' }}></div>
+                <div className="skeleton" style={{ width: '180px', height: '24px', borderRadius: '4px' }}></div>
+                <div className="skeleton" style={{ width: '120px', height: '14px', borderRadius: '4px' }}></div>
+            </div>
+            
+            <div className="row-data">
+                <div className="data-item" style={{ gap: '6px' }}>
+                    <div className="skeleton" style={{ width: '60px', height: '12px', borderRadius: '4px' }}></div>
+                    <div className="skeleton" style={{ width: '40px', height: '22px', borderRadius: '4px' }}></div>
+                </div>
+                <div className="data-item" style={{ gap: '6px' }}>
+                    <div className="skeleton" style={{ width: '60px', height: '12px', borderRadius: '4px' }}></div>
+                    <div className="skeleton" style={{ width: '40px', height: '22px', borderRadius: '4px' }}></div>
+                </div>
+                <div className="data-item" style={{ gap: '6px' }}>
+                    <div className="skeleton" style={{ width: '60px', height: '12px', borderRadius: '4px' }}></div>
+                    <div className="skeleton" style={{ width: '40px', height: '22px', borderRadius: '4px' }}></div>
+                </div>
+                <div className="skeleton" style={{ width: '24px', height: '24px', borderRadius: '50%', marginLeft: '10px' }}></div>
+            </div>
+        </div>
+    );
+};
+
 const HistorialEntrenamiento = () => {
     const { idUsuario } = useParams();
     const navigate = useNavigate();
@@ -19,7 +48,6 @@ const HistorialEntrenamiento = () => {
             setLoading(true);
             const res = await getHistorialPaginado(idUsuario, currentPage, limit);
             if (res.success) {
-                // Filtramos para asegurarnos de listar únicamente lo finalizado
                 const soloFinalizados = res.planes.filter(p => p.estado === 'finalizado');
                 setHistorial(soloFinalizados);
                 setTotalPages(res.totalPages);
@@ -48,8 +76,14 @@ const HistorialEntrenamiento = () => {
                 </div>
             </header>
 
+            {/* 🔥 2. ACÁ REEMPLAZAMOS EL TEXTO FEO POR LOS ESQUELETOS */}
             {loading ? (
-                <div className="historial-loader">Cargando tus bitácoras...</div>
+                <div className="historial-list">
+                    <SkeletonRow />
+                    <SkeletonRow />
+                    <SkeletonRow />
+                    <SkeletonRow />
+                </div>
             ) : historial.length === 0 ? (
                 <div className="historial-empty">
                     <h3>Aún no tenés entrenamientos finalizados en tu historial.</h3>
@@ -57,46 +91,37 @@ const HistorialEntrenamiento = () => {
             ) : (
                 <div className="historial-list">
                     {historial.map((plan) => {
-                        // 1. Cálculos de volumen y tiempo
                         const km = plan.entrenamientos.reduce((a, b) => a + (b.feedback?.kmReal || 0), 0);
                         const time = plan.entrenamientos.reduce((a, b) => a + (Number(b.feedback?.duracionReal) || 0), 0);
                         
-                        // 2. Cálculo exacto de cumplimiento
                         const entrenamientosValidos = plan.entrenamientos?.filter(e => 
                             e.titulo && e.titulo.toLowerCase() !== "descanso"
                         ) || [];
                         
-                       const totalSesiones = entrenamientosValidos.length;
+                        const totalSesiones = entrenamientosValidos.length;
 
                         const sesionesLogradas = entrenamientosValidos.filter(e => {
-                            if (e.titulo?.toLowerCase() === "descanso") return false;
-                            
-                            const feedbackString = e.feedback ? JSON.stringify(e.feedback).toLowerCase() : "";
-                            const estadoString = e.estado ? String(e.estado).toLowerCase() : "";
-
                             const esNoLogrado = 
-                                estadoString.includes("no") || 
-                                feedbackString.includes("no") ||
-                                feedbackString.includes("fall") || 
-                                e.logrado === false;
-
-                            return e.completado === true && !esNoLogrado;
+                                e.estado === "no logrado" || 
+                                e.estado === "no_logrado" || 
+                                e.logrado === false || 
+                                e.feedback?.estado === "no logrado";
+                            return e.completado === true && !esNoLogrado; 
                         }).length;
 
                         const porcentajeCumplimiento = totalSesiones > 0 ? Math.round((sesionesLogradas / totalSesiones) * 100) : 0;
 
-                        // Cartel (Badge) dinámico con texto actualizado
-                        let badgeText = "Incompleto";
+                        let badgeText = "Incompleto ⚠️";
                         let badgeColor = "#f1c40f"; 
 
                         if (porcentajeCumplimiento === 100) {
-                            badgeText = "Completo"; // 🔥 Cambiado acá
+                            badgeText = "Completo"; 
                             badgeColor = "#2ecc71"; 
                         } else if (porcentajeCumplimiento >= 75) {
-                            badgeText = "Logrado";
+                            badgeText = "Logrado ✅";
                             badgeColor = "#00D2BE"; 
                         } else if (porcentajeCumplimiento === 0) {
-                            badgeText = "Fallido";
+                            badgeText = "Fallido ❌";
                             badgeColor = "#ff4d4d"; 
                         }
 
@@ -151,7 +176,6 @@ const HistorialEntrenamiento = () => {
                 </div>
             )}
 
-            {/* CONTROLES DE PAGINACIÓN COMPLETA */}
             {totalPages > 1 && (
                 <div className="historial-pagination">
                     <button 

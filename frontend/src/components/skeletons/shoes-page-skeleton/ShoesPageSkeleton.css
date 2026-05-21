@@ -1,0 +1,21 @@
+/* Animación exclusiva para las zapatillas así no se pisa con el Dashboard */
+@keyframes shimmerShoe {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+}
+
+/* La masita gris que brilla */
+.sk-shoe-anim {
+    background-color: #222;
+    background-image: linear-gradient(90deg, #222 0px, #333 40px, #222 80px);
+    background-size: 200% 100%;
+    animation: shimmerShoe 1.5s infinite linear;
+}
+
+/* Modificamos un poco la tarjeta base para que no tenga hover ni cursor mientras carga */
+.skeleton-card {
+    border-color: #222 !important;
+    pointer-events: none;
+    box-shadow: none !important;
+    background: #1a1a1a !important;
+}

@@ -3,12 +3,13 @@ import { getUserLogued } from "../../../services/getUserLogued";
 import { WeatherWidget, ShoeTracker } from "./Widgets";
 import RaceCountdown from "./RaceCountDown";
 import logo from "../../../assets/logo-zona-ultra.png";
-import Loader from "../../loader/Loader";
+
 import { toast } from "react-toastify";
 import { FaRunning, FaMapMarkerAlt, FaRoute, FaClock } from "react-icons/fa";
 import TrainingCardInit from "./entrenamientos/TrainingCardInit";
 import { useNavigate } from 'react-router-dom';
 import ModalPlanCompletado from "../../modal-plan-completado/ModalPlanCompletado";
+import DashboardSkeleton from "../../skeletons/dashboard-skeleton/DashboardSkeleton";
 
 
 // Diccionario visual para los tipos de microciclo
@@ -176,9 +177,8 @@ const Dashboard = () => {
 
     if (loading) {
         return (
-            <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', background: '#121212' }}>
-                <Loader />
-            </div>
+
+                <DashboardSkeleton />      
         );
     }
 

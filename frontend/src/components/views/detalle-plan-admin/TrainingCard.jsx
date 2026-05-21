@@ -62,7 +62,7 @@ const TrainingCard = ({ entrenamiento }) => {
             Plan: <strong style={{ color: '#fff' }}>{dataItem.Estimado} {dataItem.unidad}</strong>
           </p>
           <p className="custom-tooltip-p-2" style={{ margin: 0, color: '#FF4500', fontSize: '0.85rem' }}>
-            Hecho: <strong style={{ color: '#fff' }}>{dataItem.Real} {dataItem.unidad}</strong>
+            Hecho: <strong style={{ color: '#9b2c2c' }}>{dataItem.Real} {dataItem.unidad}</strong>
           </p>
         </div>
       );
@@ -157,7 +157,7 @@ const TrainingCard = ({ entrenamiento }) => {
               />
               
               <Tooltip content={<CustomTooltip />} cursor={{fill: 'rgba(255,255,255,0.05)'}} />
-              <Legend iconType="circle" wrapperStyle={{ paddingTop: '10px', fontSize: '0.75rem', opacity: 0.7 }}/>
+              <Legend iconType="circle" wrapperStyle={{color: '#ccc',fontWeight: '500', paddingTop: '10px', fontSize: '0.75rem', opacity: 0.7 }}/>
               
               {/* 🔥 MODIFICADO: Ahora apuntan a EstimadoVis y RealVis */}
               <Bar dataKey="EstimadoVis" fill="url(#colorPlan)" radius={[0, 4, 4, 0]} barSize={14} name="Plan" />

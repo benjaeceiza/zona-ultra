@@ -8,6 +8,14 @@ main {
   background-color: #121212;
 }
 
+html, body, #root {
+    background-color: #121212 !important; /* Tu color oscuro */
+    min-height: 100vh; /* Que ocupe sí o sí toda la pantalla */
+    width: 100%;
+    margin: 0;
+    padding: 0;
+}
+
 
 
 /* LOADER */
@@ -273,7 +281,6 @@ main {
   filter: drop-shadow(0 0 3px rgba(0, 210, 190, 0.8));
   /* Brillo */
 }
-
 /* =========================================
    TABBAR MOBILE - ZONA ULTRA
    ========================================= */
@@ -286,14 +293,11 @@ main {
   left: 0;
   width: 100%;
   background-color: #1e1e1e;
-  /* Fondo oscuro tipo tarjeta de tu diseño */
   justify-content: space-around;
   align-items: center;
-  padding: 10px 5px;
+  padding: 14px 5px; /* 🔥 Aumentado de 10px a 14px para que sea más alto */
   box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.5);
-  /* Sombra para separarlo del fondo */
   border-top: 1px solid #333333;
-  /* Borde sutil */
   z-index: 1000;
 }
 
@@ -304,7 +308,6 @@ main {
   align-items: center;
   text-decoration: none;
   color: #666666;
-  /* Gris para los iconos inactivos */
   font-size: 0.75rem;
   background: transparent;
   border: none;
@@ -324,36 +327,91 @@ main {
 /* Estado ACTIVO (Pestaña seleccionada) */
 .tabbar-item.active {
   color: #00D2BE;
-  /* Tu color Teal de acento */
 }
 
-/* Pequeña animación para el icono activo */
 .tabbar-item.active .tabbar-icon {
   transform: translateY(-2px);
   filter: drop-shadow(0px 0px 4px rgba(0, 210, 190, 0.4));
-  /* Leve brillo */
 }
 
-/* Botón de cerrar sesión */
 .logout-btn {
   color: #FF4500;
-  /* Tu color Naranja/Rojo para destacar la salida */
+}
+
+/* =========================================
+   🔥 MENÚ FLOTANTE ADMIN MOBILE
+   ========================================= */
+
+/* Overlay invisible para detectar cuando tocan afuera y cerrar el menú */
+.admin-mobile-menu-overlay {
+  position: fixed;
+  top: 0; 
+  left: 0; 
+  right: 0; 
+  bottom: 0;
+  z-index: 999; /* Justo debajo del tabbar, arriba del contenido */
+}
+
+/* La cajita del menú */
+.admin-mobile-menu {
+  position: absolute;
+  bottom: 85px; /* Lo despegamos de la barra inferior */
+  right: 15px; /* Anclado a la derecha */
+  background: #1e1e1e;
+  border: 1px solid #333;
+  border-bottom: 3px solid #00D2BE; /* Toque neón de color */
+  border-radius: 12px;
+  padding: 10px 0;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.7);
+  display: flex;
+  flex-direction: column;
+  min-width: 170px;
+  animation: slideUpAdmin 0.2s ease-out forwards;
+}
+
+/* Animación facherita de entrada */
+@keyframes slideUpAdmin {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Cada item adentro del menú admin */
+.admin-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 14px 20px;
+  color: #ccc;
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.admin-menu-item:hover, .admin-menu-item.active {
+  background: rgba(0, 210, 190, 0.1);
+  color: #00D2BE;
+}
+
+.admin-menu-icon {
+  font-size: 1.3rem;
+  color: #00D2BE;
 }
 
 
-
-/* Ocultar el TabBar cuando se ve en la compu */
+/* Ocultar el TabBar y el menú flotante en Desktop */
 @media (min-width: 769px) {
   .tabbar {
     display: none !important;
   }
-
+  .admin-mobile-menu-overlay {
+    display: none !important;
+  }
 }
 
 @media (max-width: 769px) {
   .hamburger-btn {
     display: none;
-
   }
 }
 
@@ -3243,150 +3301,7 @@ textarea.inputFormTraining {
 }
 
 
-/* --- CONTENEDOR PRINCIPAL --- */
-.shoes-container {
-  padding: 100px 32px 32px;
-  background-color: #121212;
-  color: white;
-  font-family: 'Inter', sans-serif;
-}
 
-/* --- HEADER --- */
-.page-header-shoes {
-  margin-bottom: 3rem;
-  border-bottom: 1px solid #333;
-  padding-bottom: 1rem;
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-}
-
-.page-header-shoes h1 {
-
-  font-size: 2.5rem;
-  margin: 0;
-  line-height: 1.1;
-  color: #00D2BE;
-}
-
-.ls-2 {
-  letter-spacing: 2px;
-}
-
-/* Botón Neon (Reutilizable) */
-.btn-neon {
-  background: transparent;
-  border: 1px solid #00D2BE;
-  color: #00D2BE;
-  padding: 10px 20px;
-  border-radius: 8px;
-  font-weight: 700;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-}
-
-.btn-neon:hover {
-  background: rgba(0, 210, 190, 0.1);
-  box-shadow: 0 0 15px rgba(0, 210, 190, 0.3);
-  transform: translateY(-2px);
-}
-
-/* --- TARJETA DE ZAPATILLA --- */
-.shoe-card {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  background: #1E1E1E;
-  border: 1px solid #333;
-  border-radius: 16px;
-  padding: 10px;
-  height: 100%;
-  position: relative;
-  transition: transform 0.3s, border-color 0.3s;
-  overflow: hidden;
-  margin-top: 20px;
-
-}
-
-.shoe-card:hover {
-  transform: translateY(-5px);
-  border-color: #555;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-}
-
-.shoe-brand-badge {
-  background: #333;
-  color: #aaa;
-  font-size: 0.75rem;
-  padding: 4px 10px;
-  border-radius: 20px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  font-weight: 700;
-}
-
-.shoe-model {
-  margin: 15px 0 0 0;
-  font-size: 1.4rem;
-  font-weight: 800;
-  line-height: 1.2;
-}
-
-/* --- BARRA DE PROGRESO CUSTOM --- */
-
-.progress-section {
-  min-width: 200px;
-  margin: 0;
-}
-
-.progress-container {
-  width: 100%;
-  height: 8px;
-  background: #000;
-  border-radius: 4px;
-  overflow: hidden;
-  margin: 10px 0;
-
-}
-
-.progress-fill {
-  height: 100%;
-  border-radius: 4px;
-  transition: width 1s ease;
-}
-
-/* Colores de estado */
-.status-good {
-  background: #00D2BE;
-  box-shadow: 0 0 10px rgba(0, 210, 190, 0.5);
-}
-
-.status-mid {
-  background: #FFD700;
-  box-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
-}
-
-.status-bad {
-  background: #FF4500;
-  box-shadow: 0 0 10px rgba(255, 69, 0, 0.5);
-}
-
-.stat-row {
-  display: flex;
-  justify-content: space-between;
-  font-size: 0.8rem;
-  color: #888;
-  font-weight: 600;
-}
-
-.km-left {
-  color: #fff;
-  font-weight: 700;
-  margin-left: 100px;
-}
 
 /* --- MODAL FORMULARIO ZAPATILLA --- */
 

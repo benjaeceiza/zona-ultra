@@ -3,6 +3,8 @@
     margin: 40px auto;
     padding: 0 20px;
     font-family: system-ui, -apple-system, sans-serif;
+    box-sizing: border-box;
+    /* 🔥 Previene desbordes a nivel página */
 }
 
 .historial-top {
@@ -45,7 +47,8 @@
     border-color: #444;
 }
 
-.historial-loader, .historial-empty {
+.historial-loader,
+.historial-empty {
     text-align: center;
     padding: 50px 20px;
     background: #111;
@@ -60,23 +63,25 @@
     gap: 16px;
 }
 
-/* Estilo de fila premium combinando con el resto del ecosistema */
+/* Estilo de fila premium */
 .historial-row {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #1e1e1e; /* 🔥 Fondo más claro (antes era #111) */
+    background: #1e1e1e;
     padding: 22px;
     border-radius: 12px;
-    border: 1px solid #333; /* 🔥 Borde un poco más claro para que haga contraste */
+    border: 1px solid #333;
     border-left: 4px solid #00D2BE;
     transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    position: relative;
+    /* 🔥 CLAVE: Nos permite posicionar la etiqueta adentro libremente en mobile */
 }
 
 .historial-row:hover {
     transform: translateY(-2px);
-    border-color: #555; /* 🔥 Borde más iluminado al pasar el mouse */
-    background: #252525; /* 🔥 Se aclara un poco más en el hover */
+    border-color: #555;
+    background: #252525;
 }
 
 .row-meta {
@@ -100,7 +105,6 @@
 
 .row-date-badge {
     font-size: 0.7rem;
-    color: #f1c40f;
     text-transform: uppercase;
     font-weight: 800;
     letter-spacing: 1px;
@@ -122,7 +126,7 @@
 }
 
 .historial-row:hover .row-arrow {
-    transform: translateX(4px); /* Hace un efecto sutil de empuje cuando pasás el mouse */
+    transform: translateX(4px);
 }
 
 .tag-type-historial {
@@ -201,25 +205,82 @@
     font-weight: 600;
 }
 
-/* Ajustes Mobile */
+/* =========================================
+   SKELETON LOADER (Efecto de carga premium)
+   ========================================= */
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
+}
+
+.skeleton {
+    background-color: #222;
+    background-image: linear-gradient(90deg, #222 0px, #333 40px, #222 80px);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite linear;
+    border-radius: 6px;
+}
+
+/* =========================================
+   🔥 AJUSTES MOBILE (ACÁ ESTÁ LA MAGIA)
+   ========================================= */
 @media (max-width: 600px) {
+    .historial-main {
+        padding: 0 10px;
+        /* Reducimos padding lateral en celu */
+        overflow-x: hidden;
+        /* Corta cualquier desborde por las dudas */
+    }
+
     .historial-row {
         flex-direction: column;
         align-items: flex-start;
-        gap: 18px;
+        gap: 15px;
+        padding: 20px 15px;
+        /* Tarjeta un poco más compacta */
     }
-    
+
+    /* Mandamos la etiqueta arriba a la derecha */
+    .tag-type-historial {
+        position: absolute;
+        top: 20px;
+        right: 15px;
+        font-size: 0.65rem;
+    }
+
     .row-data {
         width: 100%;
         justify-content: space-between;
-        border-top: 1px solid #222;
-        padding-top: 14px;
+        border-top: 1px solid #333;
+        padding-top: 15px;
+        gap: 5px;
+        /* 💣 Matamos los 30px de gap que te rompían el ancho */
     }
-    
+
     .data-item {
         align-items: flex-start;
     }
-    
+
+    .data-item small {
+        font-size: 0.6rem;
+        /* Apenas más chico para que no choque */
+    }
+
+    .data-item strong {
+        font-size: 1.1rem;
+        /* Achicamos el número para que entren los 3 sin problema */
+    }
+
+    .row-arrow {
+        margin-left: 0;
+        font-size: 1.2rem;
+    }
+
     .historial-title-group h1 {
         font-size: 1.8rem;
     }

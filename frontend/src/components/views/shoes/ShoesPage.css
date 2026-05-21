@@ -1,0 +1,277 @@
+/* --- VARIABLES DE COLOR (Tema Dark/Neon) --- */
+:root {
+    --bg-dark: #121212;
+    --bg-card: #1a1a1a; /* Un gris un pelín más claro para contraste */
+    --border-card: #333333;
+    --text-primary: #ffffff;
+    --text-muted: #888888;
+    --cyan-neon: #00D2BE;
+    --cyan-text: #bfefff;
+}
+
+/* --- CONTENEDOR PRINCIPAL --- */
+.shoes-container {
+    padding: 80px 20px 100px; /* Espacio extra abajo para el tabbar mobile */
+    max-width: 1200px;
+    margin: 0 auto;
+    background-color: var(--bg-dark);
+    color: var(--text-primary);
+    min-height: 100vh;
+    box-sizing: border-box;
+    font-family: system-ui, -apple-system, sans-serif;
+    overflow-x: hidden; /* 🔥 Previene scroll horizontal global accidental */
+}
+
+/* --- HEADER --- */
+.page-header-shoes {
+    margin-bottom: 3rem;
+    border-bottom: 1px solid var(--border-card);
+    padding-bottom: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap; /* Para que en mobile se apile */
+    gap: 20px;
+}
+
+.shoes-subtitle {
+    color: var(--text-muted);
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 2px;
+    font-weight: 700;
+    margin: 0 0 5px 0;
+}
+
+.shoes-title {
+    font-size: 2.5rem;
+    margin: 0;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.5px;
+}
+
+/* --- BOTÓN NEON --- */
+.btn-neon {
+    background: rgba(0, 210, 190, 0.08);
+    border: 1px solid var(--cyan-neon);
+    color: var(--cyan-neon);
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    white-space: nowrap; /* 🔥 Evita que el botón se parta en dos líneas en mobile */
+}
+
+.btn-neon:hover {
+    background: var(--cyan-neon);
+    color: #000;
+    box-shadow: 0 0 20px rgba(0, 210, 190, 0.4);
+    transform: translateY(-2px);
+}
+
+/* --- ESTADO CARGANDO (Spinner) --- */
+.shoes-loader-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 0;
+}
+.shoes-spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(0, 210, 190, 0.1);
+    border-top: 4px solid var(--cyan-neon);
+    border-radius: 50%;
+    animation: spinShoes 1s linear infinite;
+}
+@keyframes spinShoes {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* --- ESTADO VACÍO --- */
+.empty-shoes-state {
+    text-align: center;
+    padding: 60px 20px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px dashed var(--border-card);
+    border-radius: 16px;
+    color: var(--text-muted);
+    margin-top: 40px;
+}
+.empty-shoes-state h3 { color: var(--text-primary); margin-bottom: 10px; }
+
+/* --- GRILLA DE ZAPATILLAS (Magia pura) --- */
+.shoes-grid {
+    display: grid;
+    /* 🔥 Tarjetas de mínimo 300px. Si no entran, bajan automáticamente. */
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 25px;
+    width: 100%;
+}
+
+/* --- TARJETA PREMIUM --- */
+.shoe-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: var(--bg-card);
+    border: 1px solid var(--border-card);
+    border-radius: 16px;
+    padding: 24px;
+    position: relative;
+    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+    overflow: hidden; /* 🔥 Nada sale de la tarjeta */
+}
+
+.shoe-card:hover {
+    transform: translateY(-5px);
+    border-color: #555;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+/* BOTÓN ELIMINAR FLOTANTE */
+.btn-delete-absolute {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: transparent;
+    border: none;
+    color: #555;
+    font-size: 1.4rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    padding: 5px;
+    border-radius: 50%;
+    z-index: 10;
+}
+
+.btn-delete-absolute:hover {
+    color: #ff4d4d;
+    background: rgba(255, 77, 77, 0.1);
+    transform: scale(1.1);
+}
+
+/* HEADER DE LA TARJETA */
+.card-top-section {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 25px;
+    width: 100%; /* 🔥 Importante para que Flexbox calcule bien */
+}
+
+.shoe-avatar {
+    width: 55px;
+    height: 55px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    border: 2px solid;
+    flex-shrink: 0; /* 🔥 Evita que el avatar se aplaste si el texto es muy largo */
+}
+
+.shoe-main-info {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1; /* Ocupa el resto del espacio */
+    min-width: 0; /* 🔥 MAGIA FLEXBOX: Obligatorio para que los hijos con ellipsis funcionen */
+    padding-right: 30px; /* Deja espacio para el botón de borrar absolute */
+}
+
+.shoe-brand-badge {
+    background: #111;
+    color: #aaa;
+    font-size: 0.7rem;
+    padding: 4px 10px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 800;
+    border: 1px solid var(--border-card);
+    align-self: flex-start;
+    white-space: nowrap; /* 🔥 Evita que la marca se parta en dos líneas */
+}
+
+.shoe-model {
+    margin: 0;
+    font-size: 1.3rem;
+    font-weight: 800;
+    line-height: 1.2;
+    color: var(--text-primary);
+    
+    /* 🔥 HECHIZO ELIMINAR SOBRESALIDO: Corta el texto y pone puntos suspensivos */
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* --- BARRA DE PROGRESO AISLADA (ZAPA) --- */
+.zapa-progress-section {
+    width: 100%;
+    margin-top: 15px;
+}
+
+.zapa-stat-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    font-size: 0.8rem;
+    color: #888;
+    font-weight: 600;
+    gap: 5px;
+}
+
+.zapa-stat-label {
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+}
+
+.zapa-km-left {
+    color: #fff;
+    font-weight: 800;
+    font-size: 1rem;
+}
+
+/* El "surco" por donde corre la barra */
+.zapa-progress-container {
+    width: 100%;
+    height: 8px;
+    background: #0a0a0a; /* Bien oscuro */
+    border-radius: 4px;
+    overflow: hidden;
+    margin: 10px 0;
+    border: 1px solid #222;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.8); /* 🔥 Le da profundidad (hundido) */
+}
+
+/* La barra de luz */
+.zapa-progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Colores Dinámicos con Glow aislado */
+.zapa-status-good { background: #00D2BE; box-shadow: 0 0 10px rgba(0, 210, 190, 0.5); }
+.zapa-status-mid { background: #FFD700; box-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
+.zapa-status-bad { background: #FF4500; box-shadow: 0 0 10px rgba(255, 69, 0, 0.5); }
+
+/* Ajustes Mobile */
+@media (max-width: 600px) {
+    .shoes-container { padding: 40px 15px 100px; }
+    .page-header-shoes { flex-direction: column; align-items: flex-start; }
+    .btn-neon { width: 100%; justify-content: center; }
+    .shoes-grid { grid-template-columns: 1fr; } /* Fuerza 1 por fila en celu muy chico */
+    .shoe-card { padding: 18px; }
+    .card-top-section { margin-bottom: 20px; }
+    .shoe-avatar { width: 45px; height: 45px; font-size: 1.5rem; }
+    .shoe-model { font-size: 1.1rem; }
+}

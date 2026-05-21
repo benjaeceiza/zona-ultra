@@ -6,7 +6,7 @@ import { jwtDecode } from "jwt-decode";
 import { FaUserCircle } from "react-icons/fa";
 import { IoMdCreate } from "react-icons/io";
 
-// Iconos para el TabBar Mobile (Agregamos FaHistory)
+// Iconos para el TabBar Mobile
 import { 
     FaHome, 
     FaRunning, 
@@ -15,7 +15,8 @@ import {
     FaClipboardList, 
     FaUsers,
     FaSignInAlt,
-    FaHistory // 🔥 Icono nuevo para el historial
+    FaHistory,
+    FaEllipsisV // Icono de los 3 puntitos verticales
 } from "react-icons/fa";
 
 import ModalEditNormal from "./ModalEditNormal";
@@ -25,12 +26,11 @@ import { getUserLogued } from "../../services/getUserLogued";
 const Navbar = () => {
     const navigate = useNavigate();
     
-    // Estados para el modal y el usuario
+    // Estados
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
     const [currentUser, setCurrentUser] = useState(null);
-    
-    // Estado para el menú lateral (Desktop)
     const [isOpen, setIsOpen] = useState(false);
+    const [isAdminMenuOpen, setIsAdminMenuOpen] = useState(false); // Estado para el sub-menú mobile del admin
 
     const token = localStorage.getItem("token");
 
@@ -62,6 +62,7 @@ const Navbar = () => {
         localStorage.clear();
         navigate("/login");
         setIsOpen(false); 
+        setIsAdminMenuOpen(false);
     };
 
     const toggleMenu = () => setIsOpen(!isOpen);
@@ -91,7 +92,7 @@ const Navbar = () => {
             )}
 
             {/* =========================================
-                VISTA DESKTOP: MENÚ HAMBURGUESA Y SIDEBAR
+                VISTA DESKTOP: MENÚ HAMBURGUESA Y SIDEBAR (Igual)
                 ========================================= */}
             <div className="desktop-navigation">
                 <button className="hamburger-btn" onClick={toggleMenu}>
@@ -136,7 +137,6 @@ const Navbar = () => {
                     )}
 
                     <ul className="navbarList">
-                        {/* 🔥 AGREGAMOS CURRENTUSER PARA PODER SACAR SU ID */}
                         {token && currentUser && (
                             <li className="navbarItem">
                                 <NavLink className="navbarLink" to="/" onClick={closeMenu}>Panel de control</NavLink>
@@ -167,16 +167,37 @@ const Navbar = () => {
             </div>
 
             {/* =========================================
-                VISTA MOBILE: TABBAR INFERIOR
+                VISTA MOBILE: TABBAR INFERIOR Y MENÚ ADMIN
                 ========================================= */}
+                
+            {/* Menú flotante del admin (Igual) */}
+            {currentUser?.rol === "admin" && isAdminMenuOpen && (
+                <div className="admin-mobile-menu-overlay" onClick={() => setIsAdminMenuOpen(false)}>
+                    <div className="admin-mobile-menu" onClick={(e) => e.stopPropagation()}>
+                        <NavLink className="admin-menu-item" to="/register" onClick={() => setIsAdminMenuOpen(false)}>
+                            <FaUserPlus className="admin-menu-icon" />
+                            <span>Alta Usuario</span>
+                        </NavLink>
+                        <NavLink className="admin-menu-item" to="/crear-plan" onClick={() => setIsAdminMenuOpen(false)}>
+                            <FaClipboardList className="admin-menu-icon" />
+                            <span>Crear Plan</span>
+                        </NavLink>
+                        <NavLink className="admin-menu-item" to="/usuarios" onClick={() => setIsAdminMenuOpen(false)}>
+                            <FaUsers className="admin-menu-icon" />
+                            <span>Lista Usuarios</span>
+                        </NavLink>
+                    </div>
+                </div>
+            )}
+
             <nav className="tabbar">
+                {/* 1. Botones base para usuario logueado */}
                 {token && currentUser && (
                     <>
                         <NavLink className="tabbar-item" to="/">
                             <FaHome className="tabbar-icon" />
                             <span>Panel</span>
                         </NavLink>
-                        {/* 🔥 LINK DEL HISTORIAL EN MOBILE */}
                         <NavLink className="tabbar-item" to={`/historial/${currentUser._id}`}>
                             <FaHistory className="tabbar-icon" />
                             <span>Historial</span>
@@ -188,23 +209,7 @@ const Navbar = () => {
                     </>
                 )}
 
-                {currentUser?.rol === "admin" && (
-                    <>
-                        <NavLink className="tabbar-item" to="/register">
-                            <FaUserPlus className="tabbar-icon" />
-                            <span>Alta</span>
-                        </NavLink>
-                        <NavLink className="tabbar-item" to="/crear-plan">
-                            <FaClipboardList className="tabbar-icon" />
-                            <span>Plan</span>
-                        </NavLink>
-                        <NavLink className="tabbar-item" to="/usuarios">
-                            <FaUsers className="tabbar-icon" />
-                            <span>Users</span>
-                        </NavLink>
-                    </>
-                )}
-
+                {/* 2. Botones de cuenta (Login o Perfil/Salir) */}
                 {!token ? (
                     <NavLink className="tabbar-item" to="/login">
                         <FaSignInAlt className="tabbar-icon" />
@@ -224,6 +229,17 @@ const Navbar = () => {
                             <span>Salir</span>
                         </button>
                     </>
+                )}
+
+                {/* 🔥 3. Botón de Admin AHORA AL FINAL (Renderizado a la derecha) */}
+                {currentUser?.rol === "admin" && (
+                    <button 
+                        className={`tabbar-item ${isAdminMenuOpen ? 'active' : ''}`}
+                        onClick={() => setIsAdminMenuOpen(!isAdminMenuOpen)}
+                    >
+                        <FaEllipsisV className="tabbar-icon" />
+                        <span>Admin</span>
+                    </button>
                 )}
             </nav>
         </>
