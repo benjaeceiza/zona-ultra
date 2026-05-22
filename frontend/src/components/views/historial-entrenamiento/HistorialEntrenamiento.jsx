@@ -33,6 +33,52 @@ const SkeletonRow = () => {
     );
 };
 
+// 🔥 FUNCIÓN ESTRICTA PARA CALCULAR EL PORCENTAJE REAL (Aduana Anti-DB Vieja)
+const calcularPorcentajeReal = (entrenamientos) => {
+    if (!entrenamientos || entrenamientos.length === 0) return 0;
+
+    // Filtramos los entrenamientos válidos (que no sean "descanso")
+    const entrenamientosValidos = entrenamientos.filter(e => 
+        e.titulo && e.titulo.toLowerCase() !== "descanso"
+    );
+
+    const totalSesiones = entrenamientosValidos.length;
+    if (totalSesiones === 0) return 0;
+
+    const sesionesLogradas = entrenamientosValidos.filter(e => {
+        // 1. Si ni siquiera está marcado como completado en la app, descartado.
+        if (!e.completado) return false;
+
+        // 2. Si tiene el flag explícito de fallo, descartado.
+        const esNoLogradoExplicito = 
+            e.estado === "no logrado" || 
+            e.estado === "no_logrado" || 
+            e.logrado === false || 
+            e.feedback?.estado === "no logrado" ||
+            e.feedback?.noLogrado ||
+            (e.feedback?.comentario && e.feedback.comentario.toUpperCase().includes('[NO LOGRADO]'));
+            
+        if (esNoLogradoExplicito) return false;
+
+        // 3. LA PRUEBA MATEMÁTICA: Cruzamos los KM planificados vs reales
+        const kmPlanificados = Number(e.km) || 0;
+        
+        if (e.feedback && e.feedback.kmReal !== undefined) {
+            const kmHechos = Number(e.feedback.kmReal);
+            
+            // Si el plan exigía KM y el usuario corrió menos de la mitad (o 0), es un fallo técnico.
+            if (kmPlanificados > 0 && kmHechos < (kmPlanificados * 0.5)) {
+                return false; 
+            }
+        }
+
+        // Si sobrevivió a todo, es un logro real.
+        return true;
+    }).length;
+
+    return Math.round((sesionesLogradas / totalSesiones) * 100);
+};
+
 const HistorialEntrenamiento = () => {
     const { idUsuario } = useParams();
     const navigate = useNavigate();
@@ -76,7 +122,6 @@ const HistorialEntrenamiento = () => {
                 </div>
             </header>
 
-            {/* 🔥 2. ACÁ REEMPLAZAMOS EL TEXTO FEO POR LOS ESQUELETOS */}
             {loading ? (
                 <div className="historial-list">
                     <SkeletonRow />
@@ -94,34 +139,20 @@ const HistorialEntrenamiento = () => {
                         const km = plan.entrenamientos.reduce((a, b) => a + (b.feedback?.kmReal || 0), 0);
                         const time = plan.entrenamientos.reduce((a, b) => a + (Number(b.feedback?.duracionReal) || 0), 0);
                         
-                        const entrenamientosValidos = plan.entrenamientos?.filter(e => 
-                            e.titulo && e.titulo.toLowerCase() !== "descanso"
-                        ) || [];
-                        
-                        const totalSesiones = entrenamientosValidos.length;
+                        // 🔥 Usamos la función estricta para obtener el porcentaje real
+                        const porcentajeCumplimiento = calcularPorcentajeReal(plan.entrenamientos);
 
-                        const sesionesLogradas = entrenamientosValidos.filter(e => {
-                            const esNoLogrado = 
-                                e.estado === "no logrado" || 
-                                e.estado === "no_logrado" || 
-                                e.logrado === false || 
-                                e.feedback?.estado === "no logrado";
-                            return e.completado === true && !esNoLogrado; 
-                        }).length;
-
-                        const porcentajeCumplimiento = totalSesiones > 0 ? Math.round((sesionesLogradas / totalSesiones) * 100) : 0;
-
-                        let badgeText = "Incompleto ⚠️";
+                        let badgeText = "Incompleto";
                         let badgeColor = "#f1c40f"; 
 
                         if (porcentajeCumplimiento === 100) {
                             badgeText = "Completo"; 
                             badgeColor = "#2ecc71"; 
                         } else if (porcentajeCumplimiento >= 75) {
-                            badgeText = "Logrado ✅";
+                            badgeText = "Logrado";
                             badgeColor = "#00D2BE"; 
                         } else if (porcentajeCumplimiento === 0) {
-                            badgeText = "Fallido ❌";
+                            badgeText = "Fallido";
                             badgeColor = "#ff4d4d"; 
                         }
 
