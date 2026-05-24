@@ -67,10 +67,10 @@ const AddPlan = () => {
         const result = await getUsers();
         if (result?.users) {
           setUsers(result.users);
-      if (id) {
+          if (id) {
             setAssignMode("single");
             setSelectedUsers([id]);
-            checkUsersStatus([id]); 
+            checkUsersStatus([id]);
           }
         }
       } catch (error) {
@@ -105,7 +105,7 @@ const AddPlan = () => {
         const data = await getUserWithPlan(userId);
         if (data && data.user && data.user.planes) {
           const planes = data.user.planes;
-          
+
           // Buscamos si tiene alguna semana de Macrociclo que NO esté finalizada
           const macroVivo = planes.find(p => p.macrociclo && p.estado !== 'finalizado');
           if (macroVivo) {
@@ -133,7 +133,7 @@ const AddPlan = () => {
       setCanAdd(false);
       setStatusMsg(`⛔ ACCIÓN DENEGADA: ${alumnosConMacro.join(', ')} ya tiene un Plan Completo en curso. No se pueden superponer dos planificaciones generales.`);
       setStatusColor("#ff4d4d"); // Rojo Bloqueo
-    } 
+    }
     // ℹ️ AVISO DE COLA: Es válido, pero se va a la fila de espera.
     else if (tieneAlgoActivo) {
       setCanAdd(true);
@@ -143,7 +143,7 @@ const AddPlan = () => {
         setStatusMsg(`ℹ️ ${alumnosOcupados.join(', ')} tiene entrenamiento activo. Esta nueva semana suelta pasará como PENDIENTE en la fila.`);
       }
       setStatusColor("#f1c40f"); // Amarillo/Naranja Info
-    } 
+    }
     // ✅ VÍA LIBRE MÁXIMA
     else {
       setCanAdd(true);
@@ -339,7 +339,7 @@ const AddPlan = () => {
       const token = localStorage.getItem("token");
       const promesasEnvio = selectedUsers.map(userId => addPlanUSer(userId, payload, token));
       const resultados = await Promise.all(promesasEnvio);
-      
+
       // 🔥 Buscamos si alguna de las peticiones falló
       const errores = resultados.filter(res => !res.success);
 
@@ -354,11 +354,11 @@ const AddPlan = () => {
       } else {
         // 🔥 Si hay errores, mostramos EXACTAMENTE el mensaje que mandó el backend
         errores.forEach(err => {
-            toast.error(`❌ ${err.message || err.error || "Error al asignar el plan."}`);
+          toast.error(`❌ ${err.message || err.error || "Error al asignar el plan."}`);
         });
       }
     } catch (error) {
-      console.error(error); 
+      console.error(error);
       toast.error("❌ Error de conexión al procesar el envío.");
     } finally {
       setLoading(false);
@@ -501,14 +501,14 @@ const AddPlan = () => {
                 <input type="text" className="plan-creator-input" style={{ flex: 2 }} placeholder={`Título (Ej: Base ${index + 1})`} value={meso.titulo} onChange={(e) => handleMesoSetupChange(index, 'titulo', e.target.value)} />
                 <div style={{ flex: 1, display: 'flex', alignItems: 'center', gap: '10px' }}>
                   <span style={{ color: '#888', whiteSpace: 'nowrap' }}>Duración:</span>
-                 <input 
-                    type="number" 
-                    className="plan-creator-input" 
-                    min="1" 
-                    max="20" 
-                    placeholder="Microciclos" 
-                    value={meso.cantidadSemanas} 
-                    onChange={(e) => handleMesoSetupChange(index, 'cantidadSemanas', e.target.value)} 
+                  <input
+                    type="number"
+                    className="plan-creator-input"
+                    min="1"
+                    max="20"
+                    placeholder="Microciclos"
+                    value={meso.cantidadSemanas}
+                    onChange={(e) => handleMesoSetupChange(index, 'cantidadSemanas', e.target.value)}
                   />
                   <span style={{ color: '#888' }}>Microciclos</span>
                 </div>
@@ -569,13 +569,13 @@ const AddPlan = () => {
                                 value={semana.tipoMicrociclo || ""}
                                 onChange={(e) => handleChangeTipoMicrociclo(mesoIndex, weekIndex, e.target.value)}
                               >
-                                <option value="">-- Seleccionar Enfoque --</option>
-                                <option value="aerobico">🔵 Aeróbico / Acumulación</option>
-                                <option value="fuerza">🟠 Fuerza / Musculación</option>
-                                <option value="choque">🔴 Choque / Alta Intensidad</option>
-                                <option value="descarga">🟢 Descarga / Recuperación</option>
-                                <option value="competencia">🏆 Competencia (Tapering)</option>
-                                <option value="hibrido">🟣 Mixto / Híbrido</option>
+                                <option value="">⚪ Sin especificar</option>
+                                <option value="carga">🟠 Carga</option>
+                                <option value="descarga">🟢 Descarga</option>
+                                <option value="ajuste">🔵 Ajuste</option>
+                                <option value="tapering">🟣 Tapering</option>
+                                <option value="competicion">🏆 Competición</option>
+                                <option value="mantenimiento">🟡 Mantenimiento</option>
                               </select>
                             </div>
 
