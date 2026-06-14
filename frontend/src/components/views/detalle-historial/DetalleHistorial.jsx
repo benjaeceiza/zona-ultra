@@ -4,6 +4,47 @@ import TrainingCard from '../detalle-plan-admin/TrainingCard';
 import { IoIosArrowBack } from 'react-icons/io';
 import './DetalleHistorial.css';
 
+// 🔥 FUNCIÓN ESTRICTA UNIFICADA (A prueba de espacios y descansos múltiples)
+const calcularPorcentajeReal = (entrenamientos) => {
+    if (!entrenamientos || entrenamientos.length === 0) return 0;
+
+    // 1. Limpiamos los descansos para tener los días de exigencia real (Ej: 6 días)
+    const diasExigidos = entrenamientos.filter(e => 
+        e.titulo && e.titulo.trim().toLowerCase() !== "descanso"
+    );
+
+    if (diasExigidos.length === 0) return 0;
+
+    // 2. Filtramos cuáles son verdaderos éxitos (Pura lógica de estados)
+    const diasCumplidos = diasExigidos.filter(e => {
+        // ❌ BARRERA 1: Si no tiene la tilde de completado, falló.
+        if (!e.completado) return false;
+        
+        // ❌ BARRERA 2: Estados directos de la base de datos
+        const estado = String(e.estado || "").toLowerCase().trim();
+        if (estado === "no logrado" || estado === "no_logrado" || estado === "incompleto" || e.logrado === false) {
+            return false;
+        }
+
+        // ❌ BARRERA 3: Textos en el Feedback
+        if (e.feedback) {
+            const fbEstado = String(e.feedback.estado || "").toLowerCase().trim();
+            const comentario = String(e.feedback.comentario || "").toUpperCase();
+            
+            // Si el estado o el comentario gritan que falló, lo rebotamos.
+            if (fbEstado === "no logrado" || e.feedback.noLogrado || comentario.includes('[NO LOGRADO]')) {
+                return false;
+            }
+        }
+
+        // ✅ Si tiene la tilde y no dice "no logrado" por ningún lado, es un ÉXITO.
+        // Nos olvidamos de cruzar los km planificados vs reales.
+        return true;
+    });
+
+    // 3. Matemática limpia: (4 / 6) * 100 = 67%
+    return Math.round((diasCumplidos.length / diasExigidos.length) * 100);
+};
 const DetalleHistorial = () => {
     const { idPlan } = useParams();
     const navigate = useNavigate();
@@ -32,7 +73,6 @@ const DetalleHistorial = () => {
         fetchPlan();
     }, [idPlan, apiUrl]);
 
-    // Función para formatear los minutos a horas y minutos
     const formatTime = (min) => {
         if (!min) return "0m";
         const h = Math.floor(min / 60);
@@ -43,39 +83,16 @@ const DetalleHistorial = () => {
     if (loading) return <div className="dh-loader">Cargando resumen...</div>;
     if (!plan) return <div className="dh-error">Plan no encontrado.</div>;
 
-    // 🔥 CÁLCULOS ESTRICTOS Y CORREGIDOS
-    const entrenamientosValidos = plan.entrenamientos?.filter(e => e.titulo && e.titulo.toLowerCase() !== "descanso") || [];
-    const totalSesiones = entrenamientosValidos.length;
-
-    // 🔥 DETECTOR BLINDADO CON CONSOLE.LOG PARA CASAR EL BUG
-    const sesionesLogradas = entrenamientosValidos.filter(e => {
-        // Si el día está marcado como descanso, no cuenta (por seguridad)
-        if (e.titulo?.toLowerCase() === "descanso") return false;
-
-        // Pasamos todo a string y a minúsculas para inspeccionar el feedback
-        const feedbackString = e.feedback ? JSON.stringify(e.feedback).toLowerCase() : "";
-        const estadoString = e.estado ? String(e.estado).toLowerCase() : "";
-
-        // 🛠️ CONSOLE.LOG DE CONTROL: Abrí la consola del navegador (F12) para ver qué dice acá
-        console.log(`Día: ${e.titulo} | completado: ${e.completado} | estado: ${e.estado} | feedback:`, e.feedback);
-
-        // CONDICIÓN AGRESIVA: Si encontrás la palabra "no" o "fallo" pegada a "logrado" en cualquier lado, NO SUMA.
-        const esNoLogrado =
-            estadoString.includes("no") ||
-            feedbackString.includes("no") ||
-            feedbackString.includes("fall") ||
-            e.logrado === false;
-
-        // Tiene que estar marcado como completado el reporte Y no tener ninguna marca de "no logrado"
-        return e.completado === true && !esNoLogrado;
-    }).length;
-
-    const porcentajeCumplimiento = totalSesiones > 0 ? Math.round((sesionesLogradas / totalSesiones) * 100) : 0;
+    // 🔥 AHORA SÍ: Usamos la función unificada
+    const porcentajeCumplimiento = calcularPorcentajeReal(plan.entrenamientos);
 
     const kmPlanificados = plan.entrenamientos?.reduce((acc, curr) => acc + (curr.km || 0), 0) || 0;
-    const kmReales = plan.entrenamientos?.reduce((acc, curr) => acc + (curr.feedback?.kmReal || 0), 0) || 0;
+    
+    // 🛠️ FIX DECIMALES: Sumamos y limpiamos la coma flotante con toFixed(2)
+    const kmReales = Number(
+        (plan.entrenamientos?.reduce((acc, curr) => acc + (curr.feedback?.kmReal || 0), 0) || 0).toFixed(2)
+    );
 
-    // 🔥 NUEVO: Cálculo del tiempo real acumulado
     const tiempoReal = plan.entrenamientos?.reduce((acc, curr) => acc + (Number(curr.feedback?.duracionReal) || 0), 0) || 0;
 
     return (
@@ -93,10 +110,8 @@ const DetalleHistorial = () => {
                 </div>
             </header>
 
-            {/* WIDGETS DE ESTADÍSTICAS - Ahora con 4 tarjetas */}
             <section className="dh-stats-dashboard">
                 {(() => {
-                    // Calculamos el color dinámico para el primer cuadro
                     const colorCumplimiento = porcentajeCumplimiento >= 80 ? '#2ecc71' : (porcentajeCumplimiento >= 50 ? '#f1c40f' : '#ff4d4d');
 
                     return (
@@ -124,7 +139,6 @@ const DetalleHistorial = () => {
                 })()}
             </section>
 
-            {/* GRILLA DE TARJETAS */}
             <section className="dh-cards-layout">
                 {plan.entrenamientos?.length > 0 ? (
                     plan.entrenamientos.map((entrenamiento) => (

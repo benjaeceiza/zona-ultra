@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react';
 import TrainingCard from './TrainingCard';
 import { IoIosArrowBack } from 'react-icons/io';
 
-// 🔥 Diccionario para mostrar el Enfoque (si querés usarlo visualmente)
+// 🔥 Diccionario para mostrar el Enfoque
 const TIPO_MICRO_LABELS = {
     "carga": "🟠 Carga",
     "descarga": "🟢 Descarga",
@@ -12,6 +12,38 @@ const TIPO_MICRO_LABELS = {
     "tapering": "🟣 Tapering",
     "competicion": "🏆 Competición",
     "mantenimiento": "🟡 Mantenimiento"
+};
+
+// 🔥 FUNCIÓN ESTRICTA DEFINITIVA (Sincronizada con el perfil del usuario)
+const calcularPorcentajeReal = (entrenamientos) => {
+    if (!entrenamientos || entrenamientos.length === 0) return 0;
+
+    const diasExigidos = entrenamientos.filter(e =>
+        e.titulo && e.titulo.trim().toLowerCase() !== "descanso"
+    );
+
+    if (diasExigidos.length === 0) return 0;
+
+    const diasCumplidos = diasExigidos.filter(e => {
+        if (!e.completado) return false;
+
+        const estado = String(e.estado || "").toLowerCase().trim();
+        if (estado === "no logrado" || estado === "no_logrado" || estado === "incompleto" || e.logrado === false) {
+            return false;
+        }
+
+        if (e.feedback) {
+            const fbEstado = String(e.feedback.estado || "").toLowerCase().trim();
+            const comentario = String(e.feedback.comentario || "").toUpperCase();
+
+            if (fbEstado === "no logrado" || e.feedback.noLogrado || comentario.includes('[NO LOGRADO]')) {
+                return false;
+            }
+        }
+        return true;
+    });
+
+    return Math.round((diasCumplidos.length / diasExigidos.length) * 100);
 };
 
 const DetallePlan = () => {
@@ -24,7 +56,6 @@ const DetallePlan = () => {
     const [selectedPlanIndex, setSelectedPlanIndex] = useState(0);
     const [loading, setLoading] = useState(true);
 
-    // 🔥 NUEVOS ESTADOS PARA EL DESPLEGABLE
     const [gruposDePlanes, setGruposDePlanes] = useState([]);
     const [selectedGroupIndex, setSelectedGroupIndex] = useState(0);
 
@@ -38,32 +69,25 @@ const DetallePlan = () => {
                     if (data.user.planes && data.user.planes.length > 0) {
                         const todosLosPlanes = data.user.planes.filter(p => p && p._id);
 
-                        // 🔥 1. DETECTAMOS QUÉ MACROCICLOS ESTÁN "VIVOS"
-                        // Buscamos si el macrociclo tiene al menos UNA semana que NO esté finalizada
                         const macrociclosVivosIds = todosLosPlanes
                             .filter(p => p.macrociclo && p.estado !== 'finalizado')
                             .map(p => (p.macrociclo._id || p.macrociclo).toString());
 
-                        // 🔥 2. APLICAMOS EL FILTRO DESTRUCTIVO (Ocultar lo 100% completado)
                         const planesValidos = todosLosPlanes.filter(p => {
                             if (p.macrociclo) {
-                                // Si pertenece a un Plan, SOLO lo mostramos si el plan sigue "Vivo"
                                 const macroId = (p.macrociclo._id || p.macrociclo).toString();
                                 return macrociclosVivosIds.includes(macroId);
                             } else {
-                                // Si es una Semana Suelta, la mostramos si no está finalizada
                                 return p.estado !== 'finalizado';
                             }
                         });
 
-                        // 3. ORDENAR CRONOLÓGICAMENTE
                         const planesOrdenados = planesValidos.sort((a, b) =>
                             a._id.toString().localeCompare(b._id.toString())
                         );
 
                         setPlanes(planesOrdenados);
 
-                        // 3. AGRUPAR PARA EL DESPLEGABLE
                         const grupos = [];
                         planesOrdenados.forEach(plan => {
                             const esSuelto = !plan.mesociclo;
@@ -77,7 +101,6 @@ const DetallePlan = () => {
                             grupoExistente.planes.push(plan);
                         });
 
-                        // Forzamos "Semanales Sueltos" siempre arriba de todo
                         grupos.sort((a, b) => {
                             if (a.esSuelto && !b.esSuelto) return -1;
                             if (!a.esSuelto && b.esSuelto) return 1;
@@ -86,15 +109,13 @@ const DetallePlan = () => {
 
                         setGruposDePlanes(grupos);
 
-                        // 4. AUTOPOSICIONAMIENTO INICIAL (Busca el activo)
                         if (planesOrdenados.length > 0) {
                             let activeIndex = planesOrdenados.findIndex(p => p.estado === 'activo');
                             if (activeIndex === -1) {
-                                activeIndex = planesOrdenados.length - 1; // Si no hay activo, va al último
+                                activeIndex = planesOrdenados.length - 1; 
                             }
                             setSelectedPlanIndex(activeIndex);
 
-                            // Descubrimos a qué grupo pertenece ese plan activo para abrir el dropdown ahí
                             const activePlanId = planesOrdenados[activeIndex]._id;
                             const groupIdx = grupos.findIndex(g => g.planes.some(p => p._id === activePlanId));
                             setSelectedGroupIndex(groupIdx !== -1 ? groupIdx : 0);
@@ -138,23 +159,25 @@ const DetallePlan = () => {
         }
     };
 
-    // 🔥 MANEJADOR CUANDO CAMBIAN DE MESOCICLO EN EL DESPLEGABLE
     const handleGroupChange = (e) => {
         const newGroupIdx = Number(e.target.value);
         setSelectedGroupIndex(newGroupIdx);
 
-        // Al cambiar de carpeta, autoseleccionamos el primer microciclo de esa carpeta
         const firstPlanOfGroup = gruposDePlanes[newGroupIdx].planes[0];
         const globalIdx = planes.findIndex(p => p._id === firstPlanOfGroup._id);
         setSelectedPlanIndex(globalIdx);
     };
 
-    const totalSesiones = planDisplay?.entrenamientos?.filter(e => e.titulo && e.titulo.trim() !== "").length || 0;
-    const sesionesCompletadas = planDisplay?.entrenamientos?.filter(e => e.completado && e.titulo && e.titulo.trim() !== "").length || 0;
-    const porcentajeCumplimiento = totalSesiones > 0 ? Math.round((sesionesCompletadas / totalSesiones) * 100) : 0;
+    // 🔥 USAMOS LA FUNCIÓN ESTRICTA PARA EL PORCENTAJE
+    const porcentajeCumplimiento = planDisplay ? calcularPorcentajeReal(planDisplay.entrenamientos) : 0;
+    
+    // Solo para mostrar el texto "X/Y Sesiones" en la tarjeta
+    const totalSesiones = planDisplay?.entrenamientos?.filter(e => e.titulo && e.titulo.trim().toLowerCase() !== "descanso").length || 0;
+    const sesionesCompletadas = planDisplay?.entrenamientos?.filter(e => e.completado && e.titulo && e.titulo.trim().toLowerCase() !== "descanso").length || 0;
 
-    const kmPlanificados = planDisplay?.entrenamientos?.reduce((acc, curr) => acc + (curr.km || 0), 0) || 0;
-    const kmReales = planDisplay?.entrenamientos?.reduce((acc, curr) => acc + (curr.feedback?.kmReal || 0), 0) || 0;
+    // 🔥 FIX DECIMALES SEMANALES
+    const kmPlanificados = Number((planDisplay?.entrenamientos?.reduce((acc, curr) => acc + (curr.km || 0), 0) || 0).toFixed(2));
+    const kmReales = Number((planDisplay?.entrenamientos?.reduce((acc, curr) => acc + (curr.feedback?.kmReal || 0), 0) || 0).toFixed(2));
 
     const formatTime = (totalMinutos) => {
         if (!totalMinutos) return "0m";
@@ -165,7 +188,7 @@ const DetallePlan = () => {
         return `${m}m`;
     };
 
-    // 🔥 NUEVO: Calcular el ACUMULADO DEL MESOCICLO (Mensual)
+    // 🔥 FIX DECIMALES MENSUALES (Acumulado)
     const currentGroup = gruposDePlanes[selectedGroupIndex];
     let mensualKmPlanificados = 0;
     let mensualKmReales = 0;
@@ -183,6 +206,10 @@ const DetallePlan = () => {
                 mensualMinutosReales += (Number(e.feedback?.duracionReal) || 0);
             });
         });
+        
+        // Limpiamos los resultados finales del mes
+        mensualKmPlanificados = Number(mensualKmPlanificados.toFixed(2));
+        mensualKmReales = Number(mensualKmReales.toFixed(2));
     }
 
     if (loading) return <div className="detail-loading">Cargando atleta...</div>;
@@ -203,7 +230,6 @@ const DetallePlan = () => {
                 </div>
             </header>
             
-            {/* 🔥 NUEVO: BLOQUE DEL MACROCICLO (TÍTULO Y OBJETIVO) */}
             {planDisplay?.macrociclo && (
                 <div style={{
                     background: 'linear-gradient(90deg, #1a1a1a 0%, #111 100%)',
@@ -225,11 +251,9 @@ const DetallePlan = () => {
                 </div>
             )}
 
-            {/* --- NAVEGADOR: DESPLEGABLE + TABS --- */}
             {gruposDePlanes.length > 0 ? (
                 <div className="week-selector-container" style={{ display: 'flex', flexDirection: 'column', gap: '15px', background: 'rgba(255,255,255,0.02)', padding: '15px', borderRadius: '8px', border: '1px solid #222' }}>
 
-                    {/* 🔥 EL DESPLEGABLE MÁGICO DE MESOCICLOS */}
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                         <label style={{ color: '#888', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>
                             Fase del Plan:
@@ -251,15 +275,11 @@ const DetallePlan = () => {
                         </select>
                     </div>
 
-                    {/* 🔥 LOS TABS (SOLO MUESTRA LOS DE LA CARPETA SELECCIONADA) */}
                     {gruposDePlanes[selectedGroupIndex] && (
                         <div className="week-tabs" style={{ marginTop: '10px' }}>
                             {gruposDePlanes[selectedGroupIndex].planes.map((plan, index) => {
-                                // Buscamos su índice en el array global
                                 const globalIndex = planes.findIndex(p => p._id === plan._id);
 
-                                // 🔥 LA CORRECCIÓN: Si es suelta, usamos el 'index + 1' del map para que se auto-numeren (Semanal 1, Semanal 2...)
-                                // Si es de macrociclo, respetamos su número original (Micro 1, Micro 2...)
                                 const nombreTab = gruposDePlanes[selectedGroupIndex].esSuelto
                                     ? `Semanal ${index + 1}`
                                     : `Micro ${plan.numeroSemana}`;
@@ -287,8 +307,6 @@ const DetallePlan = () => {
                 </div>
             )}
 
-           {/* 🔥 NUEVO BANNER: ACUMULADO MENSUAL / MESOCICLO */}
-            {/* Le agregamos el !currentGroup.esSuelto para que se oculte en semanas individuales */}
             {currentGroup && !currentGroup.esSuelto && (
                 <div style={{
                     background: 'linear-gradient(135deg, rgba(0, 210, 190, 0.08) 0%, rgba(0, 0, 0, 0.2) 100%)',
@@ -318,7 +336,7 @@ const DetallePlan = () => {
                         <div style={{ textAlign: 'right' }}>
                             <span style={{ display: 'block', color: '#888', fontSize: '0.8rem', textTransform: 'uppercase' }}>Volumen (KM)</span>
                             <span style={{ color: '#fff', fontSize: '1.4rem', fontWeight: 'bold' }}>
-                                {mensualKmReales % 1 === 0 ? mensualKmReales : mensualKmReales.toFixed(1)} <small style={{ color: '#555', fontSize: '1rem' }}>/ {mensualKmPlanificados} km</small>
+                                {mensualKmReales} <small style={{ color: '#555', fontSize: '1rem' }}>/ {mensualKmPlanificados} km</small>
                             </span>
                         </div>
                         <div style={{ width: '1px', height: '40px', background: 'rgba(255,255,255,0.1)' }}></div>
@@ -335,7 +353,6 @@ const DetallePlan = () => {
             {planDisplay && (
                 <>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px', marginBottom: '15px' }}>
-                        {/* 🔥 Badge del Tipo de Microciclo (Oculto si no hay) */}
                         <div>
                             {planDisplay.tipoMicrociclo && TIPO_MICRO_LABELS[planDisplay.tipoMicrociclo] && (
                                 <div style={{ background: '#1a1a1a', padding: '8px 15px', borderRadius: '20px', border: '1px solid #333', color: '#fff', fontSize: '0.9rem', fontWeight: 'bold' }}>
@@ -353,7 +370,6 @@ const DetallePlan = () => {
                                 👁️ {planDisplay.mesociclo ? 'Ver / Editar Plan' : 'Ver / Editar Semana'}
                             </Link>
 
-                            {/* 🔥 CORRECCIÓN: El botón de eliminar SOLO aparece si NO tiene mesociclo (es semana suelta) */}
                             {!planDisplay.mesociclo && (
                                 <button
                                     onClick={handleDeletePlan}

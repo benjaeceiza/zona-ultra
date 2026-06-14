@@ -13,7 +13,7 @@ const SkeletonRow = () => {
                 <div className="skeleton" style={{ width: '180px', height: '24px', borderRadius: '4px' }}></div>
                 <div className="skeleton" style={{ width: '120px', height: '14px', borderRadius: '4px' }}></div>
             </div>
-            
+
             <div className="row-data">
                 <div className="data-item" style={{ gap: '6px' }}>
                     <div className="skeleton" style={{ width: '60px', height: '12px', borderRadius: '4px' }}></div>
@@ -33,50 +33,45 @@ const SkeletonRow = () => {
     );
 };
 
-// 🔥 FUNCIÓN ESTRICTA PARA CALCULAR EL PORCENTAJE REAL (Aduana Anti-DB Vieja)
+// 🔥 FUNCIÓN ESTRICTA DEFINITIVA (Sincronizada con el Detalle)
 const calcularPorcentajeReal = (entrenamientos) => {
     if (!entrenamientos || entrenamientos.length === 0) return 0;
 
-    // Filtramos los entrenamientos válidos (que no sean "descanso")
-    const entrenamientosValidos = entrenamientos.filter(e => 
-        e.titulo && e.titulo.toLowerCase() !== "descanso"
+    // 1. Limpiamos los descansos para tener los días de exigencia real
+    const diasExigidos = entrenamientos.filter(e =>
+        e.titulo && e.titulo.trim().toLowerCase() !== "descanso"
     );
 
-    const totalSesiones = entrenamientosValidos.length;
-    if (totalSesiones === 0) return 0;
+    if (diasExigidos.length === 0) return 0;
 
-    const sesionesLogradas = entrenamientosValidos.filter(e => {
-        // 1. Si ni siquiera está marcado como completado en la app, descartado.
+    // 2. Filtramos cuáles son verdaderos éxitos (Pura lógica de estados)
+    const diasCumplidos = diasExigidos.filter(e => {
+        // ❌ BARRERA 1: Si no tiene la tilde de completado, falló.
         if (!e.completado) return false;
 
-        // 2. Si tiene el flag explícito de fallo, descartado.
-        const esNoLogradoExplicito = 
-            e.estado === "no logrado" || 
-            e.estado === "no_logrado" || 
-            e.logrado === false || 
-            e.feedback?.estado === "no logrado" ||
-            e.feedback?.noLogrado ||
-            (e.feedback?.comentario && e.feedback.comentario.toUpperCase().includes('[NO LOGRADO]'));
-            
-        if (esNoLogradoExplicito) return false;
+        // ❌ BARRERA 2: Estados directos de la base de datos
+        const estado = String(e.estado || "").toLowerCase().trim();
+        if (estado === "no logrado" || estado === "no_logrado" || estado === "incompleto" || e.logrado === false) {
+            return false;
+        }
 
-        // 3. LA PRUEBA MATEMÁTICA: Cruzamos los KM planificados vs reales
-        const kmPlanificados = Number(e.km) || 0;
-        
-        if (e.feedback && e.feedback.kmReal !== undefined) {
-            const kmHechos = Number(e.feedback.kmReal);
-            
-            // Si el plan exigía KM y el usuario corrió menos de la mitad (o 0), es un fallo técnico.
-            if (kmPlanificados > 0 && kmHechos < (kmPlanificados * 0.5)) {
-                return false; 
+        // ❌ BARRERA 3: Textos en el Feedback
+        if (e.feedback) {
+            const fbEstado = String(e.feedback.estado || "").toLowerCase().trim();
+            const comentario = String(e.feedback.comentario || "").toUpperCase();
+
+            // Si el estado o el comentario gritan que falló, lo rebotamos.
+            if (fbEstado === "no logrado" || e.feedback.noLogrado || comentario.includes('[NO LOGRADO]')) {
+                return false;
             }
         }
 
-        // Si sobrevivió a todo, es un logro real.
+        // ✅ Si tiene la tilde y no dice "no logrado", cuenta como ÉXITO.
         return true;
-    }).length;
+    });
 
-    return Math.round((sesionesLogradas / totalSesiones) * 100);
+    // 3. Matemática limpia
+    return Math.round((diasCumplidos.length / diasExigidos.length) * 100);
 };
 
 const HistorialEntrenamiento = () => {
@@ -136,29 +131,30 @@ const HistorialEntrenamiento = () => {
             ) : (
                 <div className="historial-list">
                     {historial.map((plan) => {
-                        const km = plan.entrenamientos.reduce((a, b) => a + (b.feedback?.kmReal || 0), 0);
+                        // Calculamos el total y lo forzamos a redondear a 2 decimales (y que siga siendo un número limpio)
+                        const km = Number(plan.entrenamientos.reduce((a, b) => a + (b.feedback?.kmReal || 0), 0).toFixed(2));
                         const time = plan.entrenamientos.reduce((a, b) => a + (Number(b.feedback?.duracionReal) || 0), 0);
-                        
+
                         // 🔥 Usamos la función estricta para obtener el porcentaje real
                         const porcentajeCumplimiento = calcularPorcentajeReal(plan.entrenamientos);
 
                         let badgeText = "Incompleto";
-                        let badgeColor = "#f1c40f"; 
+                        let badgeColor = "#f1c40f";
 
                         if (porcentajeCumplimiento === 100) {
-                            badgeText = "Completo"; 
-                            badgeColor = "#2ecc71"; 
+                            badgeText = "Completo";
+                            badgeColor = "#2ecc71";
                         } else if (porcentajeCumplimiento >= 75) {
                             badgeText = "Logrado";
-                            badgeColor = "#00D2BE"; 
+                            badgeColor = "#00D2BE";
                         } else if (porcentajeCumplimiento === 0) {
                             badgeText = "Fallido";
-                            badgeColor = "#ff4d4d"; 
+                            badgeColor = "#ff4d4d";
                         }
 
                         return (
-                            <section 
-                                key={plan._id} 
+                            <section
+                                key={plan._id}
                                 className="historial-row"
                                 onClick={() => navigate(`/detalle-historial/${plan._id}`)}
                                 style={{ cursor: 'pointer' }}
@@ -168,20 +164,20 @@ const HistorialEntrenamiento = () => {
                                     <span className="row-date-badge" style={{ color: badgeColor }}>
                                         {badgeText}
                                     </span>
-                                    
+
                                     <h3>{plan.macrociclo ? plan.macrociclo.titulo : "Semana"}</h3>
-                                    
+
                                     <p className="row-subtitle">
                                         {plan.mesociclo ? `${plan.mesociclo.titulo}` : ""}
                                         {plan.macrociclo && ` • Microciclo ${plan.numeroSemana}`}
                                     </p>
                                 </div>
-                                
+
                                 <div className="row-data">
                                     {plan.tipoMicrociclo && (
                                         <span className="tag-type-historial">{plan.tipoMicrociclo}</span>
                                     )}
-                                    
+
                                     <div className="data-item">
                                         <small>Cumplimiento</small>
                                         <strong style={{ color: badgeColor }}>
@@ -193,7 +189,7 @@ const HistorialEntrenamiento = () => {
                                         <small>Volumen</small>
                                         <strong>{km} <small>km</small></strong>
                                     </div>
-                                    
+
                                     <div className="data-item">
                                         <small>Tiempo total</small>
                                         <strong>{formatTime(time)}</strong>
@@ -209,16 +205,16 @@ const HistorialEntrenamiento = () => {
 
             {totalPages > 1 && (
                 <div className="historial-pagination">
-                    <button 
-                        onClick={() => setCurrentPage(p => Math.max(p - 1, 1))} 
+                    <button
+                        onClick={() => setCurrentPage(p => Math.max(p - 1, 1))}
                         disabled={currentPage === 1}
                         className="pagination-btn"
                     >
                         Anterior
                     </button>
                     <span className="pagination-info">Página {currentPage} de {totalPages}</span>
-                    <button 
-                        onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))} 
+                    <button
+                        onClick={() => setCurrentPage(p => Math.min(p + 1, totalPages))}
                         disabled={currentPage === totalPages}
                         className="pagination-btn"
                     >
