@@ -67,6 +67,7 @@
     align-items: center;
     justify-content: center;
     background-color: #151515;
+    filter: brightness(80%);
 }
 
 .race-card-no-image svg {
@@ -473,7 +474,8 @@
 .action-btn-race {
     background: transparent;
     border: none;
-    color: #bbb;
+    color: #ffffff;
+    filter: drop-shadow(0px 1px 2px black);
     padding: 3px;
     border-radius: 5px;
     display: flex;
@@ -489,16 +491,15 @@
 
 .action-btn-race.edit:hover {
     color: #3b82f6;
-    /* Azul al editar */
-    border-color: #3b82f6;
-    background: #0f172a;
+
+    border-color: #2c79f5;
+
 }
 
 .action-btn-race.delete:hover {
     color: #ff4d4d;
     /* Rojo al borrar */
     border-color: #ff4d4d;
-    background: #271515;
 }
 
 /* --- CONTENEDOR DE IMAGEN PRESET (IMAGEN FACHERA DE COLORES) --- */

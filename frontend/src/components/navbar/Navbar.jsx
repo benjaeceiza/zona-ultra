@@ -16,7 +16,8 @@ import {
     FaUsers,
     FaSignInAlt,
     FaHistory,
-    FaEllipsisV // Icono de los 3 puntitos verticales
+    FaEllipsisV, // Icono de los 3 puntitos verticales
+    FaMedal      // NUEVO: Icono del medallero
 } from "react-icons/fa";
 
 import ModalEditNormal from "./ModalEditNormal";
@@ -30,7 +31,9 @@ const Navbar = () => {
     const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
     const [currentUser, setCurrentUser] = useState(null);
     const [isOpen, setIsOpen] = useState(false);
-    const [isAdminMenuOpen, setIsAdminMenuOpen] = useState(false); // Estado para el sub-menú mobile del admin
+    
+    // Unificamos el estado del menú flotante para todos los usuarios
+    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); 
 
     const token = localStorage.getItem("token");
 
@@ -62,7 +65,7 @@ const Navbar = () => {
         localStorage.clear();
         navigate("/login");
         setIsOpen(false); 
-        setIsAdminMenuOpen(false);
+        setIsMobileMenuOpen(false); // Cerramos el menú al salir
     };
 
     const toggleMenu = () => setIsOpen(!isOpen);
@@ -168,79 +171,98 @@ const Navbar = () => {
             </div>
 
             {/* =========================================
-                VISTA MOBILE: TABBAR INFERIOR Y MENÚ ADMIN
+                VISTA MOBILE: TABBAR INFERIOR Y MENÚ MÁS (3 PUNTITOS)
                 ========================================= */}
                 
-            {/* Menú flotante del admin (Igual) */}
-            {currentUser?.rol === "admin" && isAdminMenuOpen && (
-                <div className="admin-mobile-menu-overlay" onClick={() => setIsAdminMenuOpen(false)}>
+            {/* Menú flotante (Para TODOS los usuarios) */}
+            {token && currentUser && isMobileMenuOpen && (
+                <div className="admin-mobile-menu-overlay" onClick={() => setIsMobileMenuOpen(false)}>
                     <div className="admin-mobile-menu" onClick={(e) => e.stopPropagation()}>
-                        <NavLink className="admin-menu-item" to="/register" onClick={() => setIsAdminMenuOpen(false)}>
-                            <FaUserPlus className="admin-menu-icon" />
-                            <span>Alta Usuario</span>
-                        </NavLink>
-                        <NavLink className="admin-menu-item" to="/crear-plan" onClick={() => setIsAdminMenuOpen(false)}>
-                            <FaClipboardList className="admin-menu-icon" />
-                            <span>Crear Plan</span>
-                        </NavLink>
-                        <NavLink className="admin-menu-item" to="/usuarios" onClick={() => setIsAdminMenuOpen(false)}>
-                            <FaUsers className="admin-menu-icon" />
-                            <span>Lista Usuarios</span>
-                        </NavLink>
+                        
+                        {/* Opción para TODOS: Mi Cuenta */}
+                        <div 
+                            className="admin-menu-item" 
+                            onClick={() => { setIsProfileModalOpen(true); setIsMobileMenuOpen(false); }}
+                            style={{ cursor: "pointer" }}
+                        >
+                            <FaUserCircle className="admin-menu-icon" />
+                            <span>Mi Cuenta</span>
+                        </div>
+
+                        {/* Opciones exclusivas del Admin */}
+                        {currentUser.rol === "admin" && (
+                            <>
+                                <div style={{ borderTop: "1px solid #333", margin: "5px 0" }}></div>
+                                <NavLink className="admin-menu-item" to="/register" onClick={() => setIsMobileMenuOpen(false)}>
+                                    <FaUserPlus className="admin-menu-icon" />
+                                    <span>Alta Usuario</span>
+                                </NavLink>
+                                <NavLink className="admin-menu-item" to="/crear-plan" onClick={() => setIsMobileMenuOpen(false)}>
+                                    <FaClipboardList className="admin-menu-icon" />
+                                    <span>Crear Plan</span>
+                                </NavLink>
+                                <NavLink className="admin-menu-item" to="/usuarios" onClick={() => setIsMobileMenuOpen(false)}>
+                                    <FaUsers className="admin-menu-icon" />
+                                    <span>Lista Usuarios</span>
+                                </NavLink>
+                            </>
+                        )}
+
+                        {/* Opción para TODOS: Salir */}
+                        <div style={{ borderTop: "1px solid #333", margin: "5px 0" }}></div>
+                        <div 
+                            className="admin-menu-item" 
+                            onClick={handleLogout}
+                            style={{ cursor: "pointer", color: "#ff4d4d" }}
+                        >
+                            <FaSignOutAlt className="admin-menu-icon" />
+                            <span>Cerrar sesión</span>
+                        </div>
+
                     </div>
                 </div>
             )}
 
             <nav className="tabbar">
                 {/* 1. Botones base para usuario logueado */}
-                {token && currentUser && (
+                {token && currentUser ? (
                     <>
                         <NavLink className="tabbar-item" to="/">
                             <FaHome className="tabbar-icon" />
                             <span>Panel</span>
                         </NavLink>
+                        
                         <NavLink className="tabbar-item" to={`/historial/${currentUser._id}`}>
                             <FaHistory className="tabbar-icon" />
                             <span>Historial</span>
                         </NavLink>
+
                         <NavLink className="tabbar-item" to="/mis-zapatillas">
                             <FaRunning className="tabbar-icon" />
                             <span>Zapatillas</span>
                         </NavLink>
-                    </>
-                )}
+                        
+                        {/* NUEVO: Botón de Medallero */}
+                        <NavLink className="tabbar-item" to="/medallero">
+                            <FaMedal className="tabbar-icon" />
+                            <span>Medallero</span>
+                        </NavLink>
 
-                {/* 2. Botones de cuenta (Login o Perfil/Salir) */}
-                {!token ? (
-                    <NavLink className="tabbar-item" to="/login">
+                        {/* Botón de "Más opciones" (3 puntitos) para TODOS los usuarios */}
+                        <button 
+                            className={`tabbar-item ${isMobileMenuOpen ? 'active' : ''}`}
+                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                        >
+                            <FaEllipsisV className="tabbar-icon" />
+                            <span>Más</span>
+                        </button>
+                    </>
+                ) : (
+                    /* Si no está logueado, solo mostramos el Login */
+                    <NavLink className="tabbar-item" to="/login" style={{ width: "100%" }}>
                         <FaSignInAlt className="tabbar-icon" />
                         <span>Login</span>
                     </NavLink>
-                ) : (
-                    <>
-                        <button 
-                            className="tabbar-item" 
-                            onClick={() => setIsProfileModalOpen(true)}
-                        >
-                            <FaUserCircle className="tabbar-icon" />
-                            <span>Perfil</span>
-                        </button>
-                        <button className="tabbar-item logout-btn" onClick={handleLogout}>
-                            <FaSignOutAlt className="tabbar-icon" />
-                            <span>Salir</span>
-                        </button>
-                    </>
-                )}
-
-                {/* 🔥 3. Botón de Admin AHORA AL FINAL (Renderizado a la derecha) */}
-                {currentUser?.rol === "admin" && (
-                    <button 
-                        className={`tabbar-item ${isAdminMenuOpen ? 'active' : ''}`}
-                        onClick={() => setIsAdminMenuOpen(!isAdminMenuOpen)}
-                    >
-                        <FaEllipsisV className="tabbar-icon" />
-                        <span>Admin</span>
-                    </button>
                 )}
             </nav>
         </>
