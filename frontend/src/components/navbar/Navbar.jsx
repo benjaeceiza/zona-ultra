@@ -141,6 +141,7 @@ const Navbar = () => {
                             <li className="navbarItem">
                                 <NavLink className="navbarLink" to="/" onClick={closeMenu}>Panel de control</NavLink>
                                 <NavLink className="navbarLink" to={`/historial/${currentUser._id}`} onClick={closeMenu}>Historial</NavLink>
+                                <NavLink className="navbarLink" to={`/medallero`} onClick={closeMenu}>Medallero</NavLink>
                                 <NavLink className="navbarLink" to="/mis-zapatillas" onClick={closeMenu}>Mis Zapatillas</NavLink>
                             </li>
                         )}

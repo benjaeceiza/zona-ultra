@@ -1,0 +1,373 @@
+/* =========================================
+   VISTA DE CARGA DE MEDALLERO (MEDAL FORM)
+   ========================================= */
+
+/* Contenedor principal del formulario */
+.medal-form-wrapper {
+    max-width: 800px;
+    width: 100%;
+    margin: 30px auto;
+    background: #141416;
+    border: 1px solid #2a2a2a;
+    border-radius: 16px;
+    padding: 40px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+}
+
+.form-header-title {
+    font-size: 1.5rem;
+    color: #f3f4f6;
+    margin-bottom: 30px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #222;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* Grilla del formulario */
+.form-fields-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+/* Divisiones de columnas */
+.form-row-split {
+    display: flex;
+    gap: 20px;
+}
+.w-50 {
+    flex: 1;
+}
+
+/* Estilos de los Inputs */
+.ultra-input-group label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #a0a0a0;
+    font-size: 0.9rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    letter-spacing: 0.3px;
+}
+
+.ultra-input-group label svg {
+    color: #555;
+}
+
+.ultra-input-group input,
+.ultra-input-group textarea {
+    width: 100%;
+    background: #09090b;
+    border: 1px solid #333;
+    border-radius: 10px;
+    padding: 14px 16px;
+    color: #fff;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+}
+
+/* Efecto focus iluminado (estilo Ultra) */
+.ultra-input-group input:focus,
+.ultra-input-group textarea:focus {
+    border-color: #0ba360; /* Verde Ultra */
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(11, 163, 96, 0.15);
+    background: #111114;
+}
+
+/* Cajas de Tiempo (Horas, Min, Seg) */
+.time-input-row {
+    display: flex;
+    gap: 15px;
+}
+
+.time-field {
+    position: relative;
+    flex: 1;
+}
+
+.time-field input {
+    padding-right: 45px;
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
+
+.time-field span {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #555;
+    font-size: 0.85rem;
+    font-weight: 700;
+    pointer-events: none;
+}
+
+/* Subida de Fotos (Estilo Dropzone Nativo) */
+.file-upload-wrapper {
+    position: relative;
+    width: 100%;
+    display: inline-block;
+}
+
+.file-upload-btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    background: #1a1a1c;
+    border: 2px dashed #444;
+    padding: 24px;
+    border-radius: 12px;
+    color: #aaa;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.file-upload-wrapper:hover .file-upload-btn {
+    border-color: #0ba360;
+    color: #0ba360;
+    background: #0f1d16;
+}
+
+.file-upload-wrapper input[type="file"] {
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+.form-photos-preview {
+    display: flex;
+    gap: 15px;
+    margin-top: 15px;
+    flex-wrap: wrap;
+}
+
+.img-thumb {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 10px;
+    border: 2px solid #333;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+/* Botón de Guardado */
+.form-actions {
+    margin-top: 10px;
+    padding-top: 25px;
+    border-top: 1px solid #222;
+}
+
+.submit-race-btn {
+    width: 100%;
+    background: #0ba360;
+    color: #fff;
+    border: none;
+    padding: 16px;
+    font-size: 1.1rem;
+    font-weight: 700;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.3s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
+.submit-race-btn:hover {
+    background: #098a51;
+}
+
+/* --- TEXTO OPCIONAL --- */
+.label-optional {
+    color: #555;
+    font-size: 0.8rem;
+    font-weight: 500;
+    margin-left: 5px;
+}
+
+/* --- CUADRO DE VALIDACIONES (ALERTA EMERGENGIA) --- */
+.form-validation-summary {
+    background-color: #271515;
+    border: 1px solid #ff4d4d;
+    color: #ffb3b3;
+    padding: 18px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    box-shadow: 0 4px 15px rgba(255, 77, 77, 0.1);
+}
+
+.validation-summary-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-weight: 700;
+    font-size: 1.05rem;
+    margin-bottom: 8px;
+}
+
+.validation-summary-header svg {
+    color: #ff4d4d;
+}
+
+.form-validation-summary ul {
+    margin: 0;
+    padding-left: 20px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+}
+
+/* --- MINIATURAS CON BOTÓN DE ELIMINAR INCORPORADO --- */
+.thumb-container {
+    position: relative;
+    width: 80px;
+    height: 80px;
+}
+
+/* Estilo del botón flotante de eliminación (cruz de cierre) */
+.remove-thumb-btn {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: #ff4d4d;
+    color: #fff;
+    border: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.7rem;
+    cursor: pointer;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+    transition: transform 0.2s ease, background 0.2s;
+    z-index: 5;
+}
+
+.remove-thumb-btn:hover {
+    background: #cc3b3b;
+    transform: scale(1.15);
+}
+
+
+/* --- ENVOLTORIO DE LA CINTA (CORNER RIBBON) --- */
+.corner-ribbon-wrapper {
+    width: 130px;
+    height: 130px;
+    overflow: hidden;
+    position: absolute;
+    top: -4px; /* Un poquito salido para dar efecto 3D */
+    left: -4px;
+    z-index: 20;
+    pointer-events: none; /* Para que no joda si hacen clic por ahí */
+}
+
+/* El listón cruzado */
+.corner-ribbon {
+    position: absolute;
+    display: block;
+    width: 190px;
+    padding: 8px 0;
+    font-weight: 900;
+    text-align: center;
+    font-size: 0.75rem;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    transform: rotate(-45deg);
+    top: 25px;
+    left: -45px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Sombras en las puntas para simular que envuelve la tarjeta por detrás */
+.corner-ribbon-wrapper::before,
+.corner-ribbon-wrapper::after {
+    content: "";
+    position: absolute;
+    z-index: -1;
+    border: 4px solid #111;
+}
+.corner-ribbon-wrapper::before {
+    top: 0;
+    right: 0;
+    border-top-color: transparent;
+    border-right-color: transparent;
+}
+.corner-ribbon-wrapper::after {
+    bottom: 0;
+    left: 0;
+    border-bottom-color: transparent;
+    border-left-color: transparent;
+}
+
+/* --- ESTILOS POR PUESTO (Colores de las cintas) --- */
+
+/* 1° Puesto - Oro */
+.corner-ribbon.gold {
+    background: linear-gradient(135deg, #FFDF00, #D4AF37);
+    color: #3b2f00;
+    border-top: 1px solid #fff59d;
+    border-bottom: 1px solid #fff59d;
+}
+
+/* 2° Puesto - Plata */
+.corner-ribbon.silver {
+    background: linear-gradient(135deg, #e0e0e0, #9e9e9e);
+    color: #222;
+    border-top: 1px solid #fff;
+    border-bottom: 1px solid #fff;
+}
+
+/* 3° Puesto - Bronce */
+.corner-ribbon.bronze {
+    background: linear-gradient(135deg, #cd7f32, #8b4513);
+    color: #fff;
+    border-top: 1px solid #ffbca8;
+    border-bottom: 1px solid #ffbca8;
+}
+
+/* Top 10 - Elite (Oscuro con borde neón) */
+.corner-ribbon.elite {
+    background: #111;
+    color: #00f2fe; /* Celeste Neón */
+    border-top: 2px solid #00f2fe;
+    border-bottom: 2px solid #00f2fe;
+}
+
+/* --- RESPONSIVE MOBILE --- */
+@media (max-width: 768px) {
+    .medal-form-wrapper {
+        padding: 25px 20px;
+        margin: 15px auto;
+        border-radius: 12px;
+    }
+    
+    .form-row-split {
+        flex-direction: column;
+        gap: 25px;
+    }
+    
+    .time-input-row {
+        gap: 8px;
+    }
+    
+    .time-field input {
+        padding-right: 35px;
+    }
+    
+    .time-field span {
+        right: 10px;
+    }
+}

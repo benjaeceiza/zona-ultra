@@ -4,7 +4,7 @@ import { getUserShoes } from "../../../services/getUserShoes.js";
 import { updateFeedback } from "../../../services/updateFeedback.js";
 import { getPlanById } from '../../../services/getPlanById.js';
 import { useLoader } from '../../../context/LoaderContext.jsx';
-import { FaArrowLeft, FaCalendarAlt, FaCheck, FaTimesCircle, FaClock, FaRoute } from 'react-icons/fa';
+import { FaArrowLeft, FaCalendarAlt, FaCheck, FaTimesCircle, FaClock, FaRoute, FaExclamationTriangle } from 'react-icons/fa';
 import './TrainingDetail.css';
 
 const BORG_SCALE = {
@@ -21,6 +21,31 @@ const BORG_SCALE = {
     10: { label: "MUY MUY DURO", color: "#B71C1C" }
 };
 
+// Función de validación de lógica de negocio
+const validarLogicaEntrenamiento = (distanciaKm, horas, minutos, isStrength) => {
+    const errores = [];
+    const tiempoTotalMinutos = (Number(horas) * 60) + Number(minutos);
+
+    if (tiempoTotalMinutos <= 0) {
+        errores.push("El tiempo total de entrenamiento no puede ser cero.");
+    }
+
+    if (!isStrength) {
+        if (distanciaKm > 0 && tiempoTotalMinutos > 0) {
+            const ritmo = tiempoTotalMinutos / distanciaKm;
+            // Si el ritmo es menor a 2.5 min/km salta la alerta
+            if (ritmo < 2.5) {
+                errores.push("Ritmo irreal detectado (menos de 2:30 min/km). ¿Invertiste los kilómetros con el tiempo?");
+            }
+        }
+        if (distanciaKm > 160) {
+            errores.push("Estás registrando más de 160 km. Verificá la distancia ingresada.");
+        }
+    }
+
+    return errores;
+};
+
 const TrainingDetail = ({ isSemanaActiva = true }) => {
     const { idPlan, idEntrenamiento } = useParams();
     const navigate = useNavigate();
@@ -34,8 +59,12 @@ const TrainingDetail = ({ isSemanaActiva = true }) => {
     const [comentario, setComentario] = useState("");
     const [userShoes, setUserShoes] = useState([]);
     const [selectedShoe, setSelectedShoe] = useState("");
-    const [duracionReal, setDuracionReal] = useState("");
+    
+    // Estados separados para validación visual
+    const [horas, setHoras] = useState("");
+    const [minutos, setMinutos] = useState("");
     const [kmReal, setRealKm] = useState("");
+    const [erroresGuardado, setErroresGuardado] = useState([]);
 
     useEffect(() => {
         const fetchTrainingData = async () => {
@@ -59,7 +88,17 @@ const TrainingDetail = ({ isSemanaActiva = true }) => {
             const feedback = training.feedback || {};
             setRpe(feedback.rpe || 5);
             setComentario((feedback.comentario || "").replace('[NO LOGRADO] ', ''));
-            setDuracionReal(feedback.duracionReal || "");
+            
+            // Convertimos los minutos totales guardados en la BD a horas y minutos para la UI
+            const duracionTotal = feedback.duracionReal || 0;
+            if (duracionTotal > 0) {
+                setHoras(Math.floor(duracionTotal / 60).toString());
+                setMinutos((duracionTotal % 60).toString());
+            } else {
+                setHoras("");
+                setMinutos("");
+            }
+            
             setRealKm(feedback.kmReal || "");
             setSelectedShoe(feedback.shoeId || "");
         }
@@ -99,22 +138,42 @@ const TrainingDetail = ({ isSemanaActiva = true }) => {
     const isStrength = training.titulo ? training.titulo.toLowerCase().includes('fuerza') : false;
     const inputsDisabled = isCompleted && !isEditing;
 
-
     const bannerClass = isCompleted 
         ? (fueNoLogrado ? 'banner-failed' : 'banner-success') 
         : 'banner-pending';
 
     const handleCancelEdit = () => {
         setIsEditing(false);
+        setErroresGuardado([]);
         setRpe(feedbackGuardado.rpe || 5);
         setComentario((feedbackGuardado.comentario || "").replace('[NO LOGRADO] ', ''));
-        setDuracionReal(feedbackGuardado.duracionReal || "");
+        
+        const duracionTotal = feedbackGuardado.duracionReal || 0;
+        setHoras(duracionTotal > 0 ? Math.floor(duracionTotal / 60).toString() : "");
+        setMinutos(duracionTotal > 0 ? (duracionTotal % 60).toString() : "");
+        
         setSelectedShoe(feedbackGuardado.shoeId || "");
         setRealKm(feedbackGuardado.kmReal || "");
     };
 
     const handleSubmitFeedback = async (e, isNotAchieved = false) => {
         if (e) e.preventDefault();
+        setErroresGuardado([]); // Limpiamos errores previos
+
+        const h = Number(horas) || 0;
+        const m = Number(minutos) || 0;
+        const duracionRealTotal = (h * 60) + m;
+        const km = Number(kmReal) || 0;
+
+        // Si es un entrenamiento activo que sí se logró, ejecutamos validación lógica
+        if (!isRestDay && !isNotAchieved) {
+            const alertas = validarLogicaEntrenamiento(km, h, m, isStrength);
+            if (alertas.length > 0) {
+                setErroresGuardado(alertas);
+                return; // Frenamos el envío al backend
+            }
+        }
+
         const comentarioFinal = isNotAchieved ? `[NO LOGRADO] ${comentario}` : (isRestDay ? "Día de descanso completado" : comentario);
         const originalShoeId = feedbackGuardado.shoeId || "";
         
@@ -122,8 +181,8 @@ const TrainingDetail = ({ isSemanaActiva = true }) => {
             trainingId: training._id,
             rpe: isNotAchieved ? 0 : (isRestDay ? 1 : rpe),
             comentario: comentarioFinal,
-            duracionReal: (isRestDay || isNotAchieved) ? 0 : Number(Number(duracionReal).toFixed(1)) || 0,
-            kmReal: (isRestDay || isStrength || isNotAchieved) ? 0 : Number(Number(kmReal).toFixed(1)) || 0,
+            duracionReal: (isRestDay || isNotAchieved) ? 0 : duracionRealTotal,
+            kmReal: (isRestDay || isStrength || isNotAchieved) ? 0 : Number(km.toFixed(1)) || 0,
             noLogrado: isNotAchieved
         };
 
@@ -223,20 +282,45 @@ const TrainingDetail = ({ isSemanaActiva = true }) => {
                                     {!isStrength && (
                                         <div className="ultra-input-group">
                                             <label>📏 Distancia Real (km)</label>
-                                            <input
-                                                type="number" step="0.1" onWheel={(e) => e.target.blur()}
-                                                placeholder="Ej: 10.5" value={kmReal} onChange={handleDecimalInput(setRealKm)}
-                                                disabled={inputsDisabled} required
-                                            />
+                                            <div style={{ position: 'relative' }}>
+                                                <input
+                                                    type="number" step="0.1" onWheel={(e) => e.target.blur()}
+                                                    placeholder="Ej: 10.5" value={kmReal} onChange={handleDecimalInput(setRealKm)}
+                                                    disabled={inputsDisabled} required
+                                                    style={{ width: '100%', paddingRight: '40px' }}
+                                                />
+                                                <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: '#888', pointerEvents: 'none', fontWeight: 'bold' }}>
+                                                    km
+                                                </span>
+                                            </div>
                                         </div>
                                     )}
                                     <div className="ultra-input-group">
-                                        <label>⏱ Duración Real (min)</label>
-                                        <input
-                                            type="number" step="0.1" onWheel={(e) => e.target.blur()}
-                                            placeholder="Ej: 45" value={duracionReal} onChange={handleDecimalInput(setDuracionReal)}
-                                            disabled={inputsDisabled} required
-                                        />
+                                        <label>⏱ Duración Real</label>
+                                        <div style={{ display: 'flex', gap: '10px' }}>
+                                            <div style={{ position: 'relative', width: '50%' }}>
+                                                <input
+                                                    type="number" step="1" min="0" onWheel={(e) => e.target.blur()}
+                                                    placeholder="0" value={horas} onChange={(e) => setHoras(e.target.value)}
+                                                    disabled={inputsDisabled} required={!isStrength}
+                                                    style={{ width: '100%', paddingRight: '40px' }}
+                                                />
+                                                <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: '#888', pointerEvents: 'none', fontWeight: 'bold' }}>
+                                                    hs
+                                                </span>
+                                            </div>
+                                            <div style={{ position: 'relative', width: '50%' }}>
+                                                <input
+                                                    type="number" step="1" min="0" max="59" onWheel={(e) => e.target.blur()}
+                                                    placeholder="0" value={minutos} onChange={(e) => setMinutos(e.target.value)}
+                                                    disabled={inputsDisabled} required
+                                                    style={{ width: '100%', paddingRight: '45px' }}
+                                                />
+                                                <span style={{ position: 'absolute', right: '12px', top: '50%', transform: 'translateY(-50%)', color: '#888', pointerEvents: 'none', fontWeight: 'bold' }}>
+                                                    min
+                                                </span>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
 
@@ -279,6 +363,19 @@ const TrainingDetail = ({ isSemanaActiva = true }) => {
                         ) : (
                             <div className="rest-day-hero">
                                 <p>🧉 Hoy toca recargar energías.<br/>El descanso es parte del entrenamiento. ¡Disfrutalo!</p>
+                            </div>
+                        )}
+
+                        {/* RENDERIZADO DE ERRORES DE VALIDACIÓN */}
+                        {erroresGuardado.length > 0 && (
+                            <div style={{ backgroundColor: '#451a1a', border: '1px solid #ff4d4d', color: '#ffb3b3', padding: '15px', borderRadius: '8px', marginBottom: '20px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', marginBottom: '10px', fontWeight: 'bold' }}>
+                                    <FaExclamationTriangle style={{ marginRight: '10px', color: '#ff4d4d' }} />
+                                    <span>Hay datos que no cuadran:</span>
+                                </div>
+                                <ul style={{ margin: 0, paddingLeft: '25px' }}>
+                                    {erroresGuardado.map((err, idx) => <li key={idx}>{err}</li>)}
+                                </ul>
                             </div>
                         )}
 

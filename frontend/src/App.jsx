@@ -21,6 +21,8 @@ import Footer from "./components/footer/Footer";
 import TrainingDetail from "./components/views/detalle-plan/TrainingDetail";
 import HistorialEntrenamiento from "./components/views/historial-entrenamiento/HistorialEntrenamiento";
 import DetalleHistorial from "./components/views/detalle-historial/DetalleHistorial";
+import Medallero from "./components/views/medallero/lista-medallero/Medallero";
+import MedalForm from "./components/views/medallero/formulario-medallero/MedalForm";
 
 // --- COMPONENTE PARA EL SCROLL ---
 const ScrollToTop = () => {
@@ -109,6 +111,9 @@ function App() {
                 <Route path="/editar-plan/:idPlan" element={<AdminRoute><EditPlan /></AdminRoute>} />
                 <Route path="/usuarios" element={<AdminRoute><UserList /></AdminRoute>} />
                 <Route path="/detalle-plan-admin/:id" element={<AdminRoute><DetallePlan /></AdminRoute>} />
+                <Route path="/medallero" element={<LoginRoute><Medallero/></LoginRoute>}/>
+                <Route path="/medallero/new" element={<LoginRoute><MedalForm/></LoginRoute>}/>
+                <Route path="/medallero/editar/:id" element={<LoginRoute><MedalForm/></LoginRoute>}/>
               </Routes>
             </main>
 

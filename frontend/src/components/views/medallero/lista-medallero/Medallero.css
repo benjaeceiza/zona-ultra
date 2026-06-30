@@ -1,0 +1,612 @@
+.medallero-seccion {
+    padding: 30px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    color: #fff;
+}
+
+.medallero-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 40px;
+    border-bottom: 1px solid #222;
+    padding-bottom: 20px;
+}
+
+.medallero-header h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 0 0 5px 0;
+}
+
+.gold-medal {
+    color: #ffd700;
+    filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.4));
+}
+
+.medallero-header p {
+    color: #aaa;
+    margin: 0;
+}
+
+/* Rejilla de tarjetas */
+.medallero-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 25px;
+}
+
+/* Tarjeta Estilo Pro */
+.race-card {
+    background: rgba(30, 30, 30, 0.6);
+    backdrop-filter: blur(10px);
+    border: 1px solid #2a2a2a;
+    border-top: 4px solid var(--border-color);
+    border-radius: 12px;
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.race-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5), 0 0 15px var(--border-color);
+}
+
+/* Contenedor de Imagenes */
+.race-card-image,
+.race-card-no-image {
+    height: 180px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #151515;
+}
+
+.race-card-no-image svg {
+    font-size: 3rem;
+    color: #333;
+}
+
+.distance-badge {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-weight: 800;
+    font-size: 0.85rem;
+    color: #000;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+/* Contenido de la Tarjeta */
+.race-card-content {
+    padding: 20px;
+}
+
+.race-title {
+    font-size: 1.3rem;
+    font-weight: 700;
+    margin: 0 0 8px 0;
+    color: #f3f4f6;
+}
+
+.race-metadata {
+    display: flex;
+    gap: 15px;
+    font-size: 0.85rem;
+    color: #888;
+    margin-bottom: 18px;
+}
+
+.race-metadata span {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Fila de Estadísticas */
+.race-stats-row {
+    display: flex;
+    gap: 10px;
+    background: #161616;
+    padding: 12px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    border: 1px solid #222;
+}
+
+.race-stat-box {
+    flex: 1;
+    text-align: center;
+}
+
+.race-stat-box svg {
+    font-size: 1.1rem;
+    margin-bottom: 4px;
+}
+
+.icon-time {
+    color: #6ca0dc;
+}
+
+.icon-general {
+    color: #f59e0b;
+}
+
+.icon-cat {
+    color: #a855f7;
+}
+
+.stat-label {
+    font-size: 0.7rem;
+    color: #666;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin: 0;
+}
+
+.stat-value {
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: #e5e7eb;
+    margin: 2px 0 0 0;
+}
+
+.race-comment {
+    font-size: 0.85rem;
+    color: #aaa;
+    font-style: italic;
+    line-height: 1.4;
+    margin: 10px 0 0 0;
+    border-left: 2px solid #444;
+    padding-left: 8px;
+}
+
+/* Animación de Carga */
+.medallero-loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    color: #aaa;
+}
+
+.medallero-loading .spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(255, 255, 255, 0.1);
+    border-top-color: #f59e0b;
+    /* Color Oro */
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 15px;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Diseño de la Tarjeta cuando está Vacío (Empty State) */
+.medallero-empty-card {
+    background: rgba(20, 20, 20, 0.6);
+    backdrop-filter: blur(8px);
+    border: 1px dashed #444;
+    border-radius: 16px;
+    padding: 60px 40px;
+    /* Le damos más aire interno a la tarjeta */
+    text-align: center;
+    max-width: 650px;
+    margin: 40px auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    /* Asegura que todo quede bien centrado */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+}
+
+.empty-icon-wrapper {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px auto;
+}
+
+.empty-running-icon {
+    font-size: 3rem;
+    color: #444;
+    position: absolute;
+    top: 5px;
+    left: 5px;
+}
+
+.empty-medal-icon {
+    font-size: 2rem;
+    color: #ffd700;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    filter: drop-shadow(0 0 6px rgba(255, 215, 0, 0.5));
+    animation: pulse 2s infinite ease-in-out;
+}
+
+@keyframes pulse {
+
+    0%,
+    100% {
+        transform: scale(1);
+    }
+
+    50% {
+        transform: scale(1.15);
+    }
+}
+
+.medallero-empty-card h2 {
+    font-size: 1.6rem;
+    font-weight: 700;
+    color: #f3f4f6;
+    margin-bottom: 12px;
+}
+
+.medallero-empty-card p {
+    font-size: 1rem;
+    color: #888;
+    line-height: 1.6;
+    margin-bottom: 35px;
+    /* Empujamos el botón más abajo */
+    padding: 0 20px;
+}
+
+.medallero-empty-card .ultra-btn {
+    padding: 16px 40px !important;
+    /* Más relleno arriba/abajo y MUCHO a los lados */
+    font-size: 1.1rem;
+    font-weight: 700;
+    white-space: nowrap;
+    /* ESTO ES LA MAGIA: Evita que el texto baje a otra línea */
+    width: auto;
+    /* Deja que el botón crezca según el texto */
+    min-width: 300px;
+    /* Un tamaño mínimo para que se vea imponente */
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    letter-spacing: 0.5px;
+}
+
+/* Estilos para el Modal Overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.75);
+    backdrop-filter: blur(5px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.modal-content-carrera {
+    background: #111111;
+    border: 1px solid #222;
+    border-radius: 16px;
+    width: 100%;
+    max-width: 600px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid #222;
+}
+
+.modal-header h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    color: #666;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.close-btn:hover {
+    color: #ff4d4d;
+}
+
+.modal-form-scroll {
+    padding: 24px;
+    overflow-y: auto;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+/* Distribución de campos en filas */
+.form-row-split {
+    display: flex;
+    gap: 15px;
+}
+
+.w-50 {
+    flex: 1;
+}
+
+/* Campos de Tiempo */
+.time-input-row {
+    display: flex;
+    gap: 10px;
+}
+
+.time-field {
+    position: relative;
+    flex: 1;
+}
+
+.time-field input {
+    width: 100%;
+    padding-right: 40px !important;
+    text-align: center;
+}
+
+.time-field span {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #666;
+    font-size: 0.85rem;
+    font-weight: bold;
+    pointer-events: none;
+}
+
+/* Subida de Archivos Estilizada */
+.file-upload-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+.file-upload-wrapper input[type="file"] {
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+.file-upload-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: #1a1a1a;
+    border: 1px dashed #444;
+    padding: 14px;
+    border-radius: 8px;
+    color: #aaa;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: background 0.2s, border-color 0.2s;
+}
+
+.file-upload-wrapper:hover .file-upload-btn {
+    background: #222;
+    border-color: #00f2fe;
+    /* Brillo dinámico */
+}
+
+.form-photos-preview {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+}
+
+.img-thumb {
+    width: 65px;
+    height: 65px;
+    object-fit: cover;
+    border-radius: 6px;
+    border: 1px solid #333;
+}
+
+/* Botones de acción del Modal */
+.form-modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 15px;
+    border-top: 1px solid #222;
+    padding-top: 18px;
+}
+
+/* --- CONTENEDOR DE BOTONES DE ACCIÓN EN LA TARJETA --- */
+.race-card {
+    position: relative;
+    /* Clave para posicionar los botones absolutos */
+}
+
+.race-card-actions {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    display: flex;
+    gap: 8px;
+    z-index: 10;
+
+
+}
+
+.action-btn-race {
+    background: transparent;
+    border: none;
+    color: #bbb;
+    padding: 3px;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s ease;
+    width: 30px;
+    font-size: large;
+
+}
+
+.action-btn-race.edit:hover {
+    color: #3b82f6;
+    /* Azul al editar */
+    border-color: #3b82f6;
+    background: #0f172a;
+}
+
+.action-btn-race.delete:hover {
+    color: #ff4d4d;
+    /* Rojo al borrar */
+    border-color: #ff4d4d;
+    background: #271515;
+}
+
+/* --- CONTENEDOR DE IMAGEN PRESET (IMAGEN FACHERA DE COLORES) --- */
+.race-card-fallback-fachero {
+    height: 180px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    /* Degradado deportivo oscuro que se fusiona con el color de la distancia */
+    background: linear-gradient(135deg, #09090b 0%, rgba(20, 20, 22, 0.9) 60%, var(--border-color) 250%);
+    border-bottom: 1px solid #222;
+}
+
+/* Patrón de líneas sutil para darle textura de red deportiva */
+.race-card-fallback-fachero::before {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0.04;
+    background-image: linear-gradient(#fff 1px, transparent 1px), linear-gradient(90deg, #fff 1px, transparent 1px);
+    background-size: 10px 10px;
+}
+
+.fallback-glow-icon {
+    font-size: 3.5rem;
+    /* Toma el color neón de la medalla y le da un brillo sutil */
+    color: var(--border-color);
+    opacity: 0.4;
+    filter: drop-shadow(0 0 15px var(--border-color));
+    animation: floatingIcon 4s infinite ease-in-out;
+}
+
+.corner-ribbon.red-edition {
+    background: linear-gradient(135deg, #ff3333, #a30000);
+    color: #ffffff;
+    border-top: 1px solid #ff8080;
+    border-bottom: 1px solid #ff8080;
+    box-shadow: 0 4px 15px rgba(255, 51, 51, 0.4); /* Resplandor rojo sutil */
+}
+
+@keyframes floatingIcon {
+
+    0%,
+    100% {
+        transform: translateY(0);
+    }
+
+    50% {
+        transform: translateY(-6px);
+    }
+}
+
+
+
+/* --- RESPONSIVE MOBILE --- */
+@media (max-width: 768px) {
+    .medallero-header {
+        flex-direction: column;
+        /* Apila el texto y el botón uno arriba del otro */
+        align-items: flex-start;
+        /* Alinea todo a la izquierda */
+        gap: 20px;
+        /* Le da espacio de respiración entre el texto y el botón */
+        padding-bottom: 15px;
+    }
+
+    .header-content {
+        width: 100%;
+        /* Asegura que el texto use todo el ancho disponible */
+    }
+
+    .medallero-header h1 {
+        font-size: 1.7rem;
+        /* Achicamos un poco para que "Mi Medallero" entre en una sola línea */
+        white-space: nowrap;
+        /* Evitamos que se rompa en dos renglones */
+    }
+
+    .medallero-header p {
+        font-size: 0.9rem;
+        /* Subtítulo un poquito más chico para mobile */
+        line-height: 1.4;
+    }
+
+    /* Hacemos que el botón sea súper cómodo para tocar con el dedo */
+    .medallero-header .ultra-btn {
+        width: 100%;
+        justify-content: center;
+        padding: 14px 20px;
+    }
+
+    .medallero-empty-card .ultra-btn {
+
+        white-space: wrap;
+        min-width: 200px;
+
+    }
+
+}
+
+
+/* Adaptación responsive para pantallas chicas */
+@media (max-width: 500px) {
+    .form-row-split {
+        flex-direction: column;
+        gap: 18px;
+    }
+}

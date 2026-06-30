@@ -6,7 +6,8 @@ import { router as userRouter } from "./routes/user.router.js";
 import { router as authRouter } from "./routes/auth.router.js";
 import { router as planAdminRouter } from "./routes/plan.admin.router.js";
 import { router as shoeRouter } from "./routes/shoe.router.js";
-import { router as planRouter} from "./routes/plan.router.js";
+import { router as planRouter } from "./routes/plan.router.js";
+import { router as raceRouter } from "./routes/race.router.js";
 
 const app = express();
 app.use(cors());
@@ -20,6 +21,7 @@ app.use("/api/users", userRouter);
 app.use("/api/plans/admin", planAdminRouter);
 app.use("/api/plans", planRouter);
 app.use("/api/shoes", shoeRouter);
+app.use('/api/races', raceRouter);
 
 
 mongoose.connect(process.env.MONGO_URI, { dbName: "app_run" })
