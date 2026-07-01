@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FaMedal, FaCalendarAlt, FaMapMarkerAlt, FaStopwatch, FaTrophy, FaPlus, FaRunning, FaTrashAlt, FaPencilAlt, FaSortAmountDown } from 'react-icons/fa';
 import { getMedalleroByUser, deleteRaceFromMedallero } from '../../../../services/raceService.js';
+import MedalleroSkeleton from "../../../skeletons/medallero-skeleton/MedalleroSkeleton.jsx";
 import './Medallero.css';
 
 const Medallero = () => {
@@ -126,7 +127,7 @@ const Medallero = () => {
                 )}
 
                 {loading ? (
-                    <div className="medallero-loading"><div className="spinner"></div><p>Buscando tus medallas... ⛰️</p></div>
+                    <MedalleroSkeleton />
                 ) : races.length === 0 ? (
                     <div className="medallero-empty-card">
                         <div className="empty-icon-wrapper">
