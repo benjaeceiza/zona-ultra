@@ -685,6 +685,7 @@
         gap: 15px; 
         min-height: 110px;
         position: relative; /* Necesario para los íconos absolutos */
+
     }
 
     .race-card-image,
@@ -694,6 +695,8 @@
         flex-shrink: 0; 
         border-radius: 12px;
         position: relative;
+        margin-top:20px
+        
     }
 
     .fallback-glow-icon {
