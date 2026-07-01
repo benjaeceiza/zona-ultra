@@ -223,10 +223,10 @@ const MedalForm = () => {
                         </div>
 
                         <div className="ultra-input-group">
-                            <label><FaImage /> Fotos del Recuerdo</label>
+                            <label><FaImage /> Foto del Recuerdo</label>
                             <div className="file-upload-wrapper">
                                 <input type="file" multiple accept="image/*" onChange={handleFileChange} id="race-photos" disabled={isSubmitting} />
-                                <label htmlFor="race-photos" className="file-upload-btn">📸 Seleccionar imágenes</label>
+                                <label htmlFor="race-photos" className="file-upload-btn">📸 Seleccionar imagen</label>
                             </div>
                             {fotos.length > 0 && (
                                 <div className="form-photos-preview">

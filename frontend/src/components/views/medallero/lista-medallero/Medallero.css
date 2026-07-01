@@ -543,6 +543,65 @@
     box-shadow: 0 4px 15px rgba(255, 51, 51, 0.4); /* Resplandor rojo sutil */
 }
 
+
+
+/* --- CONTENEDOR DE FILTROS A LA DERECHA --- */
+.medallero-filters-container {
+    display: flex;
+    justify-content: flex-end; /* Empuja el filtro a la derecha */
+    width: 100%;
+    margin-bottom: 20px;
+    padding: 0 5px;
+}
+
+.medallero-filters {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(20, 20, 20, 0.5);
+    padding: 8px 15px;
+    border-radius: 8px;
+    border: 1px solid #333;
+    width: fit-content;
+}
+
+.filter-icon {
+    color: #00f2fe;
+    font-size: 1.1rem;
+}
+
+.ultra-select {
+    background: transparent;
+    color: #e5e7eb;
+    border: none;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    outline: none;
+    font-family: inherit;
+}
+
+.ultra-select option {
+    background-color: #111;
+    color: #fff;
+    padding: 10px;
+}
+
+.ultra-select:focus {
+    color: #00f2fe;
+}
+
+/* En celulares hacemos que ocupe todo el ancho o se acomode bien */
+@media (max-width: 768px) {
+    .medallero-filters-container {
+        justify-content: flex-end;
+    }
+    .medallero-filters {
+        width: 100%;
+        justify-content: center; /* Centrado en celu queda más cómodo para el dedo */
+    }
+}
+
 @keyframes floatingIcon {
 
     0%,
