@@ -670,3 +670,121 @@
         gap: 18px;
     }
 }
+
+
+
+/* =========================================
+   📱 OPTIMIZACIÓN MOBILE (TEXTOS CENTRADOS E ÍCONOS A LA IZQUIERDA)
+   ========================================= */
+@media (max-width: 768px) {
+    .race-card {
+        display: flex;
+        flex-direction: row;
+        align-items: center; 
+        padding: 12px;
+        gap: 15px; 
+        min-height: 110px;
+        position: relative; /* Necesario para los íconos absolutos */
+    }
+
+    .race-card-image,
+    .race-card-fallback-fachero {
+        width: 90px; /* Un poquito más grande para alojar los íconos */
+        height: 90px; 
+        flex-shrink: 0; 
+        border-radius: 12px;
+        position: relative;
+    }
+
+    .fallback-glow-icon {
+        font-size: 1.8rem; 
+    }
+
+    .distance-badge {
+        font-size: 0.65rem;
+        padding: 2px 6px;
+        bottom: 4px;
+        right: 4px;
+        border-radius: 4px;
+    }
+
+    /* --- MAGIA ACÁ: Todo el bloque derecho centrado --- */
+    .race-card-content {
+        flex: 1; 
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center; /* Centra el título y todo el bloque */
+        text-align: center;  /* Centra el texto en sí */
+        min-width: 0; 
+    }
+
+    .race-title {
+        font-size: 1.1rem;
+        margin-bottom: 4px;
+        white-space: normal; /* Dejamos que ocupe dos líneas si es muy largo, ya que está centrado */
+    }
+
+    .race-metadata {
+        font-size: 0.7rem;
+        margin-bottom: 8px;
+        justify-content: center; /* Centra la fecha y el lugar */
+        flex-direction: row; 
+        flex-wrap: wrap; 
+        gap: 8px;
+    }
+
+    .race-stats-row {
+        gap: 4px;
+        justify-content: center; /* Centra las cajitas de estadísticas */
+        width: 100%;
+    }
+
+    .race-stat-box {
+        padding: 6px 4px;
+        border-radius: 6px;
+        flex: 1; /* Hace que las 3 cajitas tengan el mismo ancho */
+        max-width: 70px; /* Para que no se estiren de más */
+    }
+
+    .stat-label {
+        font-size: 0.55rem;
+        margin-bottom: 2px;
+    }
+
+    .stat-value {
+        font-size: 0.75rem;
+    }
+
+    .race-comment {
+        display: none;
+    }
+
+    /* --- MAGIA DE LOS ÍCONOS: Arriba de la foto, a la izquierda --- */
+    .race-card-actions {
+        top: 6px;
+        left: 6px; /* Los pasamos de la derecha a la izquierda */
+        right: auto;
+        gap: 4px;
+        background: rgba(15, 15, 15, 0.75); /* Fonsito oscuro para que no se pierdan en la foto */
+        padding: 4px;
+        border-radius: 8px;
+        backdrop-filter: blur(2px); /* Efecto vidrio re fachero */
+        z-index: 30; /* Nos aseguramos que queden por encima de cualquier cinta */
+    }
+
+    .action-btn, .action-btn-race {
+        width: 22px;
+        height: 22px;
+        font-size: 0.65rem;
+        background: transparent; /* Le sacamos el fondo al botón porque ya tiene el contenedor */
+    }
+
+   /* 1. Posicionamos el contenedor arriba a la derecha */
+    .corner-ribbon-wrapper {
+  display: none;
+    }
+
+   
+}
