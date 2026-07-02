@@ -33,14 +33,6 @@ const planSchema = new mongoose.Schema(
       ref: "User",
       required: true
     },
-
-    // --- NUEVO: REFERENCIA AL MESOCICLO ---
-    mesociclo: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Mesociclo",
-      default: null // Si es null, es una semana individual/suelta
-    },
-    // --------------------------------------
     macrociclo: { type: mongoose.Schema.Types.ObjectId, ref: "Macrociclo", default: null },
     mesociclo: { type: mongoose.Schema.Types.ObjectId, ref: "Mesociclo", default: null },
     numeroSemana: { type: Number, default: 1 }, // Ej: Semana 1, Semana 2...

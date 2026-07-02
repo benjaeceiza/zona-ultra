@@ -467,17 +467,15 @@ export const deleteMicrociclo = async (req, res) => {
 };
 
 
-// 🔥 NUEVO: Obtener historial paginado
+//  Obtener historial paginado
 export const getHistorialUsuario = async (req, res) => {
   try {
     const { idUsuario } = req.params;
     
-    // Paginación: Si no mandan página, es la 1. Límite de 5 semanas por página.
     const page = parseInt(req.query.page) || 1;
     const limit = parseInt(req.query.limit) || 5; 
     const skip = (page - 1) * limit;
 
-    // Buscamos solo los planes/semanas que ya están terminados
     const query = { usuario: idUsuario, estado: 'finalizado' };
 
     const totalPlanes = await planModelo.countDocuments(query);
@@ -485,7 +483,11 @@ export const getHistorialUsuario = async (req, res) => {
     const planes = await planModelo.find(query)
       .populate('macrociclo', 'titulo')
       .populate('mesociclo', 'titulo')
-      .sort({ updatedAt: -1 }) // Los últimos que terminó aparecen primero
+      // ❌ ANTES: .sort({ updatedAt: -1 })
+      // ✅ AHORA: Ordenamos por _id. 
+      // Si usás -1 te trae lo último creado arriba de todo (ideal para historial).
+      // Si preferís orden cronológico natural (Micro 1, 2, 3, 4), poné 1.
+      .sort({ _id: -1 }) 
       .skip(skip)
       .limit(limit);
 
