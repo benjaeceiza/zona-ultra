@@ -6,7 +6,7 @@ import { updateUser } from '../../../services/updateUser';
 import { uploadImageToCloudinary } from '../../../services/cloudinaryService';
 import { IoIosArrowBack } from 'react-icons/io';
 import { FiUser, FiActivity, FiLock, FiSave, FiMail, FiPhone, FiCalendar, FiShield, FiCamera, FiTrash2, FiEye, FiEyeOff } from 'react-icons/fi';
-import { FaUserCircle, FaRunning } from 'react-icons/fa';
+import { FaUserCircle, FaRunning, FaSignOutAlt } from 'react-icons/fa'; 
 import Cropper from 'react-easy-crop';
 import './ProfilePage.css';
 
@@ -211,6 +211,14 @@ const ProfilePage = () => {
     };
 
     if (loading) return <div className="profile-loading">Cargando perfil de atleta...</div>;
+    
+    
+    const handleLogout = () => {
+        if (window.confirm("¿Estás seguro que querés cerrar sesión, atleta? 🏃‍♂️")) {
+            localStorage.clear();
+            navigate('/login');
+        }
+    };
 
     return (
         <main className="profile-container">
@@ -271,6 +279,11 @@ const ProfilePage = () => {
                             <small>FC MÁX</small>
                             <span className="text-teal">{formData.fcMax ? `${formData.fcMax} bpm` : '-'}</span>
                         </div>
+                    </div>
+                    <div className="profile-logout-wrapper">
+                        <button type="button" className="btn-logout-profile" onClick={handleLogout}>
+                            <FaSignOutAlt /> Cerrar Sesión
+                        </button>
                     </div>
                 </aside>
 

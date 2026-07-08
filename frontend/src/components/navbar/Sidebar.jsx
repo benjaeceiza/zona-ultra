@@ -1,16 +1,14 @@
 import { useState } from "react";
 import { NavLink, Link } from "react-router-dom";
-import { FaUserCircle, FaSignOutAlt } from "react-icons/fa";
+import { FaUserCircle } from "react-icons/fa";
 import logo from "../../assets/logo-zona-ultra.png"; 
 
-const Sidebar = ({ token, currentUser, onLogout }) => {
-    // Estado para controlar si la foto ya terminó de cargar de Cloudinary
+const Sidebar = ({ token, currentUser }) => {
     const [imageLoaded, setImageLoaded] = useState(false);
 
     return (
         <aside className="fixed-sidebar-desktop">
-            
-            {/* --- ARRIBA: LOGO DE LA APP --- */}
+            {/* --- ARRIBA: LOGO --- */}
             <div className="sidebar-brand">
                 <img 
                     src={logo} 
@@ -31,7 +29,7 @@ const Sidebar = ({ token, currentUser, onLogout }) => {
                     </>
                 )}
 
-                {/* Sección exclusiva para el Administrador */}
+                {/* Sección exclusiva Admin */}
                 {currentUser?.rol === "admin" && (
                     <div className="sidebar-admin-section">
                         <span className="sidebar-section-title">ADMINISTRACIÓN</span>
@@ -46,19 +44,14 @@ const Sidebar = ({ token, currentUser, onLogout }) => {
                 )}
             </nav>
 
-            {/* --- ABAJO: ACCIONES DE USUARIO Y LOGOUT --- */}
+            {/* --- ABAJO: PERFIL DIRECTO (SIN LOGOUT) --- */}
             {token && currentUser ? (
                 <div className="sidebar-footer-user">
-                    
-                    {/* 🔥 ENLACE DIRECTO AL PERFIL (REEMPLAZA AL LÁPIZ) */}
                     <Link to="/perfil" className="sidebar-user-section-link">
                         <div className="sidebar-user-avatar">
                             {currentUser.avatar ? (
                                 <>
-                                    {/* ☠️ Skeleton Loader mientras carga la imagen */}
                                     {!imageLoaded && <div className="avatar-skeleton"></div>}
-                                    
-                                    {/* 📸 Foto Real */}
                                     <img 
                                         src={currentUser.avatar} 
                                         alt="Perfil" 
@@ -79,12 +72,6 @@ const Sidebar = ({ token, currentUser, onLogout }) => {
                             </span>
                         </div>
                     </Link>
-
-                    <div className="sidebar-logout-wrapper">
-                        <button className="sidebar-link logout-link-btn" onClick={onLogout}>
-                            <FaSignOutAlt style={{ marginRight: '8px' }} /> Cerrar sesión
-                        </button>
-                    </div>
                 </div>
             ) : (
                 <div className="sidebar-footer-user" style={{ textAlign: 'center', padding: '15px' }}>

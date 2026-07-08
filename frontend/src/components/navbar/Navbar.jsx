@@ -1,23 +1,18 @@
 import { useState, useEffect } from "react";
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import Sidebar from "./Sidebar";
 
-// Iconos
 import { 
-    FaUserCircle, FaRunning, FaHome, FaSignOutAlt, FaUserPlus, 
+    FaUserCircle, FaRunning, FaHome, FaUserPlus, 
     FaClipboardList, FaUsers, FaSignInAlt, FaHistory, FaEllipsisV, FaMedal
 } from "react-icons/fa";
 
 import { getUserLogued } from "../../services/getUserLogued"; 
 
 const Navbar = () => {
-    const navigate = useNavigate();
-    
-    // Estados
     const [currentUser, setCurrentUser] = useState(null);
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false); 
-
     const token = localStorage.getItem("token");
 
     useEffect(() => {
@@ -39,68 +34,31 @@ const Navbar = () => {
     const refreshUserData = async () => {
         if (!token) return;
         const freshUser = await getUserLogued(token);
-        if (freshUser) {
-            setCurrentUser(freshUser); 
-        }
-    };
-
-    const handleLogout = () => {
-        localStorage.clear();
-        setIsMobileMenuOpen(false);
-        navigate("/login");
+        if (freshUser) setCurrentUser(freshUser); 
     };
 
     return (
         <>
             {/* --- VISTA DESKTOP (> 1024px) --- */}
-            <Sidebar 
-                token={token}
-                currentUser={currentUser}
-                onLogout={handleLogout}
-            />
+            <Sidebar token={token} currentUser={currentUser} />
 
-            {/* --- VISTA MOBILE (<= 1024px) --- */}
-            {token && currentUser && isMobileMenuOpen && (
+            {/* --- MENÚ FLOTANTE MÓVIL (EXCLUSIVO ADMIN: SIN LOGOUT NI "MI CUENTA") --- */}
+            {token && currentUser && currentUser.rol === "admin" && isMobileMenuOpen && (
                 <div className="admin-mobile-menu-overlay" onClick={() => setIsMobileMenuOpen(false)}>
                     <div className="admin-mobile-menu" onClick={(e) => e.stopPropagation()}>
-                        
-                        {/* 🔥 RUTA ACTUALIZADA A /PERFIL EN MÓVIL */}
-                        <NavLink 
-                            className="admin-menu-item" 
-                            to="/perfil" 
-                            onClick={() => setIsMobileMenuOpen(false)}
-                        >
-                            <FaUserCircle className="admin-menu-icon" />
-                            <span>Mi Cuenta</span>
+                        <div className="admin-menu-header">Gestión Admin ⚡</div>
+                        <NavLink className="admin-menu-item" to="/register" onClick={() => setIsMobileMenuOpen(false)}>
+                            <FaUserPlus className="admin-menu-icon" />
+                            <span>Alta Usuario</span>
                         </NavLink>
-
-                        {currentUser.rol === "admin" && (
-                            <>
-                                <div style={{ borderTop: "1px solid #333", margin: "5px 0" }}></div>
-                                <NavLink className="admin-menu-item" to="/register" onClick={() => setIsMobileMenuOpen(false)}>
-                                    <FaUserPlus className="admin-menu-icon" />
-                                    <span>Alta Usuario</span>
-                                </NavLink>
-                                <NavLink className="admin-menu-item" to="/crear-plan" onClick={() => setIsMobileMenuOpen(false)}>
-                                    <FaClipboardList className="admin-menu-icon" />
-                                    <span>Crear Plan</span>
-                                </NavLink>
-                                <NavLink className="admin-menu-item" to="/usuarios" onClick={() => setIsMobileMenuOpen(false)}>
-                                    <FaUsers className="admin-menu-icon" />
-                                    <span>Lista Usuarios</span>
-                                </NavLink>
-                            </>
-                        )}
-
-                        <div style={{ borderTop: "1px solid #333", margin: "5px 0" }}></div>
-                        <div 
-                            className="admin-menu-item" 
-                            onClick={handleLogout}
-                            style={{ cursor: "pointer", color: "#ff4d4d" }}
-                        >
-                            <FaSignOutAlt className="admin-menu-icon" />
-                            <span>Cerrar sesión</span>
-                        </div>
+                        <NavLink className="admin-menu-item" to="/crear-plan" onClick={() => setIsMobileMenuOpen(false)}>
+                            <FaClipboardList className="admin-menu-icon" />
+                            <span>Crear Plan</span>
+                        </NavLink>
+                        <NavLink className="admin-menu-item" to="/usuarios" onClick={() => setIsMobileMenuOpen(false)}>
+                            <FaUsers className="admin-menu-icon" />
+                            <span>Lista Usuarios</span>
+                        </NavLink>
                     </div>
                 </div>
             )}
@@ -129,14 +87,31 @@ const Navbar = () => {
                             <span>Medallero</span>
                         </NavLink>
 
-                        <button 
-                            type="button"
-                            className={`tabbar-item ${isMobileMenuOpen ? 'active' : ''}`}
-                            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-                        >
-                            <FaEllipsisV className="tabbar-icon" />
-                            <span>Más</span>
-                        </button>
+                        {/* 🔥 3 PUNTITOS: SOLO SE MUESTRAN SI EL USUARIO ES ADMIN */}
+                        {currentUser.rol === "admin" && (
+                            <button 
+                                type="button"
+                                className={`tabbar-item ${isMobileMenuOpen ? 'active' : ''}`}
+                                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+                            >
+                                <FaEllipsisV className="tabbar-icon" />
+                                <span>Admin</span>
+                            </button>
+                        )}
+
+                        {/* 🔥 FOTO DE PERFIL EN EL TABBAR (PARA TODOS) */}
+                        <NavLink className="tabbar-item" to="/perfil">
+                            <div className="tabbar-user-avatar">
+                                {currentUser.avatar ? (
+                                    <img src={currentUser.avatar} alt="Perfil" />
+                                ) : (
+                                    <FaUserCircle className="tabbar-icon" style={{ marginBottom: 0 }} />
+                                )}
+                            </div>
+                            <span>Perfil</span>
+                        </NavLink>
+
+                        
                     </>
                 ) : (
                     <NavLink className="tabbar-item" to="/login" style={{ width: "100%" }}>

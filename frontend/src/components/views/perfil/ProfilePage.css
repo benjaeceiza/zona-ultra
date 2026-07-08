@@ -577,6 +577,43 @@
     color: #00D2BE;
 }
 
+
+/* ==========================================================================
+   🚪 BOTÓN CERRAR SESIÓN EN PROFILE PAGE
+   ========================================================================== */
+.profile-logout-wrapper {
+    margin-top: 25px;
+    width: 100%;
+    border-top: 1px solid #222;
+    padding-top: 20px;
+}
+
+.btn-logout-profile {
+    width: 100%;
+    background: rgba(255, 69, 0, 0.1); /* Naranja/Rojo transparente */
+    color: #FF4500;
+    border: 1px solid rgba(255, 69, 0, 0.3);
+    padding: 12px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    transition: all 0.2s ease;
+}
+
+.btn-logout-profile:hover {
+    background: #FF4500;
+    color: #fff;
+    box-shadow: 0 5px 15px rgba(255, 69, 0, 0.4);
+    transform: translateY(-2px);
+}
+
 @keyframes fadeInTab {
     from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: translateY(0); }

@@ -395,12 +395,53 @@ html, body, #root {
 }
 
 .tabbar-item.active .tabbar-icon {
-  transform: translateY(-2px);
+
   filter: drop-shadow(0px 0px 4px rgba(0, 210, 190, 0.4));
 }
 
 .logout-btn {
   color: #FF4500;
+}
+
+
+/* ==========================================================================
+   📱 FOTO DE PERFIL EN EL TABBAR MÓVIL
+   ========================================================================== */
+.tabbar-user-avatar {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 4px;
+    border: 1.5px solid #666;
+    transition: all 0.2s ease;
+}
+
+.tabbar-item.active .tabbar-user-avatar {
+    border-color: #00D2BE; /* Se ilumina en Teal cuando estás en el perfil */
+    box-shadow: 0 0 6px rgba(0, 210, 190, 0.6);
+    transform: translateY(-2px);
+}
+
+.tabbar-user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* Título para el menú de admin en el celu */
+.admin-menu-header {
+    padding: 8px 20px;
+    font-size: 0.75rem;
+    color: #888;
+    text-transform: uppercase;
+    font-weight: 800;
+    letter-spacing: 1px;
+    border-bottom: 1px solid #333;
+    margin-bottom: 5px;
 }
 
 /* =========================================
