@@ -690,13 +690,17 @@
 
     .race-card-image,
     .race-card-fallback-fachero {
-        width: 90px; /* Un poquito más grande para alojar los íconos */
-        height: 90px; 
-        flex-shrink: 0; 
+        width: 90px;
+        height: 90px;
+        flex-shrink: 0;
         border-radius: 12px;
         position: relative;
-        margin-top:20px
+        margin-top: 20px;
         
+        /* 🔥 ASEGURAMOS EL ENCUADRE INTELIGENTE EN CELULAR: */
+        background-size: cover !important;
+        background-position: center center !important;
+        background-repeat: no-repeat;
     }
 
     .fallback-glow-icon {

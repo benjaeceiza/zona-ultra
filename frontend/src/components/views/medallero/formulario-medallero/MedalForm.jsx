@@ -1,10 +1,57 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { FaArrowLeft, FaTrophy, FaCalendarAlt, FaMapMarkerAlt, FaStopwatch, FaRoute, FaAward, FaComment, FaImage, FaTimes, FaExclamationTriangle, FaSpinner } from 'react-icons/fa';
+import { 
+    FaArrowLeft, FaTrophy, FaCalendarAlt, FaMapMarkerAlt, 
+    FaStopwatch, FaRoute, FaAward, FaComment, FaImage, 
+    FaTimes, FaExclamationTriangle, FaSpinner 
+} from 'react-icons/fa';
 import { addRaceToMedallero, updateRaceInMedallero } from '../../../../services/raceService.js';
 import { uploadImageToCloudinary } from '../../../../services/cloudinaryService.js';
+import Cropper from 'react-easy-crop';
 import './MedalForm.css';
 
+// ============================================================================
+// 🛠️ UTILIDAD: Canvas HTML5 para generar la imagen recortada
+// ============================================================================
+const createImage = (url) =>
+    new Promise((resolve, reject) => {
+        const image = new Image();
+        image.addEventListener('load', () => resolve(image));
+        image.addEventListener('error', (error) => reject(error));
+        image.setAttribute('crossOrigin', 'anonymous');
+        image.src = url;
+    });
+
+async function getCroppedImg(imageSrc, pixelCrop) {
+    const image = await createImage(imageSrc);
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+
+    canvas.width = pixelCrop.width;
+    canvas.height = pixelCrop.height;
+
+    ctx.drawImage(
+        image,
+        pixelCrop.x,
+        pixelCrop.y,
+        pixelCrop.width,
+        pixelCrop.height,
+        0,
+        0,
+        pixelCrop.width,
+        pixelCrop.height
+    );
+
+    return new Promise((resolve) => {
+        canvas.toBlob((blob) => {
+            resolve(blob);
+        }, 'image/jpeg');
+    });
+}
+
+// ============================================================================
+// 🏃‍♂️ COMPONENTE PRINCIPAL
+// ============================================================================
 const MedalForm = () => {
     const navigate = useNavigate();
     const location = useLocation();
@@ -31,7 +78,14 @@ const MedalForm = () => {
     const [fotos, setFotos] = useState([]); 
     const [errores, setErrores] = useState([]);
 
-    // Precarga de datos
+    // 🔥 ESTADOS PARA EL CROPPER (RECORTE)
+    const [imageSrc, setImageSrc] = useState(null);
+    const [crop, setCrop] = useState({ x: 0, y: 0 });
+    const [zoom, setZoom] = useState(1);
+    const [croppedAreaPixels, setCroppedAreaPixels] = useState(null);
+    const [isCropping, setIsCropping] = useState(false);
+
+    // Precarga de datos al editar
     useEffect(() => {
         if (isEditing && raceAEditar) {
             setNombreCarrera(raceAEditar.nombreCarrera || '');
@@ -43,7 +97,6 @@ const MedalForm = () => {
             setPosicionGeneral(raceAEditar.posicionGeneral || '');
             setPosicionCategoria(raceAEditar.posicionCategoria || '');
             
-            // Cargamos las fotos existentes (isNew: false)
             if (raceAEditar.fotos) {
                 setFotos(raceAEditar.fotos.map(url => ({ url, file: null, isNew: false })));
             }
@@ -57,20 +110,53 @@ const MedalForm = () => {
         }
     }, [isEditing, raceAEditar]);
 
+    // ============================================================================
+    // 📸 LÓGICA DEL CROPPER (RECORTE DE IMAGEN EN 4:3)
+    // ============================================================================
     const handleFileChange = (e) => {
-        const files = Array.from(e.target.files);
-        const nuevasFotos = files.map(file => ({
-            url: URL.createObjectURL(file), // Preview local
-            file: file,                     // Archivo real para subir
-            isNew: true                     // Marcador para subir a Cloudinary
-        }));
-        setFotos(prev => [...prev, ...nuevasFotos]);
+        if (e.target.files && e.target.files.length > 0) {
+            const file = e.target.files[0];
+            const reader = new FileReader();
+            reader.addEventListener('load', () => {
+                setImageSrc(reader.result);
+                setIsCropping(true); // 🔥 Abrimos el modal de recorte
+            });
+            reader.readAsDataURL(file);
+            e.target.value = null; // Reseteamos el input para permitir elegir la misma foto si cancela
+        }
+    };
+
+    const onCropComplete = useCallback((croppedArea, croppedAreaPixels) => {
+        setCroppedAreaPixels(croppedAreaPixels);
+    }, []);
+
+    const handleSaveCrop = async () => {
+        try {
+            const croppedImageBlob = await getCroppedImg(imageSrc, croppedAreaPixels);
+            const imageFile = new File([croppedImageBlob], `race_photo_${Date.now()}.jpg`, { type: "image/jpeg" });
+            
+            const nuevaFoto = {
+                url: URL.createObjectURL(imageFile), // Preview local temporal
+                file: imageFile,                     // Archivo real para subir
+                isNew: true                          // Marcador para subir a Cloudinary
+            };
+            
+            setFotos(prev => [...prev, nuevaFoto]);
+            setIsCropping(false);
+            setImageSrc(null);
+        } catch (e) {
+            console.error(e);
+            alert("Error al procesar el recorte de la imagen.");
+        }
     };
 
     const handleRemoveFoto = (indexToRemove) => {
         setFotos(prev => prev.filter((_, idx) => idx !== indexToRemove));
     };
 
+    // ============================================================================
+    // 💾 ENVÍO AL BACKEND Y CLOUDINARY
+    // ============================================================================
     const handleSubmit = async (e) => {
         e.preventDefault();
         setErrores([]);
@@ -93,7 +179,7 @@ const MedalForm = () => {
             return;
         }
 
-        // 2. Procesamiento de imágenes (Cloudinary)
+        // 2. Procesamiento de imágenes (Subida a Cloudinary solo de las nuevas)
         const urlsFinales = [];
         for (const foto of fotos) {
             if (foto.isNew && foto.file) {
@@ -225,8 +311,9 @@ const MedalForm = () => {
                         <div className="ultra-input-group">
                             <label><FaImage /> Foto del Recuerdo</label>
                             <div className="file-upload-wrapper">
-                                <input type="file" multiple accept="image/*" onChange={handleFileChange} id="race-photos" disabled={isSubmitting} />
-                                <label htmlFor="race-photos" className="file-upload-btn">📸 Seleccionar imagen</label>
+                                {/* 🔥 SACAMOS EL MULTIPLE PARA RECORTE VIP DE A UNA FOTO */}
+                                <input type="file" accept="image/*" onChange={handleFileChange} id="race-photos" disabled={isSubmitting} />
+                                <label htmlFor="race-photos" className="file-upload-btn">📸 Seleccionar imagen y recortar</label>
                             </div>
                             {fotos.length > 0 && (
                                 <div className="form-photos-preview">
@@ -255,6 +342,36 @@ const MedalForm = () => {
                     </form>
                 </article>
             </main>
+
+            {/* ✂️ MODAL FLOTANTE DE RECORTE HORIZONTAL PARA CARRERAS (4:3) */}
+            {isCropping && (
+                <div className="cropper-overlay">
+                    <div className="cropper-modal">
+                        <h3>Encuadrá tu Foto de Carrera 🏁</h3>
+                        <p style={{ color: '#aaa', fontSize: '0.8rem', textAlign: 'center', margin: '0 0 10px 0' }}>
+                            Asegurate de dejar lo más importante (tu cara o la medalla) bien en el centro.
+                        </p>
+                        <div className="cropper-container">
+                            <Cropper
+                                image={imageSrc}
+                                crop={crop}
+                                zoom={zoom}
+                                aspect={4 / 3} /* 🔥 4:3 ES EL BALANCE PERFECCIÓN PARA PC Y MÓVIL */
+                                onCropChange={setCrop}
+                                onCropComplete={onCropComplete}
+                                onZoomChange={setZoom}
+                            />
+                        </div>
+                        <div className="cropper-controls">
+                            <input type="range" value={zoom} min={1} max={3} step={0.1} onChange={(e) => setZoom(e.target.value)} className="zoom-slider" />
+                        </div>
+                        <div className="cropper-actions">
+                            <button type="button" className="btn-cancel-crop" onClick={() => { setIsCropping(false); setImageSrc(null); }}>Cancelar</button>
+                            <button type="button" className="btn-save-crop" onClick={handleSaveCrop}>Listo para subir 📸</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };

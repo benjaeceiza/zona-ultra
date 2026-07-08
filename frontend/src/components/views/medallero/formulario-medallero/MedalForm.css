@@ -346,6 +346,28 @@
     border-bottom: 2px solid #00f2fe;
 }
 
+.cropper-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.85);
+    backdrop-filter: blur(8px);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: fadeInTab 0.3s ease;
+}
+
+.cropper-modal {
+    background: #1e1e1e;
+    width: 90%;
+    max-width: 450px;
+    border-radius: 16px;
+    border: 1px solid #333;
+    padding: 20px;
+    box-shadow: 0 25px 50px rgba(0,0,0,0.6);
+}
+
 /* --- RESPONSIVE MOBILE --- */
 @media (max-width: 768px) {
     .medal-form-wrapper {
