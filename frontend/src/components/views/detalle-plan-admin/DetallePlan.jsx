@@ -3,46 +3,31 @@ import { getUserWithPlan } from '../../../services/getUserPlan';
 import { useEffect, useState } from 'react';
 import TrainingCard from './TrainingCard';
 import { IoIosArrowBack } from 'react-icons/io';
+import { FiEdit, FiTrash2 } from 'react-icons/fi';
+import './DetallePlan.css';
 
-// 🔥 Diccionario para mostrar el Enfoque
 const TIPO_MICRO_LABELS = {
-    "carga": "🟠 Carga",
-    "descarga": "🟢 Descarga",
-    "ajuste": "🔵 Ajuste",
-    "tapering": "🟣 Tapering",
-    "competicion": "🏆 Competición",
-    "mantenimiento": "🟡 Mantenimiento"
+    "carga": "🟠 Carga", "descarga": "🟢 Descarga", "ajuste": "🔵 Ajuste",
+    "tapering": "🟣 Tapering", "competicion": "🏆 Competición", "mantenimiento": "🟡 Mantenimiento"
 };
 
-// 🔥 FUNCIÓN ESTRICTA DEFINITIVA (Sincronizada con el perfil del usuario)
+// 🔥 FUNCIÓN ESTRICTA DE PORCENTAJE
 const calcularPorcentajeReal = (entrenamientos) => {
     if (!entrenamientos || entrenamientos.length === 0) return 0;
-
-    const diasExigidos = entrenamientos.filter(e =>
-        e.titulo && e.titulo.trim().toLowerCase() !== "descanso"
-    );
-
+    const diasExigidos = entrenamientos.filter(e => e?.titulo && e.titulo.trim().toLowerCase() !== "descanso");
     if (diasExigidos.length === 0) return 0;
 
     const diasCumplidos = diasExigidos.filter(e => {
-        if (!e.completado) return false;
-
+        if (!e?.completado) return false;
         const estado = String(e.estado || "").toLowerCase().trim();
-        if (estado === "no logrado" || estado === "no_logrado" || estado === "incompleto" || e.logrado === false) {
-            return false;
-        }
-
+        if (estado === "no logrado" || estado === "no_logrado" || estado === "incompleto" || e.logrado === false) return false;
         if (e.feedback) {
             const fbEstado = String(e.feedback.estado || "").toLowerCase().trim();
             const comentario = String(e.feedback.comentario || "").toUpperCase();
-
-            if (fbEstado === "no logrado" || e.feedback.noLogrado || comentario.includes('[NO LOGRADO]')) {
-                return false;
-            }
+            if (fbEstado === "no logrado" || e.feedback.noLogrado || comentario.includes('[NO LOGRADO]')) return false;
         }
         return true;
     });
-
     return Math.round((diasCumplidos.length / diasExigidos.length) * 100);
 };
 
@@ -55,7 +40,6 @@ const DetallePlan = () => {
     const [planes, setPlanes] = useState([]);
     const [selectedPlanIndex, setSelectedPlanIndex] = useState(0);
     const [loading, setLoading] = useState(true);
-
     const [gruposDePlanes, setGruposDePlanes] = useState([]);
     const [selectedGroupIndex, setSelectedGroupIndex] = useState(0);
 
@@ -65,34 +49,23 @@ const DetallePlan = () => {
                 const data = await getUserWithPlan(id);
                 if (data.user) {
                     setUsuario(data.user);
-
                     if (data.user.planes && data.user.planes.length > 0) {
                         const todosLosPlanes = data.user.planes.filter(p => p && p._id);
-
-                        const macrociclosVivosIds = todosLosPlanes
-                            .filter(p => p.macrociclo && p.estado !== 'finalizado')
-                            .map(p => (p.macrociclo._id || p.macrociclo).toString());
-
+                        const macrociclosVivosIds = todosLosPlanes.filter(p => p.macrociclo && p.estado !== 'finalizado').map(p => (p.macrociclo._id || p.macrociclo).toString());
                         const planesValidos = todosLosPlanes.filter(p => {
                             if (p.macrociclo) {
-                                const macroId = (p.macrociclo._id || p.macrociclo).toString();
-                                return macrociclosVivosIds.includes(macroId);
+                                return macrociclosVivosIds.includes((p.macrociclo._id || p.macrociclo).toString());
                             } else {
                                 return p.estado !== 'finalizado';
                             }
                         });
-
-                        const planesOrdenados = planesValidos.sort((a, b) =>
-                            a._id.toString().localeCompare(b._id.toString())
-                        );
-
+                        const planesOrdenados = planesValidos.sort((a, b) => a._id.toString().localeCompare(b._id.toString()));
                         setPlanes(planesOrdenados);
 
                         const grupos = [];
                         planesOrdenados.forEach(plan => {
                             const esSuelto = !plan.mesociclo;
                             const nombreGrupo = esSuelto ? "Semanales Sueltos" : `📁 ${plan.mesociclo?.titulo || 'Mesociclo'}`;
-
                             let grupoExistente = grupos.find(g => g.nombre === nombreGrupo);
                             if (!grupoExistente) {
                                 grupoExistente = { nombre: nombreGrupo, esSuelto: esSuelto, planes: [] };
@@ -100,33 +73,24 @@ const DetallePlan = () => {
                             }
                             grupoExistente.planes.push(plan);
                         });
-
                         grupos.sort((a, b) => {
                             if (a.esSuelto && !b.esSuelto) return -1;
                             if (!a.esSuelto && b.esSuelto) return 1;
                             return 0;
                         });
-
                         setGruposDePlanes(grupos);
 
                         if (planesOrdenados.length > 0) {
                             let activeIndex = planesOrdenados.findIndex(p => p.estado === 'activo');
-                            if (activeIndex === -1) {
-                                activeIndex = planesOrdenados.length - 1; 
-                            }
+                            if (activeIndex === -1) activeIndex = planesOrdenados.length - 1; 
                             setSelectedPlanIndex(activeIndex);
-
                             const activePlanId = planesOrdenados[activeIndex]._id;
                             const groupIdx = grupos.findIndex(g => g.planes.some(p => p._id === activePlanId));
                             setSelectedGroupIndex(groupIdx !== -1 ? groupIdx : 0);
                         }
                     }
                 }
-            } catch (error) {
-                console.error("Error cargando plan", error);
-            } finally {
-                setLoading(false);
-            }
+            } catch (error) { console.error("Error", error); } finally { setLoading(false); }
         };
         if (id) fetchData();
     }, [id]);
@@ -135,49 +99,26 @@ const DetallePlan = () => {
 
     const handleDeletePlan = async () => {
         if (!planDisplay) return;
-
-        const confirmDelete = window.confirm("¿Estás seguro que querés eliminar esta semana completa? Esta acción no se puede deshacer.");
-        if (!confirmDelete) return;
-
+        if (!window.confirm("¿Estás seguro que querés eliminar esta semana completa? Esta acción no se puede deshacer.")) return;
         try {
             const token = localStorage.getItem('token');
-            const res = await fetch(`${apiUrl}/api/plans/admin/${planDisplay._id}`, {
-                method: 'DELETE',
-                headers: { "Authorization": `Bearer ${token}` }
-            });
-
-            if (res.ok) {
-                alert("Eliminado correctamente.");
-                window.location.reload();
-            } else {
-                const errorData = await res.json();
-                alert("Error al eliminar: " + errorData.message);
-            }
-        } catch (error) {
-            console.error(error);
-            alert("Error de conexión al servidor.");
-        }
+            const res = await fetch(`${apiUrl}/api/plans/admin/${planDisplay._id}`, { method: 'DELETE', headers: { "Authorization": `Bearer ${token}` } });
+            if (res.ok) { alert("Eliminado."); window.location.reload(); } 
+            else { const errorData = await res.json(); alert("Error: " + errorData.message); }
+        } catch (error) { console.error(error); alert("Error de conexión."); }
     };
 
     const handleGroupChange = (e) => {
         const newGroupIdx = Number(e.target.value);
         setSelectedGroupIndex(newGroupIdx);
-
         const firstPlanOfGroup = gruposDePlanes[newGroupIdx].planes[0];
         const globalIdx = planes.findIndex(p => p._id === firstPlanOfGroup._id);
         setSelectedPlanIndex(globalIdx);
     };
 
-    // 🔥 USAMOS LA FUNCIÓN ESTRICTA PARA EL PORCENTAJE
     const porcentajeCumplimiento = planDisplay ? calcularPorcentajeReal(planDisplay.entrenamientos) : 0;
-    
-    // Solo para mostrar el texto "X/Y Sesiones" en la tarjeta
-    const totalSesiones = planDisplay?.entrenamientos?.filter(e => e.titulo && e.titulo.trim().toLowerCase() !== "descanso").length || 0;
-    const sesionesCompletadas = planDisplay?.entrenamientos?.filter(e => e.completado && e.titulo && e.titulo.trim().toLowerCase() !== "descanso").length || 0;
-
-    // 🔥 FIX DECIMALES SEMANALES
-    const kmPlanificados = Number((planDisplay?.entrenamientos?.reduce((acc, curr) => acc + (curr.km || 0), 0) || 0).toFixed(2));
-    const kmReales = Number((planDisplay?.entrenamientos?.reduce((acc, curr) => acc + (curr.feedback?.kmReal || 0), 0) || 0).toFixed(2));
+    const kmPlanificados = Number((planDisplay?.entrenamientos?.reduce((acc, curr) => acc + (curr?.km || 0), 0) || 0).toFixed(2));
+    const kmReales = Number((planDisplay?.entrenamientos?.reduce((acc, curr) => acc + (curr?.feedback?.kmReal || 0), 0) || 0).toFixed(2));
 
     const formatTime = (totalMinutos) => {
         if (!totalMinutos) return "0m";
@@ -188,7 +129,7 @@ const DetallePlan = () => {
         return `${m}m`;
     };
 
-    // 🔥 FIX DECIMALES MENSUALES (Acumulado)
+    // 🔥 CÁLCULO DE ACUMULADO DEL MESOCICLO
     const currentGroup = gruposDePlanes[selectedGroupIndex];
     let mensualKmPlanificados = 0;
     let mensualKmReales = 0;
@@ -198,152 +139,85 @@ const DetallePlan = () => {
     if (currentGroup) {
         currentGroup.planes.forEach(p => {
             p.entrenamientos?.forEach(e => {
-                mensualKmPlanificados += (e.km || 0);
-                mensualKmReales += (e.feedback?.kmReal || 0);
-
-                const dur = Number(e.duracion) || 0;
-                mensualMinutosPlanificados += (e.unidad === 'horas' ? dur * 60 : dur);
-                mensualMinutosReales += (Number(e.feedback?.duracionReal) || 0);
+                mensualKmPlanificados += (e?.km || 0);
+                mensualKmReales += (e?.feedback?.kmReal || 0);
+                const dur = Number(e?.duracion) || 0;
+                mensualMinutosPlanificados += (e?.unidad === 'horas' ? dur * 60 : dur);
+                mensualMinutosReales += (Number(e?.feedback?.duracionReal) || 0);
             });
         });
-        
-        // Limpiamos los resultados finales del mes
         mensualKmPlanificados = Number(mensualKmPlanificados.toFixed(2));
         mensualKmReales = Number(mensualKmReales.toFixed(2));
     }
 
-    if (loading) return <div className="detail-loading">Cargando atleta...</div>;
+    if (loading) return <div className="dp-container"><h2 style={{color:'#888', textAlign:'center', marginTop:'50px'}}>Cargando Perfil...</h2></div>;
 
     return (
-        <div className="detail-container">
-
-            <header className="detail-header">
-                <button className="back-btn" onClick={() => navigate(-1)}>
+        <main className="dp-container">
+            <header className="dp-header">
+                <button className="dp-back-btn" onClick={() => navigate(-1)}>
                     <IoIosArrowBack /> Volver
                 </button>
-
-                <div className="user-info-block">
-                    <div>
-                        <span className="label-top">Monitor de Progreso</span>
-                        <h1 className="user-name">{usuario?.nombre} {usuario?.apellido}</h1>
-                    </div>
+                <div className="dp-title-group">
+                    <span className="dp-label-top">Monitor de Progreso</span>
+                    <h1>{usuario?.nombre} {usuario?.apellido}</h1>
                 </div>
             </header>
-            
-            {planDisplay?.macrociclo && (
-                <div style={{
-                    background: 'linear-gradient(90deg, #1a1a1a 0%, #111 100%)',
-                    padding: '15px 20px',
-                    borderRadius: '10px',
-                    border: '1px solid #333',
-                    borderLeft: '4px solid #f1c40f',
-                    marginBottom: '20px',
-                    boxShadow: '0 4px 15px rgba(0,0,0,0.3)'
-                }}>
-                    <h3 style={{ margin: 0, color: '#f1c40f', fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        🏆 {planDisplay.macrociclo.titulo || "Plan de Entrenamiento General"}
-                    </h3>
-                    {planDisplay.macrociclo.objetivo && (
-                        <p style={{ margin: '8px 0 0 0', color: '#ccc', fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                            🎯 <strong style={{ color: '#888' }}>Objetivo:</strong> {planDisplay.macrociclo.objetivo}
-                        </p>
-                    )}
-                </div>
-            )}
 
             {gruposDePlanes.length > 0 ? (
-                <div className="week-selector-container" style={{ display: 'flex', flexDirection: 'column', gap: '15px', background: 'rgba(255,255,255,0.02)', padding: '15px', borderRadius: '8px', border: '1px solid #222' }}>
-
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                        <label style={{ color: '#888', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px', fontWeight: 'bold' }}>
-                            Fase del Plan:
-                        </label>
-                        <select
-                            value={selectedGroupIndex}
-                            onChange={handleGroupChange}
-                            style={{
-                                background: '#111', color: '#00D2BE', border: '1px solid #333',
-                                padding: '12px 15px', borderRadius: '8px', fontSize: '1.1rem',
-                                fontWeight: 'bold', cursor: 'pointer', outline: 'none'
-                            }}
-                        >
+                <section className="dp-controls-wrapper">
+                    <div>
+                        <span className="dp-stat-label" style={{color:'#00D2BE', marginBottom:'10px', display:'block'}}>Fase del Plan</span>
+                        <select className="dp-select" value={selectedGroupIndex} onChange={handleGroupChange}>
                             {gruposDePlanes.map((grupo, idx) => (
-                                <option key={idx} value={idx}>
-                                    {grupo.nombre} ({grupo.planes.length} Semanas)
-                                </option>
+                                <option key={idx} value={idx}>{grupo.nombre} ({grupo.planes.length} Semanas)</option>
                             ))}
                         </select>
                     </div>
 
                     {gruposDePlanes[selectedGroupIndex] && (
-                        <div className="week-tabs" style={{ marginTop: '10px' }}>
+                        <div className="dp-week-tabs">
                             {gruposDePlanes[selectedGroupIndex].planes.map((plan, index) => {
                                 const globalIndex = planes.findIndex(p => p._id === plan._id);
-
-                                const nombreTab = gruposDePlanes[selectedGroupIndex].esSuelto
-                                    ? `Semanal ${index + 1}`
-                                    : `Micro ${plan.numeroSemana}`;
-
+                                const nombreTab = gruposDePlanes[selectedGroupIndex].esSuelto ? `Semanal ${index + 1}` : `Micro ${plan.numeroSemana}`;
                                 return (
-                                    <button
-                                        key={plan._id}
-                                        className={`week-tab ${selectedPlanIndex === globalIndex ? 'active' : ''} ${plan.estado}`}
-                                        onClick={() => setSelectedPlanIndex(globalIndex)}
-                                    >
-                                        <span className="week-num">{nombreTab}</span>
-                                        <span className={`status-dot ${plan.estado}`}></span>
+                                    <button key={plan._id} className={`dp-tab ${selectedPlanIndex === globalIndex ? 'active' : ''}`} onClick={() => setSelectedPlanIndex(globalIndex)}>
+                                        {nombreTab} <span style={{color: plan.estado==='activo' ? '#00D2BE' : (plan.estado==='pendiente' ? '#f1c40f' : '#666')}}>●</span>
                                     </button>
                                 );
                             })}
                         </div>
                     )}
-                </div>
+                </section>
             ) : (
-                <div className="no-plans-alert" style={{ marginTop: '20px', textAlign: 'center', color: '#888' }}>
-                    <p>No hay planes cargados para este usuario.</p>
-                    <Link to={`/crear-plan/${id}`} className="link-create" style={{ color: '#00D2BE', fontWeight: 'bold' }}>
-                        + Asignar / Editar Plan
-                    </Link>
+                <div style={{textAlign:'center', padding:'40px', background:'#1e1e1e', borderRadius:'16px', border:'1px dashed #333'}}>
+                    <p style={{color:'#888'}}>Este usuario aún no tiene planes activos.</p>
                 </div>
             )}
 
+            {/* 🔥 EL ACUMULADO DEL BLOQUE RESTAURADO */}
             {currentGroup && !currentGroup.esSuelto && (
-                <div style={{
-                    background: 'linear-gradient(135deg, rgba(0, 210, 190, 0.08) 0%, rgba(0, 0, 0, 0.2) 100%)',
-                    border: '1px solid rgba(0, 210, 190, 0.2)',
-                    borderRadius: '10px',
-                    padding: '15px 20px',
-                    marginTop: '20px',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                    flexWrap: 'wrap',
-                    gap: '15px'
-                }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <span style={{ fontSize: '2rem' }}>📊</span>
+                <div className="dp-block-acumulado">
+                    <div className="dp-ba-left">
+                        <span className="dp-ba-icon">📊</span>
                         <div>
-                            <h4 style={{ color: '#00D2BE', margin: '0 0 5px 0', fontSize: '0.9rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                                Acumulado del Bloque
-                            </h4>
-                            <p style={{ margin: 0, color: '#aaa', fontSize: '0.8rem' }}>
-                                {currentGroup.nombre}
-                            </p>
+                            <h4>Acumulado del Bloque</h4>
+                            <p>{currentGroup.nombre}</p>
                         </div>
                     </div>
 
-                    <div style={{ display: 'flex', gap: '30px', alignItems: 'center' }}>
-                        <div style={{ textAlign: 'right' }}>
-                            <span style={{ display: 'block', color: '#888', fontSize: '0.8rem', textTransform: 'uppercase' }}>Volumen (KM)</span>
-                            <span style={{ color: '#fff', fontSize: '1.4rem', fontWeight: 'bold' }}>
-                                {mensualKmReales} <small style={{ color: '#555', fontSize: '1rem' }}>/ {mensualKmPlanificados} km</small>
+                    <div className="dp-ba-right">
+                        <div className="dp-ba-stat">
+                            <small>Volumen (KM)</small>
+                            <span>
+                                {mensualKmReales} <small className="text-muted">/ {mensualKmPlanificados} km</small>
                             </span>
                         </div>
-                        <div style={{ width: '1px', height: '40px', background: 'rgba(255,255,255,0.1)' }}></div>
-                        <div style={{ textAlign: 'left' }}>
-                            <span style={{ display: 'block', color: '#888', fontSize: '0.8rem', textTransform: 'uppercase' }}>Tiempo Total</span>
-                            <span style={{ color: '#f1c40f', fontSize: '1.4rem', fontWeight: 'bold' }}>
-                                {formatTime(mensualMinutosReales)} <small style={{ color: '#555', fontSize: '1rem' }}>/ {formatTime(mensualMinutosPlanificados)}</small>
+                        <div className="dp-ba-divider"></div>
+                        <div className="dp-ba-stat">
+                            <small>Tiempo Total</small>
+                            <span className="text-yellow">
+                                {formatTime(mensualMinutosReales)} <small className="text-muted">/ {formatTime(mensualMinutosPlanificados)}</small>
                             </span>
                         </div>
                     </div>
@@ -352,113 +226,65 @@ const DetallePlan = () => {
 
             {planDisplay && (
                 <>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px', marginBottom: '15px' }}>
+                    {/* ACCIONES Y ENFOQUE */}
+                    <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'20px', flexWrap:'wrap', gap:'10px'}}>
                         <div>
                             {planDisplay.tipoMicrociclo && TIPO_MICRO_LABELS[planDisplay.tipoMicrociclo] && (
-                                <div style={{ background: '#1a1a1a', padding: '8px 15px', borderRadius: '20px', border: '1px solid #333', color: '#fff', fontSize: '0.9rem', fontWeight: 'bold' }}>
-                                    Enfoque: <span style={{ color: '#00D2BE' }}>{TIPO_MICRO_LABELS[planDisplay.tipoMicrociclo]}</span>
-                                </div>
+                                <span style={{background:'rgba(255,255,255,0.05)', padding:'8px 16px', borderRadius:'20px', fontSize:'0.85rem', fontWeight:'800', border:'1px solid #333'}}>
+                                    ENFOQUE: <span style={{color:'#00D2BE'}}>{TIPO_MICRO_LABELS[planDisplay.tipoMicrociclo]}</span>
+                                </span>
                             )}
                         </div>
-
-                        <div style={{ display: 'flex', gap: '10px' }}>
-                            <Link
-                                to={`/editar-plan/${planDisplay._id}`}
-                                className="plan-creator-btn-submit"
-                                style={{ width: 'auto', padding: '10px 20px', backgroundColor: '#029183', color: 'white', textDecoration: 'none', borderRadius: '5px', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '5px' }}
-                            >
-                                👁️ {planDisplay.mesociclo ? 'Ver / Editar Plan' : 'Ver / Editar Semana'}
+                        <div style={{display:'flex', gap:'10px'}}>
+                            <Link to={`/editar-plan/${planDisplay._id}`} className="dp-back-btn" style={{color:'#00D2BE', borderColor:'#00D2BE'}}>
+                                <FiEdit /> Editar Plan
                             </Link>
-
                             {!planDisplay.mesociclo && (
-                                <button
-                                    onClick={handleDeletePlan}
-                                    className="plan-creator-btn-submit"
-                                    style={{ width: 'auto', padding: '10px 20px', backgroundColor: '#ff4d4d', color: '#fff', border: 'none', borderRadius: '5px', cursor: 'pointer', fontWeight: 'bold' }}
-                                    title="Eliminar Semana Suelta"
-                                >
-                                    🗑️
+                                <button onClick={handleDeletePlan} className="dp-back-btn" style={{color:'#ff4d4d', borderColor:'#ff4d4d'}} title="Eliminar Semana">
+                                    <FiTrash2 />
                                 </button>
                             )}
                         </div>
                     </div>
 
-                    <section className="stats-dashboard">
-                        <div className="stat-widget">
-                            <span className="stat-title">Cumplimiento</span>
-                            <div className="stat-content">
-                                <span className={`stat-number ${porcentajeCumplimiento >= 80 ? 'good' : 'bad'}`}>
-                                    {porcentajeCumplimiento}%
-                                </span>
-                                <span className="stat-sub">{sesionesCompletadas}/{totalSesiones} Sesiones</span>
-                            </div>
+                    {/* STATS RÁPIDOS */}
+                    <section className="dp-stats-grid">
+                        <div className="dp-stat-card" style={{borderTopColor: porcentajeCumplimiento >= 80 ? '#00D2BE' : '#ff4d4d'}}>
+                            <span className="dp-stat-label">Cumplimiento</span>
+                            <span className="dp-stat-value" style={{color: porcentajeCumplimiento >= 80 ? '#00D2BE' : '#ff4d4d'}}>{porcentajeCumplimiento}%</span>
                         </div>
-
-                        <div className="stat-widget">
-                            <span className="stat-title">KM Planificados</span>
-                            <div className="stat-content">
-                                <span className="stat-number">{kmPlanificados} <small>km</small></span>
-                            </div>
+                        <div className="dp-stat-card" style={{borderTopColor:'#555'}}>
+                            <span className="dp-stat-label">KM Planificados</span>
+                            <span className="dp-stat-value">{kmPlanificados} <small>km</small></span>
                         </div>
-
-                        <div className="stat-widget highlight">
-                            <span className="stat-title">KM Reales</span>
-                            <div className="stat-content">
-                                <span className="stat-number">{kmReales} <small>km</small></span>
-                                {kmReales > 0 && (
-                                    <span className={`stat-delta ${kmReales >= kmPlanificados ? 'positive' : 'negative'}`}>
-                                        {kmReales >= kmPlanificados ? '🔥' : '▼'}
-                                    </span>
-                                )}
-                            </div>
+                        <div className="dp-stat-card" style={{borderTopColor:'#FF4500'}}>
+                            <span className="dp-stat-label">KM Reales</span>
+                            <span className="dp-stat-value" style={{color:'#FF4500'}}>{kmReales} <small>km</small></span>
                         </div>
-
-                        <div className="stat-widget" style={{ borderLeft: '4px solid #f1c40f', background: 'rgba(241, 196, 15, 0.05)', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
-                            <span className="stat-title" style={{ color: '#f1c40f' }}>Próximo Objetivo 🎯</span>
-                            <div className="stat-content" style={{ marginTop: '5px', display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                                {usuario?.nextRace?.name ? (
-                                    <>
-                                        <span className="stat-number" style={{ fontSize: '1.1rem', color: '#fff', lineHeight: '1.3', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', wordBreak: 'break-word' }}>
-                                            {usuario.nextRace.name}
-                                        </span>
-                                        <span className="stat-sub" style={{ fontSize: '0.85rem', color: '#aaa', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                            📅 {
-                                                usuario.nextRace.date
-                                                    ? new Date(usuario.nextRace.date.split('T')[0] + "T12:00:00").toLocaleDateString('es-AR', {
-                                                        day: '2-digit', month: '2-digit', year: 'numeric'
-                                                    })
-                                                    : "Fecha sin definir"
-                                            }
-                                        </span>
-                                    </>
-                                ) : (
-                                    <span className="stat-sub" style={{ fontStyle: 'italic', marginTop: '10px' }}>
-                                        Sin objetivo definido aún.
-                                    </span>
-                                )}
-                            </div>
+                        <div className="dp-stat-card" style={{borderTopColor:'#f1c40f'}}>
+                            <span className="dp-stat-label" style={{color:'#f1c40f'}}>Próximo Objetivo</span>
+                            <span className="dp-stat-value" style={{fontSize:'1.2rem', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}}>
+                                {usuario?.nextRace?.name || "Sin objetivo"}
+                            </span>
                         </div>
                     </section>
 
-                    <section className="cards-layout">
+                    {/* ACORDEÓN DE DÍAS CON SALVAVIDAS */}
+                    <section className="dp-cards-layout">
                         {planDisplay.entrenamientos?.length > 0 ? (
-                            planDisplay.entrenamientos.map((entrenamiento) => (
-                                <TrainingCard
-                                    key={entrenamiento._id}
-                                    entrenamiento={entrenamiento}
-                                    isAdminView={true}
-                                />
+                            planDisplay.entrenamientos.map((entrenamiento, index) => (
+                                entrenamiento ? (
+                                    <TrainingCard key={entrenamiento._id || index} entrenamiento={entrenamiento} />
+                                ) : null
                             ))
                         ) : (
-                            <div className="empty-plan-message">
-                                <p>Plan sin entrenamientos cargados.</p>
-                            </div>
+                            <p style={{textAlign:'center', color:'#888', padding:'40px', background:'#1e1e1e', borderRadius:'16px'}}>No hay entrenamientos cargados.</p>
                         )}
                     </section>
                 </>
             )}
-        </div>
+        </main>
     );
-}
+};
 
 export default DetallePlan;

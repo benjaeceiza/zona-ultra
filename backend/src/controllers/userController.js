@@ -124,7 +124,11 @@ export const deleteUser = async (req, res) => {
 
 export const updateUser = async (req, res) => {
     const { id } = req.params;
-    const { nombre, apellido, email, telefono, rol, newPassword } = req.body;
+    // 🔥 1. Recibimos todos los campos nuevos del frontend
+    const { 
+        nombre, apellido, email, telefono, rol, newPassword, 
+        fechaNacimiento, peso, altura, fcMax, nivel, avatar 
+    } = req.body;
 
     try {
         const userToUpdate = await usuarioModelo.findById(id);
@@ -146,12 +150,19 @@ export const updateUser = async (req, res) => {
             }
         }
 
+        // 🔥 2. Mapeamos la data (si no envían un dato, conserva el que ya tenía)
         const updateData = {
             nombre: nombre || userToUpdate.nombre,
             apellido: apellido || userToUpdate.apellido,
             email: email || userToUpdate.email,
             telefono: telefono || userToUpdate.telefono,
-            rol: rol || userToUpdate.rol 
+            rol: rol || userToUpdate.rol,
+            fechaNacimiento: fechaNacimiento !== undefined ? fechaNacimiento : userToUpdate.fechaNacimiento,
+            peso: peso !== undefined ? peso : userToUpdate.peso,
+            altura: altura !== undefined ? altura : userToUpdate.altura,
+            fcMax: fcMax !== undefined ? fcMax : userToUpdate.fcMax,
+            nivel: nivel || userToUpdate.nivel,
+            avatar: avatar !== undefined ? avatar : userToUpdate.avatar,
         };
 
         if (newPassword) {
@@ -161,7 +172,6 @@ export const updateUser = async (req, res) => {
                     message: "La contraseña debe tener mínimo 8 caracteres."
                 });
             }
-
             const salt = await bcrypt.genSalt(10);
             updateData.password = await bcrypt.hash(newPassword, salt);
         }

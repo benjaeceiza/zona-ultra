@@ -110,7 +110,6 @@ const HistorialEntrenamiento = () => {
     return (
         <main className="historial-main">
             <header className="historial-top">
-                <button className="btn-back" onClick={() => navigate(-1)}>← Volver</button>
                 <div className="historial-title-group">
                     <h1>Historial de Logros</h1>
                     <p>Semanas completadas: {totalHistorico}</p>

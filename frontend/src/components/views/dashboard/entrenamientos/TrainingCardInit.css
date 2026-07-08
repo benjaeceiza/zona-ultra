@@ -1,28 +1,28 @@
+/* --- CONTENEDOR PRINCIPAL DE LA TARJETA --- */
 .training-card-init {
-    height: auto;
-    min-height: 150px;
-    /* Mantenemos tu altura mínima */
+    min-height: 160px;
     background: #1E1E1E;
     border-radius: 16px;
-    padding: 1.5rem;
+    padding: 1.2rem 1.4rem;
     position: relative;
     overflow: hidden;
     border: 1px solid #333;
-    transition: all 0.3s ease;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
     cursor: pointer;
     display: flex;
     flex-direction: column;
-    justify-content: space-around;
-    text-decoration: none;
+    justify-content: space-between;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .training-card-init:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
     border-color: #444;
+    background: #222;
 }
 
-/* 🔥 NUEVO: DÍA DE HOY */
+/* --- ESTADOS CONDICIONALES (Hoy, Éxito, Fallo) --- */
 .card-today {
     border-color: #00D2BE;
     box-shadow: 0 0 15px rgba(0, 210, 190, 0.15);
@@ -33,22 +33,18 @@
     color: #121212;
 }
 
-/* 🔥 NUEVO: ESTADOS COMPLETADOS */
 .card-completed-success {
-
-    /* Teal sutil */
-    opacity: 0.7;
+    opacity: 0.75;
+    border-color: rgba(0, 210, 190, 0.4);
 }
 
 .card-completed-success .training-title {
     color: #00D2BE;
-    /* Resalta que se logró */
 }
 
 .card-completed-failed {
-    border-color: rgba(255, 77, 77, 0.5);
-    /* Rojo sutil */
-    opacity: 0.6;
+    border-color: rgba(255, 77, 77, 0.4);
+    opacity: 0.65;
 }
 
 .card-completed-failed .training-title {
@@ -56,149 +52,106 @@
     color: #777;
 }
 
-/* (Mantenemos textos interiores de la card) */
+/* --- HEADER INTERNO --- */
 .card-header {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 1rem;
+    align-items: center;
+    margin-bottom: 0.8rem;
 }
 
-.day-badge {
-
-    background: #333;
+.day-badge-card-init {
+    background: #2a2a2a;
     padding: 4px 12px;
     border-radius: 20px;
-
-    font-weight: 700;
-    font-size: small;
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
     color: #00D2BE;
     transition: all 0.3s ease;
 }
 
+.failed-icon {
+    color: #ff4d4d;
+    /* El tamaño y grosor ya se lo pasamos por prop en el componente de Lucide */
+}
+
+/* --- BODY INTERNO --- */
+.card-body {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    justify-content: space-around;
+}
+
 .training-title {
-    font-size: 1.2rem;
-    margin: 0 0 5px 0;
+    font-size: 1.15rem;
+    margin: 0 0 4px 0;
     color: white;
     text-transform: capitalize;
-    font-weight: bolder;
+    font-weight: 800;
+    line-height: 1.2;
     transition: color 0.3s ease;
 }
 
 .training-type {
     color: #FF4500;
-    font-size: 0.9rem;
-    font-weight: 600;
+    font-size: 0.85rem;
+    font-weight: 700;
     margin: 0;
     text-transform: capitalize;
 }
 
 .divider {
     height: 1px;
-    background: #333;
-    margin: 10px 0;
-
+    background: #2a2a2a;
+    margin: 12px 0;
 }
 
-.metrics-container{
-    height: 50px;
-}
-
-.training-desc {
-    font-size: 0.9rem;
-    color: #ccc;
-    line-height: 1.4;
-}
-
-.duration-text {
-    margin-top: 10px;
-    font-weight: bold;
-    color: #aaa;
-    font-size: 0.9rem;
-}
-
-/* Card Completada */
-.card-completed {
-    border-color: #00D2BE;
-    opacity: 0.6;
-}
-
-.card-completed .training-title {
-    text-decoration: line-through;
-    color: #777;
-
-}
-
-.card-header {
+/* --- SECCIÓN DE MÉTRICAS (PLAN VS REAL) --- */
+.metrics-container {
     display: flex;
     justify-content: space-between;
-    margin-bottom: 1rem;
+    align-items: center;
+    gap: 10px;
+    margin-top: auto;
 }
 
-.day-badge-card-init {
-    background: #333;
-    padding: 4px 12px;
-    border-radius: 20px;
-    font-size: small;
-    font-weight: bold;
-    text-transform: capitalize;
-    color: #00D2BE;
+.metric-row {
+    display: flex;
+    align-items: center;
+    font-size: 0.85rem;
+    color: #888;
+    font-weight: 700;
+    white-space: nowrap; /* 🔥 Clave: Prohíbe que el número se separe de la unidad */
 }
 
-.training-title {
-    font-size: 1.2rem;
-    margin: 0 0 5px 0;
-    color: white;
-    text-transform: capitalize;
-    font-weight: bolder;
+.metric-icon {
+    margin-right: 6px;
+    color: #666; /* Un gris sutil para que no pelee con los números */
+    flex-shrink: 0; /* Evita que el ícono se achaste si falta espacio */
 }
 
-.training-type {
-    color: #FF4500;
-    font-size: 0.9rem;
-    font-weight: 600;
-    margin: 0;
-    text-transform: capitalize;
-}
-
-.divider {
-    height: 1px;
-    background: #333;
-    margin: 10px 0;
-}
-
-.training-desc {
-    font-size: 0.9rem;
-    color: #ccc;
-    line-height: 1.4;
-}
-
-.duration-text {
-    margin-top: 10px;
-    font-weight: bold;
+.metric-text {
     color: #aaa;
-    font-size: 0.9rem;
 }
 
-input[type=number]::-webkit-inner-spin-button,
-input[type=number]::-webkit-outer-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
+.metric-real {
+    color: #fff;
+    font-weight: 800;
 }
 
-/* Ocultar flechas en Firefox */
-input[type=number] {
-    -moz-appearance: textfield;
+.metric-empty {
+    color: #444;
 }
 
-
-
-
-/* CHECKBOX PERSONALIZADO */
+/* --- CHECKBOX PERSONALIZADO --- */
 .checkbox-container {
     position: relative;
     cursor: pointer;
-    width: 24px;
-    height: 24px;
+    width: 22px;
+    height: 22px;
 }
 
 .checkbox-container input {
@@ -206,21 +159,22 @@ input[type=number] {
     cursor: pointer;
     height: 0;
     width: 0;
+    position: absolute;
 }
 
 .checkmark {
     position: absolute;
     top: 0;
     left: 0;
-    height: 24px;
-    width: 24px;
-    background-color: #333;
+    height: 22px;
+    width: 22px;
+    background-color: #2a2a2a;
     border-radius: 50%;
-    border: 2px solid #555;
-    transition: all 0.2s;
+    border: 2px solid #444;
+    transition: all 0.2s ease;
 }
 
-.checkbox-container input:checked~.checkmark {
+.checkbox-container input:checked ~ .checkmark {
     background-color: #00D2BE;
     border-color: #00D2BE;
 }
@@ -229,15 +183,26 @@ input[type=number] {
     content: "";
     position: absolute;
     display: none;
-    left: 8px;
-    top: 4px;
-    width: 5px;
-    height: 10px;
-    border: solid white;
-    border-width: 0 3px 3px 0;
+    left: 6px;
+    top: 3px;
+    width: 4px;
+    height: 9px;
+    border: solid #121212;
+    border-width: 0 2.5px 2.5px 0;
     transform: rotate(45deg);
 }
 
-.checkbox-container input:checked~.checkmark:after {
+.checkbox-container input:checked ~ .checkmark:after {
     display: block;
+}
+
+/* --- ELIMINAR FLECHAS DE INPUT NUMBER (Global Helper) --- */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+input[type=number] {
+    -moz-appearance: textfield;
 }

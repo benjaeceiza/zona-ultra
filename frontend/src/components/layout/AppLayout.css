@@ -1,0 +1,251 @@
+/* ==========================================================================
+   🔥 NUEVO LAYOUT ZONA ULTRA: SIDEBAR IZQUIERDO + CONTENIDO DERECHO
+   ========================================================================== */
+
+/* Layout general de la app */
+.app-main-layout {
+  display: flex;
+  min-height: 100vh;
+  width: 100%;
+  background-color: #121212;
+}
+
+/* Contenedor del contenido (Derecha) */
+.app-content-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0; /* Evita que las tablas o gráficos desborden horizontalmente */
+  min-height: 100vh;
+  transition: margin-left 0.3s ease;
+}
+
+.app-main-content {
+  flex: 1;
+  width: 100%;
+}
+
+/* Layout exclusivo para la pantalla de Login */
+.auth-layout-wrapper {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #121212;
+}
+
+.auth-main-content {
+  width: 100%;
+  height: 100%;
+}
+
+/* ==========================================================================
+   🔥 LAYOUT MAESTRO: CORTE EXACTO EN 1024PX
+   ========================================================================== */
+
+/* 1. VISTA DESKTOP (Desde 1025px en adelante) */
+@media (min-width: 1025px) {
+  /* Ocultamos el TabBar inferior y el menú flotante móvil en PC */
+  .tabbar,
+  .admin-mobile-menu-overlay {
+    display: none !important;
+  }
+
+  /* Mostramos y fijamos el Sidebar a la izquierda */
+  .fixed-sidebar-desktop {
+    display: flex !important;
+    width: 260px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    background-color: #181818;
+    border-right: 1px solid #2a2a2a;
+    flex-direction: column;
+    z-index: 900;
+    overflow-y: auto;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Empujamos el contenido 260px hacia la derecha para que no quede tapado */
+  .app-content-wrapper {
+    margin-left: 260px !important;
+  }
+}
+
+/* 2. VISTA TABLET Y MÓVIL (Hasta 1024px) */
+@media (max-width: 1024px) {
+  /* En tablets/celus ocultamos el Sidebar izquierdo */
+  .fixed-sidebar-desktop {
+    display: none !important;
+  }
+
+  /* Aseguramos que el TabBar aparezca */
+  .tabbar {
+    display: flex !important;
+  }
+
+  /* El contenido ocupa toda la pantalla */
+  .app-content-wrapper {
+    margin-left: 0 !important;
+    padding-bottom: 75px; 
+  }
+}
+
+/* --- ESTILOS INTERNOS DE LA BARRA LATERAL (SIDEBAR DESKTOP) --- */
+.sidebar-brand {
+  padding: 25px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid #222;
+  font-size: 1.3rem;
+  font-weight: 900;
+  color: #fff;
+  letter-spacing: 1px;
+}
+
+.brand-icon {
+  color: #FF4500; /* Naranja Ultra */
+  font-size: 1.6rem;
+  filter: drop-shadow(0 0 4px rgba(255, 69, 0, 0.4));
+}
+
+.brand-text span {
+  color: #00D2BE; /* Teal Ultra */
+}
+
+.sidebar-user-section {
+  padding: 20px;
+  background: linear-gradient(180deg, #1e1e1e 0%, #181818 100%);
+  border-bottom: 1px solid #252525;
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.sidebar-user-avatar {
+  font-size: 2.6rem;
+  color: #00D2BE;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  filter: drop-shadow(0 0 5px rgba(0, 210, 190, 0.3));
+}
+
+.sidebar-user-info {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.sidebar-user-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sidebar-user-name {
+  color: #fff;
+  font-weight: 800;
+  font-size: 1rem;
+  text-transform: capitalize;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-user-edit-btn {
+  background: none;
+  border: none;
+  color: #777;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  padding: 0;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+}
+
+.sidebar-user-edit-btn:hover {
+  color: #00D2BE;
+  transform: scale(1.1);
+}
+
+.sidebar-user-role {
+  font-size: 0.75rem;
+  color: #FF4500;
+  font-weight: 700;
+  text-transform: uppercase;
+  margin-top: 2px;
+}
+
+/* Enlaces del menú lateral */
+.sidebar-nav-links {
+  padding: 15px 0;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  padding: 14px 25px;
+  color: #aaa;
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  border-left: 4px solid transparent;
+}
+
+.sidebar-link:hover {
+  background-color: #222;
+  color: #fff;
+  border-left-color: #555;
+}
+
+/* Clase activa automática de React Router */
+.sidebar-link.active {
+  background-color: #202020;
+  color: #00D2BE;
+  font-weight: 800;
+  border-left-color: #00D2BE;
+  box-shadow: inset 10px 0 15px -10px rgba(0, 210, 190, 0.15);
+}
+
+.sidebar-admin-section {
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px dashed #333;
+}
+
+.sidebar-section-title {
+  display: block;
+  padding: 0 25px 10px;
+  font-size: 0.7rem;
+  color: #666;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+}
+
+.sidebar-logout-wrapper {
+  margin-top: auto;
+  border-top: 1px solid #222;
+  padding-top: 10px;
+}
+
+.logout-link-btn {
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  border-left: 4px solid transparent;
+  color: #ff4d4d !important;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.logout-link-btn:hover {
+  background-color: rgba(255, 77, 77, 0.08);
+  border-left-color: #ff4d4d !important;
+}

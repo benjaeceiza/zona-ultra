@@ -1,192 +1,158 @@
-/* --- VARIABLES DE COLOR (Tema Dark/Neon) --- */
-:root {
-    --bg-dark: #121212;
-    --bg-card: #1a1a1a; /* Un gris un pelín más claro para contraste */
-    --border-card: #333333;
-    --text-primary: #ffffff;
-    --text-muted: #888888;
-    --cyan-neon: #00D2BE;
-    --cyan-text: #bfefff;
-}
+/* ==========================================================================
+   🔥 GARAGE DE ZAPATILLAS - ESTÉTICA ZONA ULTRA (1150px)
+   ========================================================================== */
 
-/* --- CONTENEDOR PRINCIPAL --- */
 .shoes-container {
-    padding: 80px 20px 100px; /* Espacio extra abajo para el tabbar mobile */
-    max-width: 1200px;
+    max-width: 1150px; /* 🔥 ALINEADO A TODA LA APP */
     margin: 0 auto;
-    background-color: var(--bg-dark);
-    color: var(--text-primary);
-    min-height: 100vh;
+    padding: 2rem;
+    color: #e0e0e0;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
     box-sizing: border-box;
-    font-family: system-ui, -apple-system, sans-serif;
-    overflow-x: hidden; /* 🔥 Previene scroll horizontal global accidental */
+    min-height: 80vh;
 }
 
-/* --- HEADER --- */
+/* --- HEADER ESTANDARIZADO --- */
 .page-header-shoes {
-    margin-bottom: 3rem;
-    border-bottom: 1px solid var(--border-card);
+    margin-bottom: 2.5rem;
+    border-bottom: 1px solid #2a2a2a;
     padding-bottom: 1.5rem;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap; /* Para que en mobile se apile */
+    flex-wrap: wrap;
     gap: 20px;
 }
 
 .shoes-subtitle {
-    color: var(--text-muted);
+    color: #00D2BE;
     text-transform: uppercase;
     font-size: 0.85rem;
     letter-spacing: 2px;
-    font-weight: 700;
-    margin: 0 0 5px 0;
+    font-weight: 800;
+    margin: 0 0 6px 0;
 }
 
 .shoes-title {
-    font-size: 2.5rem;
+    font-size: 2.2rem;
     margin: 0;
     font-weight: 800;
-    color: var(--text-primary);
+    color: #fff;
     letter-spacing: -0.5px;
 }
 
-/* --- BOTÓN NEON --- */
+/* --- BOTÓN NEÓN --- */
 .btn-neon {
-    background: rgba(0, 210, 190, 0.08);
-    border: 1px solid var(--cyan-neon);
-    color: var(--cyan-neon);
+    background: #00D2BE;
+    color: #121212;
+    border: none;
     padding: 12px 24px;
-    border-radius: 8px;
-    font-weight: 700;
+    border-radius: 10px;
+    font-weight: 800;
     font-size: 0.95rem;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     cursor: pointer;
-    white-space: nowrap; /* 🔥 Evita que el botón se parta en dos líneas en mobile */
+    white-space: nowrap;
+    box-shadow: 0 4px 15px rgba(0, 210, 190, 0.2);
 }
 
 .btn-neon:hover {
-    background: var(--cyan-neon);
-    color: #000;
-    box-shadow: 0 0 20px rgba(0, 210, 190, 0.4);
+    background: #00e6d2;
     transform: translateY(-2px);
-}
-
-/* --- ESTADO CARGANDO (Spinner) --- */
-.shoes-loader-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 60px 0;
-}
-.shoes-spinner {
-    width: 40px;
-    height: 40px;
-    border: 4px solid rgba(0, 210, 190, 0.1);
-    border-top: 4px solid var(--cyan-neon);
-    border-radius: 50%;
-    animation: spinShoes 1s linear infinite;
-}
-@keyframes spinShoes {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    box-shadow: 0 6px 20px rgba(0, 210, 190, 0.4);
 }
 
 /* --- ESTADO VACÍO --- */
 .empty-shoes-state {
     text-align: center;
     padding: 60px 20px;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px dashed var(--border-card);
+    background: #1e1e1e;
+    border: 1px dashed #333;
     border-radius: 16px;
-    color: var(--text-muted);
-    margin-top: 40px;
+    color: #888;
+    margin-top: 20px;
 }
-.empty-shoes-state h3 { color: var(--text-primary); margin-bottom: 10px; }
+.empty-shoes-state h3 { color: #fff; margin-bottom: 8px; font-size: 1.3rem; }
 
-/* --- GRILLA DE ZAPATILLAS (Magia pura) --- */
+/* --- GRILLA DE ZAPATILLAS --- */
 .shoes-grid {
     display: grid;
-    /* 🔥 Tarjetas de mínimo 300px. Si no entran, bajan automáticamente. */
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 25px;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 24px;
     width: 100%;
 }
 
-/* --- TARJETA PREMIUM --- */
+/* --- TARJETA DE ZAPATILLA PREMIUM --- */
 .shoe-card {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    background: var(--bg-card);
-    border: 1px solid var(--border-card);
-    border-radius: 16px;
-    padding: 24px;
+    background: #1e1e1e;
+    border: 1px solid #2a2a2a;
+    border-radius: 16px; /* 🔥 ARMONÍA DE 16PX */
+    padding: 1.8rem;
     position: relative;
-    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
-    overflow: hidden; /* 🔥 Nada sale de la tarjeta */
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    overflow: hidden;
 }
 
 .shoe-card:hover {
-    transform: translateY(-5px);
-    border-color: #555;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    transform: translateY(-4px);
+    border-color: #444;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
 }
 
-/* BOTÓN ELIMINAR FLOTANTE */
 .btn-delete-absolute {
     position: absolute;
-    top: 15px;
-    right: 15px;
+    top: 18px;
+    right: 18px;
     background: transparent;
     border: none;
-    color: #555;
-    font-size: 1.4rem;
+    color: #666;
+    font-size: 1.3rem;
     cursor: pointer;
     transition: all 0.2s ease;
-    padding: 5px;
-    border-radius: 50%;
+    padding: 6px;
+    border-radius: 8px;
     z-index: 10;
 }
 
 .btn-delete-absolute:hover {
     color: #ff4d4d;
     background: rgba(255, 77, 77, 0.1);
-    transform: scale(1.1);
 }
 
-/* HEADER DE LA TARJETA */
 .card-top-section {
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 16px;
     margin-bottom: 25px;
-    width: 100%; /* 🔥 Importante para que Flexbox calcule bien */
+    width: 100%;
 }
 
 .shoe-avatar {
-    width: 55px;
-    height: 55px;
-    border-radius: 12px;
+    width: 60px;
+    height: 60px;
+    border-radius: 14px;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.8rem;
+    font-size: 2rem;
     border: 2px solid;
-    flex-shrink: 0; /* 🔥 Evita que el avatar se aplaste si el texto es muy largo */
+    flex-shrink: 0;
 }
 
 .shoe-main-info {
     display: flex;
     flex-direction: column;
     gap: 6px;
-    flex: 1; /* Ocupa el resto del espacio */
-    min-width: 0; /* 🔥 MAGIA FLEXBOX: Obligatorio para que los hijos con ellipsis funcionen */
-    padding-right: 30px; /* Deja espacio para el botón de borrar absolute */
+    flex: 1;
+    min-width: 0;
+    padding-right: 25px;
 }
 
 .shoe-brand-badge {
-    background: #111;
+    background: #252525;
     color: #aaa;
     font-size: 0.7rem;
     padding: 4px 10px;
@@ -194,84 +160,228 @@
     text-transform: uppercase;
     letter-spacing: 1px;
     font-weight: 800;
-    border: 1px solid var(--border-card);
+    border: 1px solid #333;
     align-self: flex-start;
-    white-space: nowrap; /* 🔥 Evita que la marca se parta en dos líneas */
 }
 
 .shoe-model {
     margin: 0;
-    font-size: 1.3rem;
+    font-size: 1.35rem;
     font-weight: 800;
-    line-height: 1.2;
-    color: var(--text-primary);
-    
-    /* 🔥 HECHIZO ELIMINAR SOBRESALIDO: Corta el texto y pone puntos suspensivos */
+    color: #fff;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-/* --- BARRA DE PROGRESO AISLADA (ZAPA) --- */
+/* --- BARRA DE PROGRESO DE DESGASTE --- */
 .zapa-progress-section {
     width: 100%;
-    margin-top: 15px;
+    margin-top: 10px;
 }
 
 .zapa-stat-row {
     display: flex;
     justify-content: space-between;
     align-items: flex-end;
-    font-size: 0.8rem;
+    font-size: 0.85rem;
     color: #888;
     font-weight: 600;
-    gap: 5px;
 }
 
 .zapa-stat-label {
     text-transform: uppercase;
-    font-size: 0.7rem;
-    letter-spacing: 1px;
+    font-size: 0.75rem;
+    letter-spacing: 0.5px;
 }
 
 .zapa-km-left {
     color: #fff;
     font-weight: 800;
-    font-size: 1rem;
+    font-size: 0.95rem;
 }
 
-/* El "surco" por donde corre la barra */
 .zapa-progress-container {
     width: 100%;
-    height: 8px;
-    background: #0a0a0a; /* Bien oscuro */
-    border-radius: 4px;
+    height: 10px;
+    background: #121212;
+    border-radius: 5px;
     overflow: hidden;
     margin: 10px 0;
-    border: 1px solid #222;
-    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.8); /* 🔥 Le da profundidad (hundido) */
+    border: 1px solid #2a2a2a;
 }
 
-/* La barra de luz */
 .zapa-progress-fill {
     height: 100%;
-    border-radius: 4px;
-    transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 5px;
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Colores Dinámicos con Glow aislado */
-.zapa-status-good { background: #00D2BE; box-shadow: 0 0 10px rgba(0, 210, 190, 0.5); }
-.zapa-status-mid { background: #FFD700; box-shadow: 0 0 10px rgba(255, 215, 0, 0.5); }
-.zapa-status-bad { background: #FF4500; box-shadow: 0 0 10px rgba(255, 69, 0, 0.5); }
+.zapa-status-good { background: #00D2BE; box-shadow: 0 0 10px rgba(0, 210, 190, 0.4); }
+.zapa-status-mid { background: #f1c40f; box-shadow: 0 0 10px rgba(241, 196, 15, 0.4); }
+.zapa-status-bad { background: #ff4d4d; box-shadow: 0 0 10px rgba(255, 77, 77, 0.4); }
 
-/* Ajustes Mobile */
-@media (max-width: 600px) {
-    .shoes-container { padding: 40px 15px 100px; }
-    .page-header-shoes { flex-direction: column; align-items: flex-start; }
-    .btn-neon { width: 100%; justify-content: center; }
-    .shoes-grid { grid-template-columns: 1fr; } /* Fuerza 1 por fila en celu muy chico */
-    .shoe-card { padding: 18px; }
-    .card-top-section { margin-bottom: 20px; }
-    .shoe-avatar { width: 45px; height: 45px; font-size: 1.5rem; }
-    .shoe-model { font-size: 1.1rem; }
+.mt-2 { margin-top: 8px; }
+.mt-2 strong { color: #ccc; }
+
+/* ==========================================================================
+   🔥 MODAL DE ZAPATILLAS (CHAU MORADO - HOLA ZONA ULTRA)
+   ========================================================================== */
+.zapa-modal-overlay {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(8px);
+    z-index: 9999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    animation: zapaFadeIn 0.2s ease-out;
+}
+
+.zapa-modal-content {
+    background: #1e1e1e;
+    width: 100%;
+    max-width: 440px;
+    border-radius: 16px;
+    border: 1px solid #333;
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6);
+    overflow: hidden;
+    animation: zapaSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.zapa-modal-header {
+    background: #252525;
+    padding: 1.2rem 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #333;
+}
+
+.zapa-modal-title {
+    margin: 0;
+    color: #fff;
+    font-size: 1.1rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+.zapa-close-btn {
+    background: transparent;
+    border: none;
+    color: #888;
+    font-size: 1.8rem;
+    cursor: pointer;
+    line-height: 1;
+    transition: color 0.2s;
+}
+
+.zapa-close-btn:hover { color: #fff; }
+
+.zapa-modal-body {
+    padding: 1.5rem;
+}
+
+.zapa-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.zapa-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.zapa-row-numbers {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 15px;
+}
+
+.zapa-label {
+    font-size: 0.75rem;
+    color: #00D2BE;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+}
+
+.zapa-input {
+    width: 100%;
+    box-sizing: border-box;
+    background: #121212;
+    border: 1px solid #333;
+    color: #fff;
+    padding: 12px 14px;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.zapa-input:focus {
+    border-color: #00D2BE;
+    background: #181818;
+    box-shadow: 0 0 0 3px rgba(0, 210, 190, 0.15);
+}
+
+.zapa-btn-save {
+    margin-top: 10px;
+    width: 100%;
+    padding: 14px;
+    background: #FF4500;
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 15px rgba(255, 69, 0, 0.3);
+}
+
+.zapa-btn-save:hover:not(:disabled) {
+    background: #e03e00;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(255, 69, 0, 0.4);
+}
+
+.zapa-btn-save:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+@keyframes zapaFadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes zapaSlideUp {
+    from { opacity: 0; transform: translateY(20px) scale(0.95); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* ==========================================================================
+   📱 RESPONSIVE
+   ========================================================================== */
+@media (max-width: 768px) {
+    .shoes-container {
+        padding: 1.5rem 1rem;
+    }
+    .page-header-shoes {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    .btn-neon {
+        width: 100%;
+        text-align: center;
+    }
+    .shoes-grid {
+        grid-template-columns: 1fr;
+    }
+    .shoe-card {
+        padding: 1.5rem;
+    }
 }

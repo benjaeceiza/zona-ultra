@@ -78,9 +78,7 @@
 /* Modo Mobile: apilamos el texto y la pastilla en el centro */
 @media (max-width: 768px) {
 
-    .footer-container {
-        padding-bottom: 80px;
-    }
+
 
     .footer-content {
         flex-direction: column;

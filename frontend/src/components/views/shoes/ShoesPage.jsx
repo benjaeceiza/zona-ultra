@@ -2,8 +2,8 @@ import { useState, useEffect } from 'react';
 import AddShoeModal from './AddShoeModal';
 import { MdDelete } from "react-icons/md";
 import { GiRunningShoe } from "react-icons/gi";
-import './ShoesPage.css'; 
 import ShoesPageSkeleton from '../../skeletons/shoes-page-skeleton/ShoesPageSkeleton';
+import './ShoesPage.css'; 
 
 const ShoesPage = () => {
     const [shoes, setShoes] = useState([]);
@@ -11,7 +11,7 @@ const ShoesPage = () => {
     const [showModal, setShowModal] = useState(false);
     const url = import.meta.env.VITE_API_URL; 
 
-    // Paleta de colores Neón
+    // Paleta de colores Neón Ultra
     const iconColors = [
         'rgba(255, 69, 0, 0.15)',  
         'rgba(0, 210, 190, 0.15)',  
@@ -50,7 +50,7 @@ const ShoesPage = () => {
     useEffect(() => { fetchShoes(); }, []);
 
     const handleDelete = async (id) => {
-        if (!window.confirm("¿Estás seguro de que querés borrar esta zapatilla?")) return;
+        if (!window.confirm("¿Estás seguro de que querés retirar esta zapatilla del garage?")) return;
         try {
             const token = localStorage.getItem('token');
             const res = await fetch(`${url}/api/shoes/${id}`, {
@@ -65,36 +65,38 @@ const ShoesPage = () => {
     };
 
     return (
-        <div className="shoes-container">
-            <div className="page-header-shoes">
+        <main className="shoes-container">
+            <header className="page-header-shoes">
                 <div>
-                    <h6 className="shoes-subtitle">Garage</h6>
+                    <h6 className="shoes-subtitle">Garage de Running</h6>
                     <h1 className="shoes-title">Mis Zapatillas</h1>
                 </div>
                 <button className="btn-neon" onClick={() => setShowModal(true)}>
                     <span>+ Nueva Zapa</span>
                 </button>
-            </div>
+            </header>
 
             {loading ? (
                 <div className="shoes-grid">
-                    {/* Renderizamos tu componente esqueleto */}
                     {[1, 2, 3, 4].map(i => <ShoesPageSkeleton key={i} />)}
                 </div>
             ) : shoes.length === 0 ? (
                 <div className="empty-shoes-state">
                     <h3>El garage está vacío 🏃‍♂️</h3>
-                    <p>Agregá tus zapatillas para empezar a sumar kilómetros.</p>
+                    <p>Agregá tus zapatillas para empezar a controlar su vida útil y sumar kilómetros.</p>
                 </div>
             ) : (
                 <div className="shoes-grid">
                     {shoes.map((shoe, index) => {
-                        const percentage = Math.min((shoe.currentKm / shoe.maxKm) * 100, 100);
-                        const remaining = shoe.maxKm - shoe.currentKm;
+                        // 🔥 LIMPIEZA DE DECIMALES (Adiós al .099999999)
+                        const currentKmClean = Number((Number(shoe.currentKm) || 0).toFixed(1));
+                        const maxKmClean = Number((Number(shoe.maxKm) || 0).toFixed(1));
+                        const remaining = Number(Math.max(0, maxKmClean - currentKmClean).toFixed(1));
+                        const percentage = Math.min(Math.round((currentKmClean / maxKmClean) * 100), 100);
 
                         // Condicional de colores para la barra de progreso
-                       let statusClass = 'zapa-status-good';
-                        if (percentage > 50) statusClass = 'zapa-status-mid';
+                        let statusClass = 'zapa-status-good';
+                        if (percentage > 60) statusClass = 'zapa-status-mid';
                         if (percentage > 85) statusClass = 'zapa-status-bad';
 
                         // Rotador de colores para los iconos
@@ -102,12 +104,11 @@ const ShoesPage = () => {
                         const borderColor = iconBorders[index % iconBorders.length];
 
                         return (
-                            <div key={shoe._id} className="shoe-card">
-                                
+                            <article key={shoe._id} className="shoe-card">
                                 <button
                                     className="btn-delete-absolute"
                                     onClick={() => handleDelete(shoe._id)}
-                                    title="Eliminar"
+                                    title="Eliminar zapatilla"
                                 >
                                     <MdDelete />
                                 </button>
@@ -130,10 +131,10 @@ const ShoesPage = () => {
                                     </div>
                                 </div>
 
-                                {/* 🔥 BARRA DE PROGRESO RENOVADA Y AISLADA */}
+                                {/* BARRA DE PROGRESO RENOVADA */}
                                 <div className="zapa-progress-section">
                                     <div className="zapa-stat-row">
-                                        <span className="zapa-stat-label">Vida Útil</span>
+                                        <span className="zapa-stat-label">Desgaste</span>
                                         <span className="zapa-km-left">{remaining} km rest.</span>
                                     </div>
 
@@ -145,11 +146,11 @@ const ShoesPage = () => {
                                     </div>
 
                                     <div className="zapa-stat-row mt-2">
-                                        <span>{shoe.currentKm} km hechos</span>
-                                        <span>Meta: {shoe.maxKm} km</span>
+                                        <span><strong>{currentKmClean}</strong> km hechos</span>
+                                        <span>Meta: <strong>{maxKmClean}</strong> km</span>
                                     </div>
                                 </div>
-                            </div>
+                            </article>
                         );
                     })}
                 </div>
@@ -160,7 +161,7 @@ const ShoesPage = () => {
                 onClose={() => setShowModal(false)}
                 onShoeAdded={() => { fetchShoes(); setShowModal(false); }}
             />
-        </div>
+        </main>
     );
 };
 

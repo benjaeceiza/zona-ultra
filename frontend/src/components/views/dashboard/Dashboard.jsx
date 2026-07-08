@@ -10,6 +10,7 @@ import TrainingCardInit from "./entrenamientos/TrainingCardInit";
 import { useNavigate } from 'react-router-dom';
 import ModalPlanCompletado from "../../modal-plan-completado/ModalPlanCompletado";
 import DashboardSkeleton from "../../skeletons/dashboard-skeleton/DashboardSkeleton";
+import "./Dashboard.css";
 
 
 // Diccionario visual para los tipos de microciclo
@@ -27,10 +28,10 @@ const Dashboard = () => {
     const [loading, setLoading] = useState(true);
     const [selectedTraining, setSelectedTraining] = useState(null);
     const [shoesList, setShoesList] = useState([]);
-    
+
     // Estados para los modales
     const [isModalCerrarSemanaOpen, setIsModalCerrarSemanaOpen] = useState(false);
-    const [showModalFinalizacion, setShowModalFinalizacion] = useState(false); 
+    const [showModalFinalizacion, setShowModalFinalizacion] = useState(false);
 
     const navigate = useNavigate();
 
@@ -172,13 +173,13 @@ const Dashboard = () => {
 
     const handleCerrarModalTrofeo = () => {
         setShowModalFinalizacion(false);
-        window.location.reload(); 
+        window.location.reload();
     };
 
     if (loading) {
         return (
 
-                <DashboardSkeleton />      
+            <DashboardSkeleton />
         );
     }
 
@@ -203,55 +204,49 @@ const Dashboard = () => {
                         <h1>{user.nombre}</h1>
                     </div>
                 </div>
-                <div className="header-center">
-                    <img src={logo} alt="App Logo" className="app-logo" />
-                </div>
+
                 <div className="header-right">
                     <WeatherWidget />
                 </div>
             </header>
 
             <section className="content-section">
-                
-                {/* BARRA DE PROGRESO CON ETIQUETAS CONDICIONALES */}
-                <div className="progress-section" style={{ background: '#1a1a1a', padding: '20px', borderRadius: '15px', border: '1px solid #333' }}>
-                    
-                    {/* 🔥 ETIQUETAS DE LA FASE ACTUAL (CONDICIONAL) */}
-                    {activePlan && (
-                        <div style={{ display: 'flex', gap: '10px', marginBottom: '15px', flexWrap: 'wrap' }}>
-                            
-                            {/* Si tiene mesociclo, mostramos la carpeta y el microciclo. Si no, solo Entrenamiento Semanal */}
-                            {activePlan.mesociclo ? (
-                                <>
-                                    <span style={{ background: 'rgba(0, 210, 190, 0.1)', color: '#00D2BE', padding: '6px 12px', borderRadius: '20px', fontSize: '0.85rem', fontWeight: 'bold', border: '1px solid rgba(0, 210, 190, 0.3)', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                        📁 {activePlan.mesociclo.titulo}
-                                    </span>
-                                    <span style={{ background: 'rgba(255, 255, 255, 0.05)', color: '#ddd', padding: '6px 12px', borderRadius: '20px', fontSize: '0.85rem', border: '1px solid #444', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                        📅 Microciclo {activePlan.numeroSemana || 1}
-                                    </span>
-                                </>
-                            ) : (
-                                <span style={{ background: 'rgba(0, 210, 190, 0.1)', color: '#00D2BE', padding: '6px 12px', borderRadius: '20px', fontSize: '0.85rem', fontWeight: 'bold', border: '1px solid rgba(0, 210, 190, 0.3)', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                    📅 Entrenamiento Semanal
-                                </span>
-                            )}
 
-                            {/* El Enfoque (Tipo de Microciclo) se muestra en ambos casos si está definido */}
-                            {tipoLabel && (
-                                <span style={{ background: 'rgba(255, 255, 255, 0.05)', color: '#ddd', padding: '6px 12px', borderRadius: '20px', fontSize: '0.85rem', border: '1px solid #444', display: 'flex', alignItems: 'center', gap: '5px' }}>
-                                    {tipoLabel}
-                                </span>
-                            )}
+                {/* --- SECCIÓN SUPERIOR: PROGRESO Y COUNTDOWN --- */}
+                <div className="top-dashboard-section">
+
+                    <div className="progress-section">
+                        {activePlan && (
+                            <div className="tags-container">
+                                {activePlan.mesociclo ? (
+                                    <>
+                                        <span className="tag-meso">📁 {activePlan.mesociclo.titulo}</span>
+                                        <span className="tag-micro">📅 Microciclo {activePlan.numeroSemana || 1}</span>
+                                    </>
+                                ) : (
+                                    <span className="tag-meso">📅 Entrenamiento Semanal</span>
+                                )}
+                                {tipoLabel && <span className="tag-micro">{tipoLabel}</span>}
+                            </div>
+                        )}
+
+                        <div className="progress-info">
+                            <span>Progreso de la Semana</span>
+                            <span className="progress-percentage">{porcentaje}%</span>
                         </div>
-                    )}
 
-                    <div className="progress-info">
-                        {/* Como las etiquetas de arriba ya dan el contexto, acá dejamos el texto más limpio */}
-                        <span style={{ fontWeight: 'bold', color: '#fff' }}>Progreso de la Semana</span>
-                        <span style={{ color: '#00D2BE', fontWeight: 'bold', fontSize: '1.2rem' }}>{porcentaje}%</span>
+                        <div className="progress-bar-bg">
+                            <div className="progress-bar-fill" style={{ width: `${porcentaje}%` }}></div>
+                        </div>
                     </div>
-                    <div className="progress-bar-bg" style={{ height: '10px', background: '#333', borderRadius: '5px', overflow: 'hidden' }}>
-                        <div className="progress-bar-fill" style={{ width: `${porcentaje}%`, height: '100%', background: 'linear-gradient(90deg, #00D2BE, #00a896)', borderRadius: '5px', transition: 'width 0.5s ease-in-out' }}></div>
+
+                    {/* COUNTDOWN AL LADO */}
+                    <div className="countdown-wrapper">
+                        <RaceCountdown
+                            initialFecha={user.nextRace?.date}
+                            initialNombre={user.nextRace?.name}
+                            userId={user._id}
+                        />
                     </div>
                 </div>
 
@@ -308,7 +303,7 @@ const Dashboard = () => {
                     {activePlan ? "Tu Semana de Ultra" : "Sin Plan Activo"}
                 </h2>
 
-            
+
                 <div className="cards-grid">
                     {entrenamientosDisplay.length > 0 ? (
                         entrenamientosDisplay.map((item, index) => {
@@ -360,14 +355,6 @@ const Dashboard = () => {
                     </div>
                 )}
 
-                <div className="widgets-row">
-                    <RaceCountdown
-                        initialFecha={user.nextRace?.date}
-                        initialNombre={user.nextRace?.name}
-                        userId={user._id}
-                    />
-                    <ShoeTracker userShoes={shoesList} />
-                </div>
             </section>
 
             {/* --- MODAL CONFIRMACIÓN SEMANA --- */}
@@ -391,9 +378,9 @@ const Dashboard = () => {
             )}
 
             {/* 🔥 EL MODAL FACHERITO DEL TROFEO */}
-            <ModalPlanCompletado 
-                isOpen={showModalFinalizacion} 
-                onClose={handleCerrarModalTrofeo} 
+            <ModalPlanCompletado
+                isOpen={showModalFinalizacion}
+                onClose={handleCerrarModalTrofeo}
             />
 
         </main>

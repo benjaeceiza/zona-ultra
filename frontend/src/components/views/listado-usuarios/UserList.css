@@ -1,0 +1,88 @@
+/* --- NUEVA GRILLA DE USUARIOS COMPACTA --- */
+.user-list-grid {
+    display: grid;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.user-card {
+    background: #1e1e1e;
+    border: 1px solid #333;
+    border-radius: 12px;
+    padding: 12px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s ease;
+    cursor: pointer; /* 🔥 Esto agrega la manito cuando pasás por encima */
+}
+
+.user-card:hover {
+    background: #252525;
+    border-color: #00D2BE;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+/* Avatar circular optimizado */
+.user-avatar-container {
+    width: 45px;
+    height: 45px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: #111;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+.user-avatar-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.user-avatar-icon {
+    font-size: 2.5rem;
+    color: #444;
+}
+
+.text-data h3 { font-size: 1rem; margin-bottom: 2px; }
+.user-email { font-size: 0.75rem; color: #666; }
+
+/* --- SKELETON CON EFECTO SHIMMER (Barrido de luz) --- */
+.skeleton-card {
+    background: #1e1e1e;
+    height: 74px; /* Un poquito más alto para que sea más cómodo */
+    border-radius: 12px;
+    position: relative;
+    overflow: hidden; /* Esto es clave para que el brillo se mantenga contenido */
+    border: 1px solid #222;
+}
+
+/* El brillo que pasa por encima */
+.skeleton-card::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform: translateX(-100%);
+    background-image: linear-gradient(
+        90deg,
+        rgba(255, 255, 255, 0) 0,
+        rgba(255, 255, 255, 0.05) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    animation: shimmer-animation 1.5s infinite linear;
+}
+
+@keyframes shimmer-animation {
+    100% { transform: translateX(100%); }
+}

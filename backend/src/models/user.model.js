@@ -8,6 +8,13 @@ const userSchema = new mongoose.Schema({
     telefono: { type: Number, required: true }, 
     rol: String,
 
+    // 🔥 NUEVOS CAMPOS DEL PERFIL DE ATLETA
+    fechaNacimiento: { type: Date, default: null },
+    peso: { type: Number, default: null },
+    altura: { type: Number, default: null },
+    fcMax: { type: Number, default: null },
+    nivel: { type: String, default: 'intermedio' },
+    avatar: { type: String, default: null }, 
     
     nextRace: {
         name: { type: String, default: '' },
