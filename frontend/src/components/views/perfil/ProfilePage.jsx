@@ -6,7 +6,8 @@ import { updateUser } from '../../../services/updateUser';
 import { uploadImageToCloudinary } from '../../../services/cloudinaryService';
 import { IoIosArrowBack } from 'react-icons/io';
 import { FiUser, FiActivity, FiLock, FiSave, FiMail, FiPhone, FiCalendar, FiShield, FiCamera, FiTrash2, FiEye, FiEyeOff } from 'react-icons/fi';
-import { FaUserCircle, FaRunning, FaSignOutAlt } from 'react-icons/fa'; 
+import { FaUserCircle, FaRunning, FaSignOutAlt } from 'react-icons/fa';
+import ProfileSkeleton from '../../skeletons/profile-skeletons/ProfileSkeleton';
 import Cropper from 'react-easy-crop';
 import './ProfilePage.css';
 
@@ -209,10 +210,8 @@ const ProfilePage = () => {
         } catch (error) { toast.error("Error de conexión"); }
         finally { setSaving(false); }
     };
+    if (loading) return <ProfileSkeleton />;
 
-    if (loading) return <div className="profile-loading">Cargando perfil de atleta...</div>;
-    
-    
     const handleLogout = () => {
         if (window.confirm("¿Estás seguro que querés cerrar sesión, atleta? 🏃‍♂️")) {
             localStorage.clear();
