@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { getUserLogued } from '../../../services/getUserLogued';
 import { updateUser } from '../../../services/updateUser';
-import { uploadImageToCloudinary } from '../../../services/cloudinaryService';
+import { uploadProfileAvatarToCloudinary } from '../../../services/cloudinaryService';
 import { IoIosArrowBack } from 'react-icons/io';
 import { FiUser, FiActivity, FiLock, FiSave, FiMail, FiPhone, FiCalendar, FiShield, FiCamera, FiTrash2, FiEye, FiEyeOff } from 'react-icons/fi';
 import { FaUserCircle, FaRunning, FaSignOutAlt } from 'react-icons/fa';
@@ -135,7 +135,7 @@ const ProfilePage = () => {
             setSaving(true);
             const croppedImageBlob = await getCroppedImg(imageSrc, croppedAreaPixels);
             const imageFile = new File([croppedImageBlob], "avatar_profile.jpg", { type: "image/jpeg" });
-            const secureUrl = await uploadImageToCloudinary(imageFile);
+            const secureUrl = await uploadProfileAvatarToCloudinary(imageFile);
 
             if (secureUrl) {
                 setFormData(prev => ({ ...prev, avatar: secureUrl }));

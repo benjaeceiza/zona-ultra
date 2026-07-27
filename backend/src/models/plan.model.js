@@ -12,7 +12,7 @@ const entrenamientoSchema = new mongoose.Schema(
     km: { type: Number, default: 0 },
     tipo: { type: String },
     descripcion: { type: String },
-
+    audioUrl: { type: String, default: "" },
     completado: { type: Boolean, default: false },
 
     feedback: {

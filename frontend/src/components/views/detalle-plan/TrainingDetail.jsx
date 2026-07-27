@@ -184,7 +184,7 @@ const TrainingDetail = ({ isSemanaActiva = true }) => {
             const alertas = validarLogicaEntrenamiento(km, h, m, isStrength);
             if (alertas.length > 0) {
                 setErroresGuardado(alertas);
-                return; 
+                return;
             }
         }
 
@@ -297,6 +297,15 @@ const TrainingDetail = ({ isSemanaActiva = true }) => {
                         <h3 className="section-title-entrenamiento">La Misión de Hoy</h3>
                         <div className="mission-box">
                             <p className="mission-text">{training.descripcion || "Sin descripción detallada. ¡Seguí tu instinto! 🐺"}</p>
+
+                            {training.audioUrl && (
+                                <div className="mission-audio-wrapper">
+                                    <audio controls className="ultra-audio-player">
+                                        <source src={training.audioUrl} />
+                                        Tu navegador no soporta el reproductor de audio.
+                                    </audio>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </aside>
@@ -439,7 +448,7 @@ const TrainingDetail = ({ isSemanaActiva = true }) => {
                             {(!isCompleted || isEditing) ? (
                                 <>
                                     <button type="submit" className="ultra-btn primary full-width">
-                                        {isEditing ? <><Save size={18}/> Guardar Cambios</> : (isRestDay ? <><Check size={18}/> Confirmar Descanso</> : <><CheckCircle2 size={18}/> Guardar Sesión</>)}
+                                        {isEditing ? <><Save size={18} /> Guardar Cambios</> : (isRestDay ? <><Check size={18} /> Confirmar Descanso</> : <><CheckCircle2 size={18} /> Guardar Sesión</>)}
                                     </button>
 
                                     <div className="action-row-split">
@@ -459,7 +468,7 @@ const TrainingDetail = ({ isSemanaActiva = true }) => {
                                 </>
                             ) : (
                                 <div className="completed-message">
-                                    <CheckCircle2 size={24} color="#0ba360" /> 
+                                    <CheckCircle2 size={24} color="#0ba360" />
                                     <span>Reporte guardado con éxito.</span>
                                 </div>
                             )}

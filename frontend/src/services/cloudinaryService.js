@@ -41,3 +41,87 @@ export const uploadImageToCloudinary = async (file) => {
         return null;
     }
 };
+
+
+export const uploadAudioToCloudinary = async (file) => {
+    if (!file) return null;
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "audios-zona-ultra"); // O tu preset de audios
+
+    // 🔥 ESTA ES LA LÍNEA MÁGICA
+    // Le indica a Cloudinary la ruta exacta. Si la carpeta "audios" no existe, la crea sola.
+    formData.append("folder", "zona ultra/audios");
+
+    try {
+        // Recuerda que para audios usamos /video/upload
+        const response = await fetch(`https://api.cloudinary.com/v1_1/dmnksm3th/video/upload`, {
+            method: "POST",
+            body: formData,
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            console.error("Error detallado de Cloudinary", errorData);
+            return null;
+        }
+
+        const data = await response.json();
+        return data.secure_url;
+    } catch (error) {
+        console.error("Error de red o conexión al subir a Cloudinary", error);
+        return null;
+    }
+};
+
+export const uploadProfileAvatarToCloudinary = async (file) => {
+    if (!file) return null;
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "perfiles_preset"); // O tu preset principal
+    
+    // 🔥 Indicamos la ruta específica para perfiles
+    formData.append("folder", "zona ultra/perfiles"); 
+
+    try {
+        const response = await fetch(`https://api.cloudinary.com/v1_1/dmnksm3th/image/upload`, {
+            method: "POST",
+            body: formData,
+        });
+
+        if (!response.ok) return null;
+        const data = await response.json();
+        return data.secure_url; 
+    } catch (error) {
+        console.error("Error al subir avatar a Cloudinary", error);
+        return null;
+    }
+};
+
+
+export const uploadRacePhotoToCloudinary = async (file) => {
+    if (!file) return null;
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "medallero_preset"); // O tu preset principal
+    
+    // 🔥 Indicamos la ruta específica para carreras
+    formData.append("folder", "zona ultra/medallero"); 
+
+    try {
+        const response = await fetch(`https://api.cloudinary.com/v1_1/dmnksm3th/image/upload`, {
+            method: "POST",
+            body: formData,
+        });
+
+        if (!response.ok) return null;
+        const data = await response.json();
+        return data.secure_url; 
+    } catch (error) {
+        console.error("Error al subir foto de carrera a Cloudinary", error);
+        return null;
+    }
+};

@@ -430,3 +430,269 @@
   opacity: 0.4;
   cursor: not-allowed;
 }
+
+/* ==========================================
+   🔥 UI DE AUDIO (Grabación y Controles)
+========================================== */
+
+/* Contenedor cuando está grabando */
+.recording-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  background: rgba(255, 69, 0, 0.08); /* Un fondo sutil naranja/rojizo */
+  border: 1px solid rgba(255, 69, 0, 0.3);
+  padding: 8px 16px;
+  border-radius: 8px;
+}
+
+/* Texto parpadeante "Grabando..." */
+.recording-text {
+  color: #FF4500;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  animation: pulse-text 1.5s infinite;
+}
+
+/* Contenedor de las barritas */
+.sound-wave-container {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 20px;
+}
+
+/* Cada barrita individual */
+.sound-wave {
+  width: 4px;
+  background-color: #FF4500;
+  border-radius: 2px;
+  animation: wave-animation 1s infinite ease-in-out;
+}
+
+/* Desfasamos la animación de cada barrita para que parezca una onda de voz */
+.sound-wave:nth-child(1) { animation-delay: 0.0s; }
+.sound-wave:nth-child(2) { animation-delay: 0.2s; }
+.sound-wave:nth-child(3) { animation-delay: 0.4s; }
+.sound-wave:nth-child(4) { animation-delay: 0.1s; }
+.sound-wave:nth-child(5) { animation-delay: 0.3s; }
+
+/* Botón de detener (Chiquito y directo) */
+.btn-stop-record {
+  background-color: #FF4500;
+  color: #fff;
+  border: none;
+  padding: 6px 12px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-left: auto; /* Lo empuja a la derecha */
+}
+
+.btn-stop-record:hover {
+  background-color: #e03e00;
+}
+
+/* Botón de eliminar (Estilo Outline, más limpio) */
+.btn-delete-audio {
+  background: transparent;
+  color: #ff4d4d;
+  border: 1px solid rgba(255, 77, 77, 0.4);
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn-delete-audio:hover {
+  background: rgba(255, 77, 77, 0.1);
+  border-color: #ff4d4d;
+}
+
+/* Animaciones Keyframes */
+@keyframes wave-animation {
+  0%, 100% { height: 4px; }
+  50% { height: 20px; }
+}
+
+@keyframes pulse-text {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* ==========================================
+   🔥 UI DE AUDIO (Iconos minimalistas)
+========================================== */
+
+.audio-section-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 15px;
+  border-top: 1px dashed #333;
+  padding-top: 15px;
+}
+
+.audio-section-label {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #888;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Contenedor de botones minimalistas */
+.audio-controls-row {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  width: 100%; /* 🔥 Obliga a que respete el ancho de la tarjeta */
+  box-sizing: border-box;
+}
+
+/* Botones cuadrados solo icono */
+.btn-icon-only {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: #2a2a2a;
+  color: #ccc;
+}
+
+.btn-icon-only:hover:not(:disabled) {
+  transform: translateY(-2px);
+}
+
+.btn-icon-only:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Colores específicos de cada botón */
+.btn-icon-only.primary {
+  background: rgba(0, 210, 190, 0.1);
+  border-color: rgba(0, 210, 190, 0.3);
+  color: #00D2BE;
+}
+
+.btn-icon-only.primary:hover:not(:disabled) {
+  background: #00D2BE;
+  color: #121212;
+}
+
+.btn-icon-only.secondary {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.1);
+  color: #aaa;
+}
+
+.btn-icon-only.secondary:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+.btn-icon-only.danger {
+  background: rgba(255, 77, 77, 0.1);
+  border-color: rgba(255, 77, 77, 0.3);
+  color: #ff4d4d;
+}
+
+.btn-icon-only.danger:hover:not(:disabled) {
+  background: #ff4d4d;
+  color: #fff;
+}
+
+/* Contenedor cuando está grabando */
+.recording-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between; /* 🔥 Distribuye los elementos a los extremos */
+  gap: 6px; /* 🔥 Achicamos un poco el gap */
+  background: rgba(255, 69, 0, 0.08);
+  border: 1px solid rgba(255, 69, 0, 0.3);
+  padding: 6px 10px; /* 🔥 Márgenes más apretaditos */
+  border-radius: 8px;
+  width: 100%; /* 🔥 Mantiene el límite */
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+/* Texto parpadeante "Grabando..." */
+.recording-text {
+  color: #FF4500;
+  font-size: 0.75rem; /* 🔥 Un pelito más chico */
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  animation: pulse-text 1.5s infinite;
+  white-space: nowrap; /* Evita que el texto se parta en dos renglones */
+}
+
+/* Contenedor de las barritas */
+.sound-wave-container {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  height: 20px;
+}
+
+/* Cada barrita individual */
+.sound-wave {
+  width: 4px;
+  background-color: #FF4500;
+  border-radius: 2px;
+  animation: wave-animation 1s infinite ease-in-out;
+}
+
+.sound-wave:nth-child(1) { animation-delay: 0.0s; }
+.sound-wave:nth-child(2) { animation-delay: 0.2s; }
+.sound-wave:nth-child(3) { animation-delay: 0.4s; }
+.sound-wave:nth-child(4) { animation-delay: 0.1s; }
+.sound-wave:nth-child(5) { animation-delay: 0.3s; }
+
+/* Botón de detener (Igual a tu imagen) */
+.btn-stop-record {
+  background-color: #FF4500;
+  color: #fff;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  /* margin-left: auto; 🔥 LO BORRAMOS (ahora usamos justify-content) */
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0; /* 🔥 Evita que el botón se aplaste si falta espacio */
+}
+
+.btn-stop-record:hover {
+  background-color: #e03e00;
+}
+
+/* Animaciones Keyframes */
+@keyframes wave-animation {
+  0%, 100% { height: 4px; }
+  50% { height: 20px; }
+}
+
+@keyframes pulse-text {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}

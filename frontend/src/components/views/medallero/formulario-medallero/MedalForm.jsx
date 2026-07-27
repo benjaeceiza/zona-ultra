@@ -6,7 +6,7 @@ import {
     FaTimes, FaExclamationTriangle, FaSpinner 
 } from 'react-icons/fa';
 import { addRaceToMedallero, updateRaceInMedallero } from '../../../../services/raceService.js';
-import { uploadImageToCloudinary } from '../../../../services/cloudinaryService.js';
+import { uploadRacePhotoToCloudinary } from '../../../../services/cloudinaryService.js';
 import Cropper from 'react-easy-crop';
 import './MedalForm.css';
 
@@ -183,7 +183,7 @@ const MedalForm = () => {
         const urlsFinales = [];
         for (const foto of fotos) {
             if (foto.isNew && foto.file) {
-                const urlNube = await uploadImageToCloudinary(foto.file);
+                const urlNube = await uploadRacePhotoToCloudinary(foto.file);
                 if (urlNube) urlsFinales.push(urlNube);
             } else {
                 urlsFinales.push(foto.url); // Ya era una URL de la BD
