@@ -54,29 +54,29 @@ export const createPlan = async (req, res) => {
 
     // 🔥 1. CANDADO ESTRICTO: Solo un Macrociclo a la vez por usuario.
     if (esPlanCompleto) {
-        // CORRECCIÓN: Ahora buscamos si el usuario tiene alguna SEMANA perteneciente 
-        // a un Macrociclo que todavía no esté finalizada (ya sea pendiente o activa).
-        const semanaDeMacroViva = await planModelo.findOne({
-            usuario: idUsuario,
-            macrociclo: { $ne: null }, // Que pertenezca a un plan completo
-            estado: { $ne: 'finalizado' } // Que NO esté terminada
-        });
+      // CORRECCIÓN: Ahora buscamos si el usuario tiene alguna SEMANA perteneciente 
+      // a un Macrociclo que todavía no esté finalizada (ya sea pendiente o activa).
+      const semanaDeMacroViva = await planModelo.findOne({
+        usuario: idUsuario,
+        macrociclo: { $ne: null }, // Que pertenezca a un plan completo
+        estado: { $ne: 'finalizado' } // Que NO esté terminada
+      });
 
-        if (semanaDeMacroViva) {
-            return res.status(400).json({
-                success: false,
-                message: `El atleta ya tiene un Plan Completo en curso (aún le quedan semanas). Debe finalizarlo antes de asignar uno nuevo.`
-            });
-        }
+      if (semanaDeMacroViva) {
+        return res.status(400).json({
+          success: false,
+          message: `El atleta ya tiene un Plan Completo en curso (aún le quedan semanas). Debe finalizarlo antes de asignar uno nuevo.`
+        });
+      }
     }
 
     // 🔥 2. SISTEMA DE COLA UNIVERSAL:
     // Buscamos si hay ALGUNA semana activa o pendiente (sea suelta o de un plan)
-    const planOcupado = await planModelo.findOne({ 
-        usuario: idUsuario, 
-        estado: { $in: ['activo', 'pendiente'] } 
+    const planOcupado = await planModelo.findOne({
+      usuario: idUsuario,
+      estado: { $in: ['activo', 'pendiente'] }
     });
-    
+
     // Si hay algo en curso, lo nuevo nace "pendiente" y se va al fondo de la fila
     const estadoInicialParaPrimera = planOcupado ? 'pendiente' : 'activo';
 
@@ -91,7 +91,7 @@ export const createPlan = async (req, res) => {
         objetivo: datosMacrociclo.objetivo || "",
         fechaInicio: datosMacrociclo.fechaInicio,
         fechaFin: datosMacrociclo.fechaFin,
-        estado: 'activo' 
+        estado: 'activo'
       });
       const macrocicloGuardado = await nuevoMacrociclo.save();
 
@@ -103,7 +103,7 @@ export const createPlan = async (req, res) => {
 
         const nuevoMesociclo = new mesocicloModelo({
           usuario: idUsuario,
-          macrociclo: macrocicloGuardado._id, 
+          macrociclo: macrocicloGuardado._id,
           titulo: mesoData.titulo || `Mesociclo ${i + 1}`,
           objetivo: mesoData.objetivo || "",
         });
@@ -113,14 +113,14 @@ export const createPlan = async (req, res) => {
           mesoData.semanas.forEach((semana, wIndex) => {
             planesAInsertar.push({
               usuario: idUsuario,
-              macrociclo: macrocicloGuardado._id, 
-              mesociclo: mesocicloGuardado._id, 
-              numeroSemana: wIndex + 1, 
+              macrociclo: macrocicloGuardado._id,
+              mesociclo: mesocicloGuardado._id,
+              numeroSemana: wIndex + 1,
               tipoMicrociclo: semana.tipoMicrociclo || "",
               estado: isFirstWeek ? estadoInicialParaPrimera : 'pendiente',
               entrenamientos: semana.entrenamientos
             });
-            isFirstWeek = false; 
+            isFirstWeek = false;
           });
         }
       }
@@ -140,14 +140,14 @@ export const createPlan = async (req, res) => {
     // CASO B: ES UNA SEMANA INDIVIDUAL/SUELTA
     // ========================================================
     else if (semanaIndividual) {
-      
+
       const cantidadSueltas = await planModelo.countDocuments({ usuario: idUsuario, mesociclo: null });
 
       const nuevoPlan = await planModelo.create({
         usuario: idUsuario,
         mesociclo: null,
         numeroSemana: cantidadSueltas + 1,
-        tipoMicrociclo: semanaIndividual.tipoMicrociclo || "", 
+        tipoMicrociclo: semanaIndividual.tipoMicrociclo || "",
         estado: estadoInicialParaPrimera,
         entrenamientos: semanaIndividual.entrenamientos
       });
@@ -225,7 +225,21 @@ export const completeCurrentWeek = async (req, res) => {
 
     if (planesPendientes.length > 0) {
       // CASO A: Todavía quedan semanas en el plan. Activamos la que sigue normalmente.
-      planesPendientes.sort((a, b) => a._id.toString().localeCompare(b._id.toString()));
+
+      // ORDENAMIENTO ESTRUCTURAL: Primero por Mesociclo, luego por numeroSemana
+      planesPendientes.sort((a, b) => {
+        // 1. Agrupamos y ordenamos por el ID del Mesociclo (mantiene el bloque unido)
+        const mesoA = a.mesociclo ? a.mesociclo.toString() : "";
+        const mesoB = b.mesociclo ? b.mesociclo.toString() : "";
+
+        if (mesoA !== mesoB) {
+          return mesoA.localeCompare(mesoB);
+        }
+
+        // 2. Si son del mismo Mesociclo (o si son semanas sueltas), ordenamos por el número de semana real
+        return (a.numeroSemana || 0) - (b.numeroSemana || 0);
+      });
+
       const planQueSigue = planesPendientes[0];
 
       await planModelo.findByIdAndUpdate(planQueSigue._id, { estado: 'activo' });
@@ -388,6 +402,50 @@ export const deleteFullMacro = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
+export const addMesociclo = async (req, res) => {
+  try {
+    const { usuarioId, macrocicloId } = req.body;
+    const idDelUsuario = typeof usuarioId === 'object' ? usuarioId._id : usuarioId;
+
+    // 1. Contar cuántos mesociclos ya tiene este macrociclo para autogenerar el nombre
+    const cantidadMesos = await mesocicloModelo.countDocuments({ macrociclo: macrocicloId });
+    const nuevoTitulo = `Mesociclo ${cantidadMesos + 1}`;
+
+    // 2. Creamos el nuevo Mesociclo
+    const nuevoMesociclo = new mesocicloModelo({
+      usuario: idDelUsuario,
+      macrociclo: macrocicloId,
+      titulo: nuevoTitulo,
+      objetivo: "",
+      estado: 'pendiente'
+    });
+    const mesoGuardado = await nuevoMesociclo.save();
+
+    // 3. Le creamos un Microciclo 1 vacío para que aparezca en el Frontend
+    const diasVacios = ["lunes", "martes", "miercoles", "jueves", "viernes", "sabado", "domingo"].map(dia => ({
+      dia, titulo: "", tipo: "", duracion: 0, unidad: "minutos", km: 0, descripcion: "", completado: false
+    }));
+
+    const nuevoPlan = new planModelo({
+      usuario: idDelUsuario,
+      macrociclo: macrocicloId,
+      mesociclo: mesoGuardado._id,
+      estado: 'pendiente',
+      entrenamientos: diasVacios,
+      numeroSemana: 1
+    });
+    await nuevoPlan.save();
+
+    res.json({ success: true, message: "Mesociclo agregado correctamente", mesociclo: mesoGuardado });
+  } catch (error) {
+    console.error("🔥 ERROR EN ADD-MESOCYCLE:", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+
 export const addMicrociclo = async (req, res) => {
   try {
     const { usuarioId, macrocicloId, mesocicloId } = req.body;
@@ -398,34 +456,34 @@ export const addMicrociclo = async (req, res) => {
     }));
 
     const nuevoPlan = new planModelo({
-      usuario: idDelUsuario, 
-      macrociclo: macrocicloId, 
+      usuario: idDelUsuario,
+      macrociclo: macrocicloId,
       mesociclo: mesocicloId,
-      estado: 'pendiente', 
-      entrenamientos: diasVacios, 
-      numeroSemana: 999 
+      estado: 'pendiente',
+      entrenamientos: diasVacios,
+      numeroSemana: 999
     });
     await nuevoPlan.save();
 
     // 🔥 CORRECCIÓN: Buscamos y ordenamos únicamente los planes de ESTE mesociclo
     const planesDelMeso = await planModelo.find({ mesociclo: mesocicloId });
-    
+
     planesDelMeso.sort((a, b) => {
       const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
       const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-      return timeA - timeB; 
+      return timeA - timeB;
     });
 
     // Renumeramos de 1 a N dentro de este bloque
-    const updates = planesDelMeso.map((plan, index) => 
-        planModelo.findByIdAndUpdate(plan._id, { numeroSemana: index + 1 })
+    const updates = planesDelMeso.map((plan, index) =>
+      planModelo.findByIdAndUpdate(plan._id, { numeroSemana: index + 1 })
     );
     await Promise.all(updates);
 
     res.json({ success: true, message: "Microciclo agregado y mesociclo renumerado" });
-  } catch (error) { 
-      console.error("🔥 ERROR EN ADD-MICROCYCLE:", error);
-      res.status(500).json({ error: error.message }); 
+  } catch (error) {
+    console.error("🔥 ERROR EN ADD-MICROCYCLE:", error);
+    res.status(500).json({ error: error.message });
   }
 };
 
@@ -434,52 +492,67 @@ export const deleteMicrociclo = async (req, res) => {
   try {
     const planABorrar = await planModelo.findById(req.params.idPlan);
     if (!planABorrar) {
-        return res.status(404).json({ error: "No se encontró el plan a borrar" });
+      return res.status(404).json({ error: "No se encontró el plan a borrar" });
     }
 
     const mesocicloId = planABorrar.mesociclo;
+    const usuarioId = planABorrar.usuario;
 
     // 1. Borramos la semana seleccionada
     await planModelo.findByIdAndDelete(req.params.idPlan);
 
-    // 🔥 CORRECCIÓN: Si es parte de un plan completo, reordenamos solo ese mesociclo
+    // 2. Si es parte de un plan completo, reordenamos solo ese mesociclo
     if (mesocicloId) {
-        const planesDelMeso = await planModelo.find({ mesociclo: mesocicloId });
-        
-        planesDelMeso.sort((a, b) => {
-          const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
-          const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
-          return timeA - timeB;
-        });
+      const planesDelMeso = await planModelo.find({ mesociclo: mesocicloId });
 
-        // Tapamos el bache renumerando desde 1 de nuevo
-        const updates = planesDelMeso.map((plan, index) => 
-            planModelo.findByIdAndUpdate(plan._id, { numeroSemana: index + 1 })
-        );
-        await Promise.all(updates);
+      planesDelMeso.sort((a, b) => {
+        const timeA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const timeB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return timeA - timeB;
+      });
+
+      // Tapamos el bache renumerando desde 1 de nuevo
+      const updates = planesDelMeso.map((plan, index) =>
+        planModelo.findByIdAndUpdate(plan._id, { numeroSemana: index + 1 })
+      );
+      await Promise.all(updates);
     }
 
-    res.json({ success: true, message: "Microciclo eliminado y mesociclo renumerado" });
-  } catch (error) { 
-      console.error("🔥 ERROR EN DELETE-MICROCYCLE:", error);
-      res.status(500).json({ error: error.message }); 
+    // 🔥 3. NUEVA LÓGICA: Verificar si nos quedamos sin semanas activas
+    const planActivoExistente = await planModelo.findOne({ usuario: usuarioId, estado: 'activo' });
+
+    // Si no hay ninguna activa, buscamos la primera pendiente y la prendemos
+    if (!planActivoExistente) {
+      const primerPlanPendiente = await planModelo.findOne({
+        usuario: usuarioId,
+        estado: 'pendiente'
+      }).sort({ createdAt: 1 }); // Agarra el más viejo en la cola
+
+      if (primerPlanPendiente) {
+        await planModelo.findByIdAndUpdate(primerPlanPendiente._id, { estado: 'activo' });
+      }
+    }
+
+    res.json({ success: true, message: "Microciclo eliminado, mesociclo renumerado y cola verificada" });
+  } catch (error) {
+    console.error("🔥 ERROR EN DELETE-MICROCYCLE:", error);
+    res.status(500).json({ error: error.message });
   }
 };
-
 
 //  Obtener historial paginado
 export const getHistorialUsuario = async (req, res) => {
   try {
     const { idUsuario } = req.params;
-    
+
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 5; 
+    const limit = parseInt(req.query.limit) || 5;
     const skip = (page - 1) * limit;
 
     const query = { usuario: idUsuario, estado: 'finalizado' };
 
     const totalPlanes = await planModelo.countDocuments(query);
-    
+
     const planes = await planModelo.find(query)
       .populate('macrociclo', 'titulo')
       .populate('mesociclo', 'titulo')
@@ -487,7 +560,7 @@ export const getHistorialUsuario = async (req, res) => {
       // ✅ AHORA: Ordenamos por _id. 
       // Si usás -1 te trae lo último creado arriba de todo (ideal para historial).
       // Si preferís orden cronológico natural (Micro 1, 2, 3, 4), poné 1.
-      .sort({ _id: -1 }) 
+      .sort({ _id: -1 })
       .skip(skip)
       .limit(limit);
 

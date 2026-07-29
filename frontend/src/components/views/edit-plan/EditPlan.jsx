@@ -288,6 +288,33 @@ const EditPlan = () => {
         } catch (error) { toast.error("Error de conexión"); } finally { setSaving(false); }
     };
 
+    const handleAddMesocycle = async () => {
+        if (!window.confirm("¿Añadir un nuevo Mesociclo a este plan? (Se recargará la página)")) return;
+        setSaving(true);
+        try {
+            const token = localStorage.getItem("token");
+            const apiUrl = import.meta.env.VITE_API_URL;
+            const idSeguro = typeof planes[0].usuario === 'object' ? planes[0].usuario._id : planes[0].usuario;
+
+            const res = await fetch(`${apiUrl}/api/plans/admin/add-mesocycle`, {
+                method: 'POST',
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
+                body: JSON.stringify({ usuarioId: idSeguro, macrocicloId })
+            });
+
+            if (res.ok) {
+                toast.success("✅ Nuevo Mesociclo agregado");
+                window.location.reload();
+            } else {
+                toast.error("Error al añadir el mesociclo");
+            }
+        } catch (error) {
+            toast.error("Error de conexión");
+        } finally {
+            setSaving(false);
+        }
+    };
+
     const handleDeleteMicrocycleInterno = async (planId) => {
         if (!window.confirm("¿Seguro que querés eliminar esta semana? El bloque se renumerará. (Guardá tus cambios primero)")) return;
         setSaving(true);
@@ -376,7 +403,7 @@ const EditPlan = () => {
                                                 {expandedMicroId === plan._id ? '▼ Ocultar' : '▶ Editar'}
                                             </span>
 
-                                            {esPlanCompleto && isPendiente && (
+                                            {esPlanCompleto && (isPendiente || plan.estado === 'activo' || plan.estado === 'finalizado') && (
                                                 <button
                                                     type="button"
                                                     onClick={(e) => { e.stopPropagation(); handleDeleteMicrocycleInterno(plan._id); }}
@@ -462,6 +489,7 @@ const EditPlan = () => {
                             );
                         })}
 
+
                         {esPlanCompleto && canAddMicroToGroup(gIndex) && (
                             <button
                                 type="button"
@@ -479,7 +507,29 @@ const EditPlan = () => {
                         )}
                     </div>
                 ))}
-
+                {esPlanCompleto && (
+                    <button
+                        type="button"
+                        onClick={handleAddMesocycle}
+                        disabled={saving}
+                        style={{
+                            background: 'transparent',
+                            color: '#ffff',
+                            border: '2px dashed #00D2BE',
+                            padding: '15px 20px',
+                            borderRadius: '15px',
+                            cursor: 'pointer',
+                            fontWeight: 'bold',
+                            width: '100%',
+                            marginTop: '10px',
+                            marginBottom: '20px', // un margencito para separarlo del botón de guardar
+                            fontSize: '1.1rem',
+                            textTransform: 'uppercase'
+                        }}
+                    >
+                        📁 + AÑADIR NUEVO MESOCICLO
+                    </button>
+                )}
                 <div className="plan-creator-submit-section" style={{ marginTop: '40px', position: 'sticky', bottom: '20px', zIndex: 10 }}>
                     <button type="submit" className="plan-creator-btn-submit" disabled={saving} style={{ boxShadow: '0 10px 30px rgba(0, 210, 190, 0.3)' }}>
                         {saving ? "GUARDANDO..." : "💾 GUARDAR CAMBIOS"}

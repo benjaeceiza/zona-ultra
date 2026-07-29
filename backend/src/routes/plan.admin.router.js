@@ -2,6 +2,7 @@ import { Router } from "express";
 import { isAdminMiddleware } from "../middleware/isAdminMiddleware.js";
 import { authMiddleware } from "../middleware/auth.js";
 import { 
+  addMesociclo,
   addMicrociclo,
   createPlan, 
   deleteFullMacro, 
@@ -16,6 +17,8 @@ export const router = Router();
 // ========================================================
 // 1. RUTAS ESTÁTICAS / ESPECÍFICAS (Van arriba de todo)
 // ========================================================
+
+router.post('/add-mesocycle', authMiddleware, isAdminMiddleware, checkDemoUser, addMesociclo);
 
 // Agrega un microciclo a un mesociclo específico y reordena el plan
 router.post("/add-microcycle", authMiddleware, isAdminMiddleware, checkDemoUser, addMicrociclo);
