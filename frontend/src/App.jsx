@@ -23,6 +23,8 @@ import MedalForm from "./components/views/medallero/formulario-medallero/MedalFo
 // Importamos el nuevo Layout que creamos
 import AppLayout from "./components/layout/AppLayout";
 import ProfilePage from "./components/views/perfil/ProfilePage";
+import HistorialAdmin from "./components/views/historial-entrenamiento/HistorialAdmin";
+import DetalleHistorialAdmin from "./components/views/detalle-historial/DetalleHistorialAdmin";
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -78,6 +80,8 @@ function App() {
             <Route path="/medallero" element={<LoginRoute><Medallero /></LoginRoute>} />
             <Route path="/medallero/new" element={<LoginRoute><MedalForm /></LoginRoute>} />
             <Route path="/medallero/editar/:id" element={<LoginRoute><MedalForm /></LoginRoute>} />
+            <Route path="/historial-admin/:idUsuario" element={<AdminRoute><HistorialAdmin /></AdminRoute>} />
+            <Route path="/detalle-historial-admin/:idPlan" element={<AdminRoute><DetalleHistorialAdmin /></AdminRoute>} />
           </Routes>
         </AppLayout>
 

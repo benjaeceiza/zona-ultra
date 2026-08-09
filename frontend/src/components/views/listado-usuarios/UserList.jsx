@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { getUsers } from "../../../services/getUsers";
 import { IoMdCreate, IoIosAddCircle } from "react-icons/io";
-import { MdDelete } from "react-icons/md";
+import { MdDelete, MdHistory } from "react-icons/md";
 import { FaUserCircle } from "react-icons/fa";
 import { IoSearch } from "react-icons/io5";
 import { useNavigate } from "react-router-dom";
@@ -134,6 +134,14 @@ const UserList = () => {
                             <div className="action-buttons" onClick={(e) => e.stopPropagation()}>
                                 <button className="btn-icon btn-plan" title="Asignar Plan" onClick={() => navigate(`/crear-plan/${item._id}`)}>
                                     <IoIosAddCircle />
+                                </button>
+                                <button
+                                    className="btn-icon btn-history"
+                                    title="Ver Historial"
+                                    style={{ color: '#00D2BE' }}
+                                    onClick={() => navigate(`/historial-admin/${item._id}`, { state: { nombreCorredor: `${item.nombre} ${item.apellido}` } })}
+                                >
+                                    <MdHistory />
                                 </button>
                                 <button className="btn-icon btn-edit" title="Editar" onClick={() => handleEditClick(item)}>
                                     <IoMdCreate />
