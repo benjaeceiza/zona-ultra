@@ -79,7 +79,6 @@ const HistorialAdmin = () => {
         <main className="historial-main">
          <header className="historial-top">
                 <div className="historial-title-group">
-                    {/* 🔥 ACÁ PONEMOS EL NOMBRE DINÁMICO */}
                     <h1>Historial de {nombreUsuario}</h1>
                     <p>Semanas completadas: {totalHistorico}</p>
                 </div>
