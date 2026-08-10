@@ -150,6 +150,31 @@ const DetallePlan = () => {
         mensualKmReales = Number(mensualKmReales.toFixed(2));
     }
 
+    // 🔥 NUEVO: CÁLCULO DEL PRÓXIMO OBJETIVO Y CUENTA REGRESIVA
+    const raceName = usuario?.nextRace?.name;
+    let raceDateStr = "";
+    let daysLeft = null;
+
+    if (usuario?.nextRace?.date) {
+        // Atajamos la fecha venga como string normal o como objeto de MongoDB ($date)
+        const dStr = usuario.nextRace.date.$date || usuario.nextRace.date;
+        const target = new Date(dStr);
+        
+        if (!isNaN(target.getTime())) {
+            const day = String(target.getDate()).padStart(2, '0');
+            const month = String(target.getMonth() + 1).padStart(2, '0');
+            const year = target.getFullYear(); 
+            raceDateStr = `${day}/${month}/${year}`;
+
+            const today = new Date();
+            today.setHours(0,0,0,0);
+            const targetDay = new Date(target);
+            targetDay.setHours(0,0,0,0);
+            
+            daysLeft = Math.ceil((targetDay - today) / (1000 * 60 * 60 * 24));
+        }
+    }
+
     if (loading) return <div className="dp-container"><h2 style={{color:'#888', textAlign:'center', marginTop:'50px'}}>Cargando Perfil...</h2></div>;
 
     return (
@@ -261,11 +286,36 @@ const DetallePlan = () => {
                             <span className="dp-stat-label">KM Reales</span>
                             <span className="dp-stat-value" style={{color:'#FF4500'}}>{kmReales} <small>km</small></span>
                         </div>
-                        <div className="dp-stat-card" style={{borderTopColor:'#f1c40f'}}>
+
+                        {/* 🔥 NUEVA TARJETA DEL PRÓXIMO OBJETIVO CON FECHA Y DÍAS RESTANTES */}
+                        <div className="dp-stat-card" style={{borderTopColor:'#f1c40f', display: 'flex', flexDirection: 'column', justifyContent: 'center'}}>
                             <span className="dp-stat-label" style={{color:'#f1c40f'}}>Próximo Objetivo</span>
-                            <span className="dp-stat-value" style={{fontSize:'1.2rem', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis'}}>
-                                {usuario?.nextRace?.name || "Sin objetivo"}
-                            </span>
+                            
+                            {raceName ? (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '6px', marginTop: '5px' }}>
+                                    <span className="dp-stat-value" style={{fontSize:'1.1rem', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis', margin: 0}}>
+                                        {raceName}
+                                    </span>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', fontSize: '0.85rem' }}>
+                                        <span style={{ color: '#888', fontWeight: 'bold' }}>{raceDateStr}</span>
+                                        {daysLeft !== null && (
+                                            <span style={{ 
+                                                background: daysLeft <= 14 ? 'rgba(255, 77, 77, 0.1)' : 'rgba(241, 196, 15, 0.1)', 
+                                                color: daysLeft <= 14 ? '#ff4d4d' : '#f1c40f', 
+                                                padding: '2px 8px', 
+                                                borderRadius: '6px',
+                                                fontWeight: 'bold'
+                                            }}>
+                                                {daysLeft > 0 ? `${daysLeft} días` : (daysLeft === 0 ? '¡Es hoy!' : 'Finalizado')}
+                                            </span>
+                                        )}
+                                    </div>
+                                </div>
+                            ) : (
+                                <span className="dp-stat-value" style={{fontSize:'1.2rem', color: '#666', marginTop: '5px'}}>
+                                    Sin objetivo
+                                </span>
+                            )}
                         </div>
                     </section>
 
