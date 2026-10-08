@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { BrowserRouter, Routes, Route, useLocation, Navigate } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
 import Login from "./components/views/login/Login";
 import Register from "./components/views/register/Register";
 import Dashboard from "./components/views/dashboard/Dashboard";
@@ -34,6 +35,41 @@ const ScrollToTop = () => {
   return null;
 };
 
+const TokenChecker = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    const checkToken = () => {
+      const token = localStorage.getItem("token");
+      if (token) {
+        try {
+          const decoded = jwtDecode(token);
+          const currentTime = Date.now() / 1000;
+          if (decoded.exp < currentTime) {
+            console.log("Token expirado, cerrando sesión automáticamente.");
+            localStorage.removeItem("token");
+            window.location.href = "/login";
+          }
+        } catch (err) {
+          console.log("Token inválido, cerrando sesión.");
+          localStorage.removeItem("token");
+          window.location.href = "/login";
+        }
+      }
+    };
+
+    // Revisar al cambiar de ruta
+    checkToken();
+
+    // Revisar constantemente cada 1 minuto
+    const interval = setInterval(checkToken, 60000);
+
+    return () => clearInterval(interval);
+  }, [pathname]);
+
+  return null;
+};
+
 const PublicRoute = ({ children }) => {
   const token = localStorage.getItem("token");
   if (token) {
@@ -47,6 +83,7 @@ function App() {
     <LoaderProvider>
       <BrowserRouter>
         <ScrollToTop />
+        <TokenChecker />
 
         <ToastContainer
           position="top-left"

@@ -32,7 +32,7 @@ const getSemanaLimpia = () => {
     unidad: "minutos",
     km: "",
     descripcion: "",
-    audioUrl: "" // 🔥 Inicializamos el campo para el audio[cite: 4]
+    audioUrl: "" 
   }));
 };
 
@@ -595,9 +595,16 @@ const AddPlan = () => {
                 <option value="carga">🟠 Carga</option>
                 <option value="descarga">🟢 Descarga</option>
                 <option value="ajuste">🔵 Ajuste</option>
+                <option value="mantenimiento">🟡 Mantenimiento</option>
                 <option value="tapering">🟣 Tapering</option>
                 <option value="competicion">🏆 Competición</option>
-                <option value="mantenimiento">🟡 Mantenimiento</option>
+                <option value="base_aerobica">⚪ Base aeróbica</option>
+                <option value="desarrollo_cuestas">⛰️ Desarrollo Cuestas</option>
+                <option value="umbral">🔴 Umbral</option>
+                <option value="vo2max">🚀 VO2max</option>
+                <option value="fuerza_resistencia">🏋️ Fuerza resistencia</option>
+                <option value="especifico">🎯 Específico</option>
+                <option value="pico">🏔️ Pico</option>
               </select>
             </div>
             <div className="plan-creator-days-grid">
@@ -689,9 +696,16 @@ const AddPlan = () => {
                                 <option value="carga">🟠 Carga</option>
                                 <option value="descarga">🟢 Descarga</option>
                                 <option value="ajuste">🔵 Ajuste</option>
+                                <option value="mantenimiento">🟡 Mantenimiento</option>
                                 <option value="tapering">🟣 Tapering</option>
                                 <option value="competicion">🏆 Competición</option>
-                                <option value="mantenimiento">🟡 Mantenimiento</option>
+                                <option value="base_aerobica">⚪ Base aeróbica</option>
+                                <option value="desarrollo_cuestas">⛰️ Desarrollo Cuestas</option>
+                                <option value="umbral">🔴 Umbral</option>
+                                <option value="vo2max">🚀 VO2max</option>
+                                <option value="fuerza_resistencia">🏋️ Fuerza resistencia</option>
+                                <option value="especifico">🎯 Específico</option>
+                                <option value="pico">🏔️ Pico</option>
                               </select>
                             </div>
 

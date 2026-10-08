@@ -22,9 +22,16 @@ const TIPO_MICRO_LABELS = {
     "carga": "🟠 Carga",
     "descarga": "🟢 Descarga",
     "ajuste": "🔵 Ajuste",
+    "mantenimiento": "🟡 Mantenimiento",
     "tapering": "🟣 Tapering",
     "competicion": "🏆 Competición",
-    "mantenimiento": "🟡 Mantenimiento"
+    "base_aerobica": "⚪ Base aeróbica",
+    "desarrollo_cuestas": "⛰️ Desarrollo Cuestas",
+    "umbral": "🔴 Umbral",
+    "vo2max": "🚀 VO2max",
+    "fuerza_resistencia": "🏋️ Fuerza resistencia",
+    "especifico": "🎯 Específico",
+    "pico": "🏔️ Pico"
 };
 
 const EditPlan = () => {
@@ -425,9 +432,16 @@ const EditPlan = () => {
                                                     <option value="carga">🟠 Carga</option>
                                                     <option value="descarga">🟢 Descarga</option>
                                                     <option value="ajuste">🔵 Ajuste</option>
+                                                    <option value="mantenimiento">🟡 Mantenimiento</option>
                                                     <option value="tapering">🟣 Tapering</option>
                                                     <option value="competicion">🏆 Competición</option>
-                                                    <option value="mantenimiento">🟡 Mantenimiento</option>
+                                                    <option value="base_aerobica">⚪ Base aeróbica</option>
+                                                    <option value="desarrollo_cuestas">⛰️ Desarrollo Cuestas</option>
+                                                    <option value="umbral">🔴 Umbral</option>
+                                                    <option value="vo2max">🚀 VO2max</option>
+                                                    <option value="fuerza_resistencia">🏋️ Fuerza resistencia</option>
+                                                    <option value="especifico">🎯 Específico</option>
+                                                    <option value="pico">🏔️ Pico</option>
                                                 </select>
                                             </div>
 

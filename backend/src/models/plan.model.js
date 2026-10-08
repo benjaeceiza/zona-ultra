@@ -41,7 +41,7 @@ const planSchema = new mongoose.Schema(
     tipoMicrociclo: {
       type: String,
       default: "", 
-      enum: ["carga", "descarga", "ajuste", "tapering", "competicion", "mantenimiento", ""]
+      enum: ["carga", "descarga", "ajuste", "mantenimiento", "tapering", "competicion", "base_aerobica", "desarrollo_cuestas", "umbral", "vo2max", "fuerza_resistencia", "especifico", "pico", ""]
     },
 
     estado: {

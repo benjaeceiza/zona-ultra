@@ -7,8 +7,19 @@ import { FiEdit, FiTrash2 } from 'react-icons/fi';
 import './DetallePlan.css';
 
 const TIPO_MICRO_LABELS = {
-    "carga": "🟠 Carga", "descarga": "🟢 Descarga", "ajuste": "🔵 Ajuste",
-    "tapering": "🟣 Tapering", "competicion": "🏆 Competición", "mantenimiento": "🟡 Mantenimiento"
+    "carga": "🟠 Carga",
+    "descarga": "🟢 Descarga",
+    "ajuste": "🔵 Ajuste",
+    "mantenimiento": "🟡 Mantenimiento",
+    "tapering": "🟣 Tapering",
+    "competicion": "🏆 Competición",
+    "base_aerobica": "⚪ Base aeróbica",
+    "desarrollo_cuestas": "⛰️ Desarrollo Cuestas",
+    "umbral": "🔴 Umbral",
+    "vo2max": "🚀 VO2max",
+    "fuerza_resistencia": "🏋️ Fuerza resistencia",
+    "especifico": "🎯 Específico",
+    "pico": "🏔️ Pico"
 };
 
 // 🔥 FUNCIÓN ESTRICTA DE PORCENTAJE
