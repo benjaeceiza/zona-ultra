@@ -4,6 +4,20 @@ import { IoIosArrowBack } from 'react-icons/io';
 // Reutilizamos el mismo CSS para mantener la estética idéntica
 import './DetalleHistorial.css';
 
+const BORG_SCALE = {
+    0: { label: "MUY MUY SUAVE", color: "#6CA0DC" },
+    1: { label: "MUY SUAVE", color: "#FFD700" },
+    2: { label: "MUY SUAVE", color: "#FFD700" },
+    3: { label: "SUAVE", color: "#FFC107" },
+    4: { label: "MODERADO", color: "#FFB300" },
+    5: { label: "ALGO DURO", color: "#FF9800" },
+    6: { label: "DURO", color: "#F57C00" },
+    7: { label: "MUY DURO", color: "#E65100" },
+    8: { label: "MUY DURO", color: "#D84315" },
+    9: { label: "MUY DURO", color: "#C62828" },
+    10: { label: "MUY MUY DURO", color: "#B71C1C" }
+};
+
 // 🔥 FUNCIÓN ESTRICTA UNIFICADA (Igual a la original)
 const calcularPorcentajeReal = (entrenamientos) => {
     if (!entrenamientos || entrenamientos.length === 0) return 0;
@@ -121,6 +135,9 @@ const DetalleHistorialAdmin = () => {
                         const kmPlan = Number(entrenamiento.km || 0);
                         const kmReal = Number(entrenamiento.feedback?.kmReal || 0);
                         const durReal = Number(entrenamiento.feedback?.duracionReal || 0);
+                        const rpeValue = entrenamiento.feedback?.rpe;
+                        const hasRpe = rpeValue !== undefined && rpeValue !== null && rpeValue !== "" && BORG_SCALE[rpeValue];
+                        const borgInfo = hasRpe ? BORG_SCALE[rpeValue] : null;
 
                         // Lógica para determinar estado visual
                         let badgeText = "Pendiente";
@@ -167,6 +184,17 @@ const DetalleHistorialAdmin = () => {
                                         <div className="metric-box">
                                             <small>Tiempo Hecho</small>
                                             <span><strong>{formatTime(durReal)}</strong></span>
+                                        </div>
+                                        <div className="metric-box rpe-metric-box">
+                                            <small>Esfuerzo (RPE)</small>
+                                            {borgInfo && entrenamiento.completado && badgeClass !== "badge-failed" ? (
+                                                <div className="dh-borg-display" style={{ color: borgInfo.color }}>
+                                                    <span className="dh-borg-number">{rpeValue}</span>
+                                                    <span className="dh-borg-label">{borgInfo.label}</span>
+                                                </div>
+                                            ) : (
+                                                <span className="dh-borg-empty">-</span>
+                                            )}
                                         </div>
                                     </div>
                                 ) : (

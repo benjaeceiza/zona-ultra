@@ -3,6 +3,20 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGri
 import { FiChevronDown, FiTarget, FiMessageSquare, FiActivity } from "react-icons/fi";
 import { GiRunningShoe } from "react-icons/gi";
 
+const BORG_SCALE = {
+    0: { label: "MUY MUY SUAVE", color: "#6CA0DC" },
+    1: { label: "MUY SUAVE", color: "#FFD700" },
+    2: { label: "MUY SUAVE", color: "#FFD700" },
+    3: { label: "SUAVE", color: "#FFC107" },
+    4: { label: "MODERADO", color: "#FFB300" },
+    5: { label: "ALGO DURO", color: "#FF9800" },
+    6: { label: "DURO", color: "#F57C00" },
+    7: { label: "MUY DURO", color: "#E65100" },
+    8: { label: "MUY DURO", color: "#D84315" },
+    9: { label: "MUY DURO", color: "#C62828" },
+    10: { label: "MUY MUY DURO", color: "#B71C1C" }
+};
+
 const TrainingCard = ({ entrenamiento }) => {
   const [isExpanded, setIsExpanded] = useState(false);
 
@@ -10,6 +24,10 @@ const TrainingCard = ({ entrenamiento }) => {
   const isCompleted = entrenamiento.completado;
   const isFailed = isCompleted && (feedback.noLogrado || (feedback.comentario && feedback.comentario.includes('[NO LOGRADO]')));
   const cleanComment = feedback.comentario ? feedback.comentario.replace('[NO LOGRADO] ', '').replace('[NO LOGRADO]', '') : "";
+  const isDescanso = entrenamiento.titulo?.trim().toLowerCase() === "descanso";
+  const rpeValue = feedback.rpe;
+  const hasRpe = rpeValue !== undefined && rpeValue !== null && rpeValue !== "" && BORG_SCALE[rpeValue];
+  const borgInfo = hasRpe ? BORG_SCALE[rpeValue] : null;
 
   let statusClass = "status-pending";
   let badgeText = "PENDIENTE";
@@ -83,6 +101,19 @@ const TrainingCard = ({ entrenamiento }) => {
                 <small>Tiempo</small>
                 <span>{isCompleted ? tiempoReal : tiempoEstimado} {entrenamiento.unidad === 'horas' ? 'hs' : 'min'}</span>
             </div>
+            {!isDescanso && (
+                <div className="atc-qm-item atc-rpe-item">
+                    <small>Esfuerzo (RPE)</small>
+                    {isCompleted && !isFailed && borgInfo ? (
+                        <div className="atc-borg-display" style={{ color: borgInfo.color }}>
+                            <strong className="atc-borg-number">{rpeValue}</strong>
+                            <span className="atc-borg-label" style={{ color: borgInfo.color }}>{borgInfo.label}</span>
+                        </div>
+                    ) : (
+                        <span className="atc-borg-empty">-</span>
+                    )}
+                </div>
+            )}
         </div>
 
         <div className="atc-right">
@@ -138,7 +169,14 @@ const TrainingCard = ({ entrenamiento }) => {
             <div className="atc-mini-stats">
               <div className="atc-mini-item">
                 <small><FiActivity style={{marginRight: '4px'}}/> ESFUERZO (RPE)</small>
-                <span>{feedback.rpe || "-"}<small style={{color:'#666', fontSize:'0.8rem'}}>/10</small></span>
+                {isCompleted && !isFailed && borgInfo ? (
+                  <div className="atc-borg-expanded" style={{ color: borgInfo.color }}>
+                    <strong className="atc-borg-expanded-num">{rpeValue}</strong>
+                    <span className="atc-borg-expanded-label" style={{ color: borgInfo.color }}>{borgInfo.label}</span>
+                  </div>
+                ) : (
+                  <span className="atc-borg-empty">-</span>
+                )}
               </div>
               <div style={{ width: '1px', background: '#333' }}></div>
               <div className="atc-mini-item">

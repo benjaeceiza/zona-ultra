@@ -262,6 +262,39 @@
     font-weight: 800;
 }
 
+/* 🔥 ESTILOS ESCALA BORG EN TRAINING CARD ADMIN */
+.atc-rpe-item {
+    min-width: 110px;
+}
+
+.atc-borg-display {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin-top: 2px;
+}
+
+.atc-borg-number {
+    font-size: 1.5rem;
+    font-weight: 900;
+    line-height: 1;
+    color: inherit !important;
+}
+
+.atc-borg-label {
+    font-size: 0.72rem !important;
+    font-weight: 800 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+}
+
+.atc-borg-empty {
+    font-size: 1.15rem !important;
+    color: #555 !important;
+    font-weight: 700 !important;
+}
+
 .atc-right {
     display: flex;
     align-items: center;
@@ -392,6 +425,27 @@
     color: #FF4500;
     font-size: 1.2rem;
     font-weight: 800;
+}
+
+.atc-borg-expanded {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-top: 2px;
+}
+
+.atc-borg-expanded-num {
+    font-size: 1.7rem;
+    font-weight: 900;
+    line-height: 1;
+    color: inherit !important;
+}
+
+.atc-borg-expanded-label {
+    font-size: 0.8rem !important;
+    font-weight: 800 !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }
 
 /* ==========================================================================

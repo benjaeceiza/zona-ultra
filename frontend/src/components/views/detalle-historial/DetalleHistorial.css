@@ -261,6 +261,40 @@
     font-size: 1.15rem;
 }
 
+/* 🔥 ESTILOS ESCALA BORG EN TARJETA DE HISTORIAL */
+.rpe-metric-box {
+    min-width: 120px;
+}
+
+.dh-borg-display {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-top: 2px;
+}
+
+.dh-borg-number {
+    font-size: 1.75rem;
+    font-weight: 900;
+    line-height: 1;
+    color: inherit !important;
+}
+
+.dh-borg-label {
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    color: inherit !important;
+}
+
+.dh-borg-empty {
+    font-size: 1.1rem;
+    color: #555 !important;
+    font-weight: 700;
+}
+
 .rest-text {
     color: #666;
     font-style: italic;
@@ -411,7 +445,8 @@
         margin: 5px 0;
         width: 100%;
         justify-content: flex-start;
-        gap: 25px;
+        flex-wrap: wrap;
+        gap: 20px 25px;
         border-top: 1px solid #2a2a2a;
         padding-top: 10px;
     }
