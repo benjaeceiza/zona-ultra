@@ -1,5 +1,19 @@
-import { Clock, Route, X } from "lucide-react"; // Importamos los íconos limpios
+import { Clock, Route, X, HeartPulse } from "lucide-react"; // Importamos los íconos limpios
 import "./TrainingCardInit.css";
+
+const BORG_SCALE = {
+    0: { label: "MUY MUY SUAVE", color: "#6CA0DC" },
+    1: { label: "MUY SUAVE", color: "#FFD700" },
+    2: { label: "MUY SUAVE", color: "#FFD700" },
+    3: { label: "SUAVE", color: "#FFC107" },
+    4: { label: "MODERADO", color: "#FFB300" },
+    5: { label: "ALGO DURO", color: "#FF9800" },
+    6: { label: "DURO", color: "#F57C00" },
+    7: { label: "MUY DURO", color: "#E65100" },
+    8: { label: "MUY DURO", color: "#D84315" },
+    9: { label: "MUY DURO", color: "#C62828" },
+    10: { label: "MUY MUY DURO", color: "#B71C1C" }
+};
 
 const TrainingCardInit = ({ item, isToday, isSuccess, isFailed, onClick }) => {
     const unidadTiempo = item.unidad === 'horas' ? 'hs' : 'min';
@@ -8,6 +22,11 @@ const TrainingCardInit = ({ item, isToday, isSuccess, isFailed, onClick }) => {
     
     const kmPlan = item.km ? `${item.km} km` : '0 km';
     const kmReal = item.feedback?.kmReal;
+
+    const isDescanso = item.titulo?.trim().toLowerCase() === "descanso";
+    const rpeValue = item.feedback?.rpe;
+    const hasRpe = rpeValue !== undefined && rpeValue !== null && rpeValue !== "" && BORG_SCALE[rpeValue];
+    const borgInfo = hasRpe ? BORG_SCALE[rpeValue] : null;
 
     return (
         <div
@@ -78,6 +97,26 @@ const TrainingCardInit = ({ item, isToday, isSuccess, isFailed, onClick }) => {
                     </div>
 
                 </div>
+
+                {/* ESFUERZO PERCIBIDO (RPE) - Aparece una vez realizado el ejercicio */}
+                {isSuccess && !isDescanso && borgInfo && (
+                    <div
+                        className="card-init-rpe-box"
+                        style={{
+                            borderColor: `${borgInfo.color}45`,
+                            backgroundColor: `${borgInfo.color}14`
+                        }}
+                    >
+                        <span className="card-init-rpe-title">
+                            <HeartPulse size={15} style={{ color: borgInfo.color }} />
+                            Esfuerzo (RPE)
+                        </span>
+                        <div className="card-init-rpe-value" style={{ color: borgInfo.color }}>
+                            <strong className="card-init-rpe-number">{rpeValue}</strong>
+                            <span className="card-init-rpe-label">{borgInfo.label}</span>
+                        </div>
+                    </div>
+                )}
             </div>
 
             <div className="card-glow"></div>

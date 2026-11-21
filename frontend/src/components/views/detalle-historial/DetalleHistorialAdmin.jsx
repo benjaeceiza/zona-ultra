@@ -60,10 +60,22 @@ const DetalleHistorialAdmin = () => {
                 });
                 const data = await res.json();
                 if (data.success || data.plan) {
-                    setPlan(data.plan || data);
+                    const planObj = data.plan || data;
+                    setPlan(planObj);
+                    try {
+                        localStorage.setItem(`zu_cached_plan_${idPlan}`, JSON.stringify(planObj));
+                    } catch (e) {
+                        console.warn("No se pudo cachear el detalle del plan:", e);
+                    }
                 }
             } catch (error) {
-                console.error("Error cargando detalle", error);
+                console.warn("Sin conexión cargando detalle, buscando en caché local:", error);
+                try {
+                    const cached = localStorage.getItem(`zu_cached_plan_${idPlan}`);
+                    if (cached) setPlan(JSON.parse(cached));
+                } catch (e) {
+                    console.error("Error leyendo caché local:", e);
+                }
             } finally {
                 setLoading(false);
             }

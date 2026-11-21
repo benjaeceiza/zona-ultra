@@ -356,11 +356,16 @@ html, body, #root {
   position: fixed;
   bottom: 0;
   left: 0;
+  right: 0;
   width: 100%;
+  box-sizing: border-box;
   background-color: #1e1e1e;
   justify-content: space-around;
   align-items: center;
-  padding: 14px 5px; /* 🔥 Aumentado de 10px a 14px para que sea más alto */
+  padding-top: 14px;
+  padding-bottom: calc(14px + env(safe-area-inset-bottom, 0px));
+  padding-left: max(5px, env(safe-area-inset-left, 0px));
+  padding-right: max(5px, env(safe-area-inset-right, 0px));
   box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.5);
   border-top: 1px solid #333333;
   z-index: 1000;
@@ -461,8 +466,8 @@ html, body, #root {
 /* La cajita del menú */
 .admin-mobile-menu {
   position: absolute;
-  bottom: 85px; /* Lo despegamos de la barra inferior */
-  right: 15px; /* Anclado a la derecha */
+  bottom: calc(85px + env(safe-area-inset-bottom, 0px)); /* Lo despegamos de la barra inferior respetando safe area */
+  right: max(15px, env(safe-area-inset-right, 0px)); /* Anclado a la derecha */
   background: #1e1e1e;
   border: 1px solid #333;
   border-bottom: 3px solid #00D2BE; /* Toque neón de color */

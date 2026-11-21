@@ -146,6 +146,51 @@
     color: #444;
 }
 
+/* --- ESFUERZO PERCIBIDO (RPE) EN CARD DEL DASHBOARD --- */
+.card-init-rpe-box {
+    margin-top: 12px;
+    padding: 8px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.card-init-rpe-title {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.72rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #bbb;
+}
+
+.card-init-rpe-value {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 7px;
+}
+
+.card-init-rpe-number {
+    font-size: 1.5rem;
+    font-weight: 900;
+    line-height: 1;
+    color: inherit !important;
+}
+
+.card-init-rpe-label {
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: inherit !important;
+    white-space: nowrap;
+}
+
 /* --- CHECKBOX PERSONALIZADO --- */
 .checkbox-container {
     position: relative;

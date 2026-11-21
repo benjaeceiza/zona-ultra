@@ -77,12 +77,25 @@ const Dashboard = () => {
             });
             const data = await res.json();
 
-            if (Array.isArray(data)) return data;
-            if (data.data && Array.isArray(data.data)) return data.data;
-            if (data.data) return [data.data];
-            return [];
+            let parsedShoes = [];
+            if (Array.isArray(data)) parsedShoes = data;
+            else if (data.data && Array.isArray(data.data)) parsedShoes = data.data;
+            else if (data.data) parsedShoes = [data.data];
+
+            try {
+                localStorage.setItem("zu_cached_shoes", JSON.stringify(parsedShoes));
+            } catch (cacheErr) {
+                console.warn("No se pudo cachear zapatillas:", cacheErr);
+            }
+            return parsedShoes;
         } catch (e) {
-            console.error("Error shoes:", e);
+            console.warn("Sin conexión en shoes, leyendo caché local:", e);
+            try {
+                const cached = localStorage.getItem("zu_cached_shoes");
+                if (cached) return JSON.parse(cached);
+            } catch (err) {
+                console.error("Error leyendo caché shoes:", err);
+            }
             return [];
         }
     };

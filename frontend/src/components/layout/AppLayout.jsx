@@ -1,6 +1,7 @@
 import { useLocation } from "react-router-dom";
 import Navbar from "../navbar/Navbar"; // Ajustá la ruta según dónde lo guardes
 import Footer from "../footer/Footer"; // Ajustá la ruta según dónde esté tu footer
+import PwaInstallBanner from "../pwa/PwaInstallBanner";
 import "./AppLayout.css"; 
 
 const AppLayout = ({ children }) => {
@@ -14,6 +15,7 @@ const AppLayout = ({ children }) => {
         <main className="auth-main-content">
           {children}
         </main>
+        <PwaInstallBanner />
       </div>
     );
   }
@@ -31,6 +33,8 @@ const AppLayout = ({ children }) => {
         </main>
         <Footer />
       </div>
+
+      <PwaInstallBanner />
     </div>
   );
 };
